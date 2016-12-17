@@ -8,12 +8,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class PingHelloCommand extends ContainerAwareCommand
+class BotmmTestQqTeaCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
         $this
-            ->setName('ping:hello')
+            ->setName('botmm:test:qq-tea')
             ->setDescription('...')
             ->addArgument('argument', InputArgument::OPTIONAL, 'Argument description')
             ->addOption('option', null, InputOption::VALUE_NONE, 'Option description')
