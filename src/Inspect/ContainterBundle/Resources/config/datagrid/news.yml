@@ -1,0 +1,14 @@
+# src/FSi/Bundle/DemoBundle/Resources/config/datagrid/news.yml
+columns:
+  id:
+    type: number
+    options:
+      label: Identity
+  title:
+    type: text
+    options:
+       editable: true
+  author:
+    type: text
+    options:
+       editable: true

@@ -1,0 +1,36 @@
+<?php
+
+
+namespace botmm\GradeeBundle\Tlv;
+
+
+use TrafficCophp\ByteBuffer\Buffer;
+
+class tlv_t145 extends tlv_t
+{
+    public $_t145_body_len;
+
+    public function __constructor()
+    {
+        $this->_t145_body_len = 0;
+        $this->_cmd           = 325;
+    }
+
+    public function get_tlv145($guid)
+    {
+        $in_len   = 0;
+        $guid_len = strlen($guid);
+        if ($guid != null) {
+            $in_len = 0 + $guid_len;
+        }
+        $body = new Buffer($in_len);
+        if ($in_len > 0) {
+            $body->write($guid, 0);
+        }
+        $this->_t145_body_len = $in_len;
+        $this->fill_head($this->_cmd);
+        $this->fill_body($body, $in_len);
+        $this->set_length();
+        return $this->get_buf();
+    }
+}

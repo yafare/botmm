@@ -1,0 +1,12 @@
+botmm_gradee:
+    resource: "@botmmGradeeBundle/Resources/config/routing.php"
+    prefix:   /
+
+inspect_containter:
+    resource: "@InspectContainterBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
+app:
+    resource: "@AppBundle/Controller/"
+    type:     annotation
