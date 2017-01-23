@@ -1,7 +1,7 @@
 <?php
 namespace botmm\GradeeBundle\Tlv;
 
-class tlv_t167 extends tlv_t
+class Tlv_t167 extends tlv_t
 {
     public $_url_len;
 

@@ -9,7 +9,7 @@ use botmm\tools\Cryptor;
 use botmm\tools\Hex;
 use botmm\tools\util;
 
-class tlv_t106 extends tlv_t
+class Tlv_t106 extends tlv_t
 {
 
     protected $_SSoVer;

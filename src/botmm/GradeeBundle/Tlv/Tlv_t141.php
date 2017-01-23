@@ -6,7 +6,7 @@ namespace botmm\GradeeBundle\Tlv;
 
 use botmm\BufferBundle\Buffer\Buffer;
 
-class tlv_t141 extends tlv_t {
+class Tlv_t141 extends tlv_t {
     protected $_version;
 
     public function __construct()

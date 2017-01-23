@@ -4,7 +4,7 @@
 namespace botmm\GradeeBundle\Tlv;
 
 
-class tlv_t150 extends tlv_t
+class Tlv_t150 extends tlv_t
 {
     public $_other_len;
 

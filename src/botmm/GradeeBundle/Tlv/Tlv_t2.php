@@ -6,7 +6,7 @@ namespace botmm\GradeeBundle\Tlv;
 
 use botmm\BufferBundle\Buffer\Buffer;
 
-class tlv_t2 extends tlv_t
+class Tlv_t2 extends tlv_t
 {
     /** @var int _sigVer */
     protected $_sigVer;

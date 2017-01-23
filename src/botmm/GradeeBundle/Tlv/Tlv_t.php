@@ -8,7 +8,7 @@ use botmm\tools\Cryptor;
 use botmm\tools\Hex;
 use botmm\BufferBundle\Buffer\Buffer;
 
-class tlv_t
+class Tlv_t
 {
     protected $_body_len;
     /**

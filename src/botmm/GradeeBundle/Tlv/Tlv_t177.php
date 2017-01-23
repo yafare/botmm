@@ -6,12 +6,13 @@ namespace botmm\GradeeBundle\Tlv;
 
 use botmm\BufferBundle\Buffer\Buffer;
 
-class tlv_t177 extends tlv_t
+class Tlv_t177 extends tlv_t
 {
     protected $_t177_body_len = 0;
 
     public function __construct()
     {
+        parent::__construct();
         $this->_cmd = 375;
     }
 

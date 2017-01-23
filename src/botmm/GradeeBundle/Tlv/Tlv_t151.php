@@ -3,7 +3,7 @@ namespace botmm\GradeeBundle\Tlv;
 
 use botmm\BufferBundle\Buffer\Buffer;
 
-class tlv_t151 extends tlv_t {
+class Tlv_t151 extends tlv_t {
     public function __construct()
 	{
 		parent::__construct();

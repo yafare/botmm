@@ -7,7 +7,7 @@ namespace botmm\GradeeBundle\Tlv;
 use botmm\BufferBundle\Buffer\Buffer;
 use botmm\tools\ServerTools;
 
-class tlv_t1 extends tlv_t
+class Tlv_t1 extends tlv_t
 {
 
     /** @var byte[] IP_KEY */

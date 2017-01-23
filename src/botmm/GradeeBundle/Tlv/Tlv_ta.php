@@ -4,7 +4,7 @@ namespace botmm\GradeeBundle\Tlv;
 
 use botmm\BufferBundle\Buffer\Buffer;
 
-class tlv_ta extends tlv_t {
+class Tlv_ta extends tlv_t {
     protected $_msg_len;
 
     public function __construct()

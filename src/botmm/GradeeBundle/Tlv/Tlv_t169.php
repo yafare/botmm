@@ -2,10 +2,10 @@
 namespace botmm\GradeeBundle\Tlv;
 
 
-class tlv_t165 extends tlv_t {
+class Tlv_t169 extends tlv_t {
     public function __construct()
 	{
 		parent::__construct();
-        $this->_cmd = 357;
+        $this->_cmd = 361;
     }
 }

@@ -4,19 +4,28 @@ namespace botmm\ClientBundle\Command;
 
 use botmm\BufferBundle\Buffer\Buffer;
 use botmm\BufferBundle\Buffer\StreamOutputBuffer;
-use botmm\GradeeBundle\Tlv\tlv_t1;
-use botmm\GradeeBundle\Tlv\tlv_t100;
-use botmm\GradeeBundle\Tlv\tlv_t106;
-use botmm\GradeeBundle\Tlv\tlv_t107;
-use botmm\GradeeBundle\Tlv\tlv_t108;
-use botmm\GradeeBundle\Tlv\tlv_t109;
-use botmm\GradeeBundle\Tlv\tlv_t116;
-use botmm\GradeeBundle\Tlv\tlv_t124;
-use botmm\GradeeBundle\Tlv\tlv_t128;
-use botmm\GradeeBundle\Tlv\tlv_t144;
+use botmm\GradeeBundle\Tlv\Tlv_t1;
+use botmm\GradeeBundle\Tlv\Tlv_t100;
+use botmm\GradeeBundle\Tlv\Tlv_t106;
+use botmm\GradeeBundle\Tlv\Tlv_t107;
+use botmm\GradeeBundle\Tlv\Tlv_t108;
+use botmm\GradeeBundle\Tlv\Tlv_t109;
+use botmm\GradeeBundle\Tlv\Tlv_t116;
+use botmm\GradeeBundle\Tlv\Tlv_t124;
+use botmm\GradeeBundle\Tlv\Tlv_t128;
+use botmm\GradeeBundle\Tlv\Tlv_t141;
+use botmm\GradeeBundle\Tlv\Tlv_t142;
+use botmm\GradeeBundle\Tlv\Tlv_t144;
+use botmm\GradeeBundle\Tlv\Tlv_t145;
+use botmm\GradeeBundle\Tlv\Tlv_t147;
+use botmm\GradeeBundle\Tlv\Tlv_t16b;
 use botmm\GradeeBundle\Tlv\Tlv_t16e;
-use botmm\GradeeBundle\Tlv\tlv_t18;
-use botmm\tools\Hex;
+use botmm\GradeeBundle\Tlv\Tlv_t177;
+use botmm\GradeeBundle\Tlv\Tlv_t18;
+use botmm\GradeeBundle\Tlv\Tlv_t187;
+use botmm\GradeeBundle\Tlv\Tlv_t188;
+use botmm\GradeeBundle\Tlv\Tlv_t191;
+use botmm\GradeeBundle\Tlv\Tlv_t8;
 use swoole_client;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -120,13 +129,13 @@ class TestConnectCommand extends ContainerAwareCommand
         $tlv128 = $this->get_tlv128();
         $tlv16e = $this->get_tlv16e();
 
-        $tlv = new tlv_t144();
+        $tlv = new Tlv_t144();
         return $tlv->get_tlv_144($tlv109, $tlv124, $tlv128, $tlv16e, $this->qq_info->TGTKey);
     }
 
     public function get_tlv18()
     {
-        $tlv = new tlv_t18();
+        $tlv = new Tlv_t18();
         return $tlv->get_tlv_18(
             $this->qq_info->appid,
             $this->qq_info->client_version,
@@ -136,7 +145,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     public function get_tlv1()
     {
-        $tlv = new tlv_t1();
+        $tlv = new Tlv_t1();
         return $tlv->get_tlv_1(
             $this->qq_info->uin,
             $this->qq_info->client_ip
@@ -145,7 +154,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     public function get_tlv106()
     {
-        $tlv = new tlv_t106();
+        $tlv = new Tlv_t106();
         return $tlv->get_tlv_106(
             $this->global->appid,
             $this->global->subAppId,
@@ -165,7 +174,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv116()
     {
-        $tlv = new tlv_t116();
+        $tlv = new Tlv_t116();
         return $tlv->get_tlv_116(
             $this->qq_info->bitmap,
             $this->qq_info->get_sig,
@@ -175,7 +184,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv100()
     {
-        $tlv = new tlv_t100();
+        $tlv = new Tlv_t100();
         return $tlv->get_tlv_100(
             $this->global->appid,
             $this->global->wxappid,
@@ -186,7 +195,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv107()
     {
-        $tlv = new tlv_t107();
+        $tlv = new Tlv_t107();
         return $tlv->get_tlv_107(
             $this->qq_info->pic_type,
             $this->qq_info->cap_type,
@@ -197,7 +206,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv108()
     {
-        $tlv = new tlv_t108();
+        $tlv = new Tlv_t108();
         return $tlv->get_tlv_108(
             $this->global->ksid
         );
@@ -205,7 +214,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv109()
     {
-        $tlv = new tlv_t109();
+        $tlv = new Tlv_t109();
         return $tlv->get_tlv_109(
             $this->global->imei
         );
@@ -213,7 +222,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv124()
     {
-        $tlv = new tlv_t124();
+        $tlv = new Tlv_t124();
         return $tlv->get_tlv_124(
             $this->global->ostype,
             $this->global->osver,
@@ -226,7 +235,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv128()
     {
-        $tlv = new tlv_t128();
+        $tlv = new Tlv_t128();
         return $tlv->get_tlv_128(
             $this->qq_info->newins,
             $this->global->readguid,
@@ -239,10 +248,92 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv16e()
     {
-        $tlv = new tlv_t16e();
+        $tlv = new Tlv_t16e();
         return $tlv->get_tlv_16e(
             $this->global->device
         );
+    }
+
+    private function get_tlv142()
+    {
+        $tlv = new Tlv_t142();
+        return $tlv->get_tlv_142(
+            $this->global->apk_id
+        );
+    }
+
+    private function get_tlv145()
+    {
+        $tlv = new Tlv_t145();
+        return $tlv->get_tlv_145(
+            $this->global->imei
+        );
+    }
+
+    private function get_tlv141()
+    {
+        $tlv = new Tlv_t141();
+        return $tlv->get_tlv_141(
+            $this->global->operator_name,
+            $this->global->network_type,
+            $this->global->apn
+        );
+    }
+
+    private function get_tlv8()
+    {
+        $tlv = new Tlv_t8();
+        return $tlv->get_tlv_8(0, $this->global->local_id, 0);
+    }
+
+    private function get_tlv16b()
+    {
+        $tlv = new Tlv_t16b();
+        return $tlv->get_tlv_16b(
+            [
+                "game.qq.com"
+            ]);
+    }
+
+    private function get_tlv147()
+    {
+        $tlv = new Tlv_t147();
+        return $tlv->get_tlv_147(
+            $this->global->appid,
+            $this->global->appVer,
+            $this->global->appSign
+        );
+    }
+
+    private function get_tlv177()
+    {
+        $tlv = new Tlv_t177();
+        return $tlv->get_tlv_177(
+            $this->global->time,
+            $this->global->version //﻿5.2.3.0
+        );
+    }
+
+    private function get_tlv187()
+    {
+        $tlv = new Tlv_t187();
+        return $tlv->get_tlv_187(
+            $this->global->device
+        );
+    }
+
+    private function get_tlv188()
+    {
+        $tlv = new Tlv_t188();
+        return $tlv->get_tlv_188(
+            $this->global->android_id
+        );
+    }
+
+    private function get_tlv191()
+    {
+        $tlv = new Tlv_t191();
+        return $tlv->get_tlv_191();
     }
 
 
