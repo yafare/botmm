@@ -4,7 +4,7 @@
 namespace botmm\GradeeBundle\Tlv;
 
 
-use TrafficCophp\ByteBuffer\Buffer;
+use botmm\BufferBundle\Buffer\Buffer;
 
 class tlv_t143 extends tlv_t
 {

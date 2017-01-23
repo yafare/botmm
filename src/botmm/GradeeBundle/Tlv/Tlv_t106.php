@@ -4,7 +4,8 @@
 namespace botmm\GradeeBundle\Tlv;
 
 
-use TrafficCophp\ByteBuffer\Buffer;
+use botmm\BufferBundle\Buffer\Buffer;
+use botmm\tools\Cryptor;
 
 class tlv_t106 extends tlv_t {
     
@@ -83,7 +84,7 @@ class tlv_t106 extends tlv_t {
             $s2 = new Buffer(24);
             $s2->write($md5, 0);
             $s2->writeInt64BE($uin, 16);
-            $body = cryptor.encrypt($body, 0, strlen($body), MD5.toMD5Byte($s2));
+            $body = Cryptor::encrypt($body, 0, strlen($body), MD5::toMD5Byte($s2));
             $this->_t106_body_len = strlen($body);
             $this->fill_head($this->_cmd);
             $this->fill_body($body, $this->_t106_body_len);
@@ -132,7 +133,7 @@ class tlv_t106 extends tlv_t {
     $s2 = new Buffer(24);
     $s2->write($md5, 0);
     $s2->writeInt32BE($uin, 16);
-    $body = cryptor.encrypt($body, 0, strlen($body), MD5.toMD5Byte($s2));
+    $body = Cryptor::encrypt($body, 0, strlen($body), MD5::toMD5Byte($s2));
     $this->_t106_body_len = strlen($body);
     $this->fill_head($this->_cmd);
     $this->fill_body($body, $this->_t106_body_len);

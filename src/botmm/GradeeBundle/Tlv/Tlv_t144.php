@@ -3,7 +3,8 @@
 
 namespace botmm\GradeeBundle\Tlv;
 
-use TrafficCophp\ByteBuffer\Buffer;
+use botmm\tools\Cryptor;
+use botmm\BufferBundle\Buffer\Buffer;
 
 class tlv_t144 extends tlv_t {
     public $_t144_body_len;
@@ -55,7 +56,7 @@ class tlv_t144 extends tlv_t {
             $body->write($_128, $pos);
             $pos += $_128_len;
         }
-        $body = cryptor.encrypt($body, 0, strlen($body), $key);
+        $body = Cryptor::encrypt($body, 0, strlen($body), $key);
         $this->_t144_body_len = strlen($body);
         $this->fill_head($this->_cmd);
         $this->fill_body($body, strlen($body));

@@ -4,8 +4,9 @@
 namespace botmm\GradeeBundle\Tlv;
 
 
+use botmm\tools\Cryptor;
 use botmm\tools\Hex;
-use TrafficCophp\ByteBuffer\Buffer;
+use botmm\BufferBundle\Buffer\Buffer;
 
 class tlv_t
 {
@@ -210,7 +211,7 @@ class tlv_t
         if ($this->_head_len + $this->_body_len > $len) {
             return -1;
         }
-        $decrypt_body        = cryptor.decrypt($in, $this->_head_len, $this->_body_len, $key);
+        $decrypt_body        = Cryptor::decrypt($in, $this->_head_len, $this->_body_len, $key);
         $decrypt_body_length = strlen($decrypt_body);
         if ($decrypt_body == null) {
             return -1015;

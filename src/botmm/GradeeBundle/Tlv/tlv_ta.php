@@ -2,7 +2,7 @@
 namespace botmm\GradeeBundle\Tlv;
 
 
-use TrafficCophp\ByteBuffer\Buffer;
+use botmm\BufferBundle\Buffer\Buffer;
 
 class tlv_ta extends tlv_t {
     protected $_msg_len;
