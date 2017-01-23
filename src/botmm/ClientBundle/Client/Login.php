@@ -8,6 +8,14 @@ use botmm\GradeeBundle\Tlv\tlv_t1;
 use botmm\GradeeBundle\Tlv\tlv_t18;
 use botmm\tools\Hex;
 
+/**
+ * Class Login
+ *
+ * _pub_key   020b03cf3d99541f29ffec281bebbd4ea211292ac1f53d7128
+ * _share_key 4da0f614fc9f29c2054c77048a6566d7
+ *
+ * @package botmm\ClientBundle\Client
+ */
 class Login
 {
 

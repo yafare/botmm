@@ -166,6 +166,15 @@ class Buffer
         return $MSB << 4 + $LSB;
     }
 
+    public function getBufferCapacity() {
+        return $this->buffer->capacity;
+    }
+
+    public function expand($size)
+    {
+        $this->buffer->expand($size);
+    }
+
     private function checkForOverSize($excpected_max, &$actual)
     {
         if (is_string($actual)) {
