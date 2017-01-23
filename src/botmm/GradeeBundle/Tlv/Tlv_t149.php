@@ -12,8 +12,9 @@ class tlv_t149 extends tlv_t
     public $_otherinfo_len;
     public $_title_len;
 
-    public function __constructor()
-    {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_title_len     = 0;
         $this->_content_len   = 0;
         $this->_otherinfo_len = 0;

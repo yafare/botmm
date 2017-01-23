@@ -11,7 +11,10 @@ protected $_ping_version;
 protected $_sso_version;
 protected $_t18_body_len;
 
-public function __constructor() {
+public function __construct()
+	{
+		parent::__construct();
+    parent::__construct();
     $this->_t18_body_len = 22;
     $this->_ping_version = 1;
     $this->_sso_version = 1536;
@@ -22,7 +25,7 @@ public function __constructor() {
      * @param long|string $appid 4byte
      * @param int  $client_version 00 00 00 00
      * @param long|string $uin qq number
-     * @param int  $rc 00 00 00 00
+     * @param int  $rc 00 00
      * @return mixed
      */
 public function get_tlv_18($appid, $client_version, $uin, $rc) {

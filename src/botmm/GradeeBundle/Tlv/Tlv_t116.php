@@ -13,8 +13,9 @@ class tlv_t116 extends tlv_t
     /** @var int _ver */
     protected $_ver;
 
-    public function __constructor()
-    {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_t116_body_len = 0;
         $this->_ver           = 0;
         $this->_cmd           = 278;
@@ -23,17 +24,15 @@ class tlv_t116 extends tlv_t
     /**
      * @param int    $bitmap
      * @param int    $get_sig ,
-     * @param long[] appid
+     * @param long[] appid 1600000226L 1600000749L
      * @return byte[]
      */
     public function get_tlv_116($bitmap, $get_sig, $appid)
     {
         if ($appid == null) {
-            $tappid = new long[0];
-        } else {
-            $tappid = $appid;
+            $appid = [];
         }
-        $this -> _t116_body_len = (strlen($tappid) * 4) + 10;
+        $this -> _t116_body_len = (count($appid) * 4) + 10;
         $p = 0;
         $body = new Buffer($this->_t116_body_len);
         $body->writeInt8($this->_ver, $p);
@@ -42,7 +41,7 @@ class tlv_t116 extends tlv_t
         $p += 4;
         $body->writeInt32BE($get_sig, $p);
         $p += 4;
-        $body->writeInt8(strlen($tappid), $p);
+        $body->writeInt8(count($appid), $p);
         $p++;
         for ($j = 0 ; $j < count($appid); $j++ ) {
             $body->writeInt32BE($appid[$j], $p);

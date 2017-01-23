@@ -11,7 +11,9 @@ class tlv_t146 extends tlv_t {
     public $_msg_len;
     public $_title_len;
 
-    public function __constructor() {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_title_len = 0;
         $this->_msg_len = 0;
         $this->_errorinfo_len = 0;

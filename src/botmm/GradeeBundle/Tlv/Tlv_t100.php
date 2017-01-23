@@ -5,6 +5,7 @@ namespace botmm\GradeeBundle\Tlv;
 
 
 use botmm\BufferBundle\Buffer\Buffer;
+use botmm\tools\util;
 
 class tlv_t100 extends tlv_t
 {
@@ -15,10 +16,11 @@ class tlv_t100 extends tlv_t
     /** @var int _t100_body_len */
     protected $_t100_body_len;
 
-    public function __constructor()
+    public function __construct()
     {
+        parent::__construct();
         $this->_db_buf_ver    = 1;
-        $this->_sso_ver       = util . SSO_VERSION;
+        $this->_sso_ver       = util::SSO_VERSION;
         $this->_t100_body_len = 22;
         $this->_cmd           = 256;
     }

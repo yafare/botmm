@@ -7,7 +7,9 @@ use botmm\BufferBundle\Buffer\Buffer;
 class tlv_ta extends tlv_t {
     protected $_msg_len;
 
-    public function __constructor() {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_msg_len = 0;
         $this->_cmd = 10;
     }

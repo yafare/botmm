@@ -13,8 +13,9 @@ class tlv_t105 extends tlv_t
     protected $_pic_pos;
     protected $_piclen;
 
-    public function __constructor()
-    {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_piclen  = 0;
         $this->_enlen   = 0;
         $this->_pic_pos = 0;

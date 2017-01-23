@@ -11,8 +11,9 @@ class Tlv_t16e extends tlv_t
 
     protected $_t16e_body_len;
 
-    public function __constructor()
-    {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_t16e_body_len = 0;
         $this->_cmd           = 366;
     }
@@ -25,7 +26,7 @@ class Tlv_t16e extends tlv_t
     {
         $i = 64;
         if($device == null) {
-            $device = new Buffer(0);
+            $device = "";
         }
         if(strlen($device) < $i) {
             $i = strlen($device);

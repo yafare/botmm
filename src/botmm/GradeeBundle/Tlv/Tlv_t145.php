@@ -10,13 +10,14 @@ class tlv_t145 extends tlv_t
 {
     public $_t145_body_len;
 
-    public function __constructor()
-    {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_t145_body_len = 0;
         $this->_cmd           = 325;
     }
 
-    public function get_tlv145($guid)
+    public function get_tlv_145($guid)
     {
         $in_len   = 0;
         $guid_len = strlen($guid);

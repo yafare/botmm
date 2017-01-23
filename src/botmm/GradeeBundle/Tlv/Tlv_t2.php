@@ -13,8 +13,9 @@ class tlv_t2 extends tlv_t
     /** @var int _t2_body_len */
     protected $_t2_body_len;
 
-    public function __constructor()
-    {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_t2_body_len = 0;
         $this->_sigVer      = 0;
         $this->_cmd         = 2;

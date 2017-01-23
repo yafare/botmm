@@ -5,8 +5,10 @@ namespace botmm\GradeeBundle\Tlv;
 
 
 use botmm\BufferBundle\Buffer\Buffer;
+use botmm\tools\ServerTools;
 
-class tlv_t1 extends tlv_t {
+class tlv_t1 extends tlv_t
+{
 
     /** @var byte[] IP_KEY */
     protected $IP_KEY;
@@ -18,45 +20,50 @@ class tlv_t1 extends tlv_t {
     protected $_ip_ver;
     /** @var int _t1_body_len */
     protected $_t1_body_len;
-    
-    public function __constructor() {
-        $this->_ip_len = 4;
-        $this->_ip_pos = 14;
-        $this->_ip_ver = 1;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->_ip_len      = 4;
+        $this->_ip_pos      = 14;
+        $this->_ip_ver      = 1;
         $this->_t1_body_len = 20;
-        $this->IP_KEY = new byte[2];
-        $this->_cmd = 1;
+        $this->IP_KEY       = new Buffer(2);
+        $this->_cmd         = 1;
     }
-    
-    public function verify() {
+
+    public function verify()
+    {
         if ($this->_body_len < 20) {
             return false;
         }
         return true;
     }
 
-    public function get_ip() {
+    public function get_ip()
+    {
         return $this->_buf->read($this->_ip_pos, $this->_ip_len);
     }
 
     /**
-     * @param long $uin
+     * @param long   $uin
      * @param byte[] $client_ip
      * @return byte[]
      */
-    public function get_tlv_1($uin, $client_ip) {
+    public function get_tlv_1($uin, $client_ip)
+    {
         $body = new Buffer($this->_t1_body_len);
-        $p = 0;
+        $p    = 0;
         $body->writeInt16BE($this->_ip_ver, $p);
         $p += 2;
         $body->writeInt32BE(mt_rand(), $p);
         $p += 4;
         $body->writeInt32BE($uin, $p);
         $p += 4;
-        $body->writeInt32BE(util.get_server_cur_time(), $p);
+        $body->writeInt32BE(ServerTools::get_server_cur_time(), $p);
         $p += 4;
-        $body->write($client_ip, $p, strlen($client_ip)); //4bytes
-        $p += strlen($client_ip);
+        $body->write($client_ip, $p, 4); //4bytes
+        $p += 4;
         $body->writeInt16BE(0, $p);
         $p += 2;
         $this->fill_head($this->_cmd);

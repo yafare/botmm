@@ -23,9 +23,9 @@ class Buffer
         'C' => 1
     ];
 
-    public function __constructor()
+    public function __construct($size = 128)
     {
-        $this->buffer = new swoole_buffer(128);
+        $this->buffer = new swoole_buffer($size);
     }
 
     protected function insert($format, $value, $offset, $length)
@@ -38,7 +38,7 @@ class Buffer
 
     protected function extract($format, $offset, $length)
     {
-        $encoded = $this->buffer->substr($offset, $length);
+        $encoded = $this->buffer->read($offset, $length);
         if ($format == 'N' && PHP_INT_SIZE <= 4) {
             list(, $h, $l) = unpack('n*', $encoded);
             $result = ($l + ($h * 0x010000));
@@ -54,7 +54,13 @@ class Buffer
 
     public function write($string, $offset, $length = null)
     {
-        if ($length == null) {
+        if ($string instanceof swoole_buffer || $string instanceof Buffer) {
+            if ($length == null) {
+                throw new \InvalidArgumentException("when write swoole buffer or Buffer itself, must set length");
+            } else {
+                $string = $string->read(0, $length);
+            }
+        } elseif ($length == null) {
             $length = strlen($string);
         }
         $this->insert('a' . $length, $string, $offset, $length);
@@ -160,8 +166,11 @@ class Buffer
         return $MSB << 4 + $LSB;
     }
 
-    private function checkForOverSize($excpected_max, $actual)
+    private function checkForOverSize($excpected_max, &$actual)
     {
+        if (is_string($actual)) {
+            $actual = hexdec(bin2hex($actual));
+        }
         if ($actual > $excpected_max) {
             throw new \InvalidArgumentException(sprintf('%d exceeded limit of %d', $actual, $excpected_max));
         }

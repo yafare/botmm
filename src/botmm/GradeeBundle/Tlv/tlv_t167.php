@@ -5,8 +5,9 @@ class tlv_t167 extends tlv_t
 {
     public $_url_len;
 
-    public function __constructor()
-    {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_url_len = 0;
         $this->_cmd     = 359;
     }

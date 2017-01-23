@@ -14,11 +14,8 @@ class Hex
      */
     public static function HexStringToBin($string)
     {
-        $bytes = '';
-        $stringArray = explode(' ', $string);
-        for ($i = 0; $i < count($stringArray); $i++) {
-            $bytes .= hex2bin($stringArray[$i]);
-        }
+        $bytes = preg_replace('/\s/', '', $string);
+        $bytes = hex2bin($bytes);
         return $bytes;
     }
 

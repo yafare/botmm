@@ -8,8 +8,9 @@ use botmm\BufferBundle\Buffer\Buffer;
 
 class tlv_t148 extends tlv_t
 {
-    public function __constructor()
-    {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_cmd = 328;
     }
 
@@ -24,7 +25,7 @@ class tlv_t148 extends tlv_t
         return strlen($data);
     }
 
-    public function get_tlv148($appName, $ssoVer, $appID, $subAppID, $appVer, $appSign)
+    public function get_tlv_148($appName, $ssoVer, $appID, $subAppID, $appVer, $appSign)
     {
         $appName_len = $this->limit_len($appName, 32);
         $appVer_len  = $this->limit_len($appVer, 32);
@@ -50,7 +51,7 @@ class tlv_t148 extends tlv_t
         $body->write($appSign, $pos, $appSign_len);
         $pos += $appSign_len;
         $this->fill_head($this->_cmd);
-        $this->fill_body($body, strlen($body));
+        $this->fill_body($body, $pos);
         $this->set_length();
         return $this->get_buf();
     }

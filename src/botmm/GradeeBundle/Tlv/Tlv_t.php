@@ -21,8 +21,8 @@ class tlv_t
     protected $_pos;
     protected $_type;
 
-    public function __constructor()
-    {
+    public function __construct()
+	{
         $this->_max      = 128;
         $this->_pos      = 0;
         $this->_type     = 0;

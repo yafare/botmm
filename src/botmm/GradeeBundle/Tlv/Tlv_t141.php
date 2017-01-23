@@ -9,7 +9,9 @@ use botmm\BufferBundle\Buffer\Buffer;
 class tlv_t141 extends tlv_t {
     protected $_version;
 
-    public function __constructor() {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_version = 1;
         $this->_cmd = 321;
     }
@@ -30,16 +32,16 @@ class tlv_t141 extends tlv_t {
         $p += 2;
         $body->writeInt16BE($operator_name_len, $p);
         $p += 2;
-        $body->write($operator_name, $p);
+        $body->write($operator_name, $p, $operator_name_len);
         $p += $operator_name_len;
         $body->writeInt16BE($network_type, $p);
         $p += 2;
         $body->writeInt16BE($apn_len, $p);
         $p += 2;
-        $body->write($apn, $p);
+        $body->write($apn, $p, $apn_len);
         $p += $apn_len;
         $this->fill_head($this->_cmd);
-        $this->fill_body($body, $_t141_body_len);
+        $this->fill_body($body, $p);
         $this->set_length();
         return $this->get_buf();
     }

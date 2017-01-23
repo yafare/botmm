@@ -4,20 +4,22 @@
 namespace botmm\GradeeBundle\Tlv;
 
 
-use Swoole\Buffer;
+use botmm\BufferBundle\Buffer\Buffer;
 
 class tlv_t108 extends tlv_t
 {
     /** @var int _t108_body_len; */
     protected $_t108_body_len;
 
-    public function __constructor()
-    {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_t108_body_len = 0;
         $this->_cmd           = 264;
     }
 
     /**
+     * write in sd/msf/id2
      * @param byte[] $ksid  5.8 93 33 4E AD B8 08 D3 42 82 55 B7 EF 28 E7 E8 F5
      *                     2013 A1 07 5A E4 E8 ED 11 45 87 AF DD A1 FD 8C F1 66
      * @return mixed

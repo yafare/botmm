@@ -11,8 +11,9 @@ class tlv_t107 extends tlv_t
     /** @var int _t107_body_len; */
     protected $_t107_body_len;
 
-    public function __constructor()
-    {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_t107_body_len = 6;
         $this->_cmd           = 263;
     }

@@ -10,8 +10,9 @@ class tlv_t124 extends tlv_t
 {
     protected $_t124_body_len;
 
-    public function __constructor()
-    {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_t124_body_len = 0;
         $this->_cmd           = 292;
     }
@@ -35,7 +36,7 @@ class tlv_t124 extends tlv_t
      * @param byte[] $addr
      * @param byte[] $apn
      */
-    public function get_tlv124($ostype, $osver, $nettype, $netdetail, $addr, $apn)
+    public function get_tlv_124($ostype, $osver, $nettype, $netdetail, $addr, $apn)
     {
         $ostype_len           = $this->limit_len($ostype, 16);
         $osver_len            = $this->limit_len($osver, 16);
@@ -54,24 +55,30 @@ class tlv_t124 extends tlv_t
         $pos += 2;
         $body->write($ostype, $pos);
         $pos += $ostype_len;
+
         $body->writeInt16BE($osver_len, $pos);
         $pos += 2;
         $body->write($osver, $pos, $osver_len);
         $pos += $osver_len;
+
         $body->writeInt16BE($nettype, $pos);
         $pos += 2;
+
         $body->writeInt16BE($netdetail_len, $pos);
         $pos += 2;
         $body->write($netdetail, $pos, $netdetail_len);
         $pos += $netdetail_len;
+
         $body->writeInt16BE($addr_len, $pos);
         $pos += 2;
         $body->write($addr, $pos, $addr_len);
         $pos += $addr_len;
+
         $body->writeInt16BE($apn_len, $pos);
         $pos += 2;
         $body->write($apn, $pos, $apn_len);
         $pos += $apn_len;
+
         $this->fill_head($this->_cmd);
         $this->fill_body($body, $this->_t124_body_len);
         $this->set_length();

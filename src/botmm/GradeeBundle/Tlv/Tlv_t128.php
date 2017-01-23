@@ -10,8 +10,9 @@ class tlv_t128 extends tlv_t
 {
     protected $_t128_body_len;
 
-    public function __constructor()
-    {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_t128_body_len = 0;
         $this->_cmd           = 296;
     }
@@ -42,7 +43,7 @@ class tlv_t128 extends tlv_t
      * @return
      * @internal param $byte $
      */
-    public function get_tlv128($newins, $readguid, $guidchg, $flag, $devicetype, $guid)
+    public function get_tlv_128($newins, $readguid, $guidchg, $flag, $devicetype, $guid)
     {
         $devicetype_len       = $this->limit_len($devicetype, 32);
         $guid_len             = $this->limit_len($guid, 16);

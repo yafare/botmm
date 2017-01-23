@@ -10,8 +10,9 @@ class tlv_t104 extends tlv_t
 {
     protected $_t104_body_len;
 
-    public function __constructor()
-    {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_t104_body_len = 0;
         $this->_cmd           = 0x104;
     }

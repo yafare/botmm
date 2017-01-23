@@ -6,15 +6,19 @@ namespace botmm\GradeeBundle\Tlv;
 
 use botmm\BufferBundle\Buffer\Buffer;
 
-class tlv_t140 extends tlv_t {
+class tlv_t140 extends tlv_t
+{
     protected $_info_len;
 
-    public function __constructor() {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_info_len = 0;
-        $this->_cmd = 320;
+        $this->_cmd      = 320;
     }
 
-    public function verify() {
+    public function verify()
+    {
         if ($this->_body_len < 4) {
             return false;
         }
@@ -25,11 +29,13 @@ class tlv_t140 extends tlv_t {
         return true;
     }
 
-    public function get_host() {
-        $this->_buf->read($this->_head_len + 2 +2, $this->_info_len);
+    public function get_host()
+    {
+        $this->_buf->read($this->_head_len + 2 + 2, $this->_info_len);
     }
 
-    public function get_port() {
+    public function get_port()
+    {
         return $this->_buf->readInt16BE($this->_head_len + 2 + 2 + $this->_info_len);
     }
 }

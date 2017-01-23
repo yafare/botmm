@@ -82,20 +82,7 @@ class TestConnectCommand extends ContainerAwareCommand
         $loginBuffer->write($this->get_tlv1(), $offset);
     }
 
-    private function get_tlv18()
-    {
-        return (new tlv_t18())->get_tlv_18(
-            Hex::HexStringToBin('00 00 00 10'),
-            Hex::HexStringToBin('00 00 00 00'),
-            $this->uin,
-            0
-        );
-    }
 
-    private function get_tlv1()
-    {
-
-    }
 
 
 }

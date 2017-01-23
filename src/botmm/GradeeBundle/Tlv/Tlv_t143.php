@@ -10,8 +10,9 @@ class tlv_t143 extends tlv_t
 {
     public $_t143_body_len;
 
-    public function __constructor()
-    {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_t143_body_len = 0;
         $this->_cmd           = 323;
     }

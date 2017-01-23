@@ -8,8 +8,9 @@ class tlv_t150 extends tlv_t
 {
     public $_other_len;
 
-    public function __constructor()
-    {
+    public function __construct()
+	{
+		parent::__construct();
         $this->_other_len = 0;
         $this->_cmd       = 336;
     }
