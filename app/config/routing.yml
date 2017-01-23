@@ -1,3 +1,11 @@
+botmm_buffer:
+    resource: "@botmmBufferBundle/Resources/config/routing.php"
+    prefix:   /
+
+botmm_client:
+    resource: "@botmmClientBundle/Resources/config/routing.php"
+    prefix:   /
+
 botmm_gradee:
     resource: "@botmmGradeeBundle/Resources/config/routing.php"
     prefix:   /

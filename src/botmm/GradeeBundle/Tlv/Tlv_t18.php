@@ -19,9 +19,9 @@ public function __constructor() {
 }
 
     /**
-     * @param long $appid 4byte
+     * @param long|string $appid 4byte
      * @param int  $client_version 00 00 00 00
-     * @param long $uin qq number
+     * @param long|string $uin qq number
      * @param int  $rc 00 00 00 00
      * @return mixed
      */
@@ -39,7 +39,7 @@ public function get_tlv_18($appid, $client_version, $uin, $rc) {
         $p += 4;
         $body->writeInt32BE($uin, $p);
         $p += 4;
-        $body->writeInt32BE($rc, $p);
+        $body->writeInt16BE($rc, $p);
         $p += 2;
         $body->writeInt16BE(0, $p);
         $p += 2;
