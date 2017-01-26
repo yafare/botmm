@@ -13,11 +13,6 @@ botmm_gradee:
     type:     annotation
     prefix:   /gradee
 
-inspect_containter:
-    resource: "@InspectContainterBundle/Controller/"
-    type:     annotation
-    prefix:   /
-
 app:
     resource: "@AppBundle/Controller/"
     type:     annotation
