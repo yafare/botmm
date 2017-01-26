@@ -121,6 +121,14 @@ class Buffer
         return $this->extract($format, $offset, $length);
     }
 
+    public function readBuffer($offset, $length)
+    {
+        $bytes = $this->read($offset, $length);
+        $buffer = new Buffer($length);
+        $buffer->write($bytes, 0, $length);
+        return $buffer;
+    }
+
     public function readHex($offset, $length, $space = true)
     {
         $bin = $this->read($offset, $length);

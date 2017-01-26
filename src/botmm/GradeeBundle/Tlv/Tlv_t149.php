@@ -6,6 +6,12 @@ namespace botmm\GradeeBundle\Tlv;
 
 use botmm\BufferBundle\Buffer\Buffer;
 
+/**
+ * Class Tlv_t149
+ * message
+ *
+ * @package botmm\GradeeBundle\Tlv
+ */
 class Tlv_t149 extends tlv_t
 {
     public $_content_len;

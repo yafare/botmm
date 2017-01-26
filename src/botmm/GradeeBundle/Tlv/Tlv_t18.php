@@ -18,7 +18,7 @@ class Tlv_t18 extends tlv_t
         parent::__construct();
         $this->_t18_body_len = 22;
         $this->_ping_version = 1;
-        $this->_sso_version  = 1536;
+        $this->_sso_version  = 1536; //cmd
         $this->_cmd          = 24;
     }
 

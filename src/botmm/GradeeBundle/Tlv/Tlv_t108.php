@@ -6,6 +6,12 @@ namespace botmm\GradeeBundle\Tlv;
 
 use botmm\BufferBundle\Buffer\Buffer;
 
+/**
+ * Class Tlv_t108
+ * Ksid
+ *
+ * @package botmm\GradeeBundle\Tlv
+ */
 class Tlv_t108 extends tlv_t
 {
     /** @var int _t108_body_len; */

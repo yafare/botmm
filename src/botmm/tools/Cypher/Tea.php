@@ -5,14 +5,9 @@ namespace botmm\tools\Cypher;
 
 /**
  * Copyright (c) 2016 rryqszq4
- *
- *
  *   TEA coder encrypt 64 bits value, by 128 bits key,
  *   QQ do 16 round TEA.
- *
  *   TEA 加密,  64比特明码, 128比特密钥, qq的TEA算法使用16轮迭代
- *
- *
  */
 class Tea
 {
@@ -20,7 +15,8 @@ class Tea
 
     public static function encrypt($v, $k)
     {
-        $vl = strlen($v);
+        self::checkLength($v, $k);
+        $vl    = strlen($v);
         $filln = (8 - ($vl + 2)) % 8 + 2;
         if ($filln >= 2 && $filln < 9) {
         } else {
@@ -30,15 +26,15 @@ class Tea
         for ($i = 0; $i < $filln; $i++) {
             $fills .= chr(rand(0, 0xff));
         }
-        $v = chr(($filln - 2) | 0xF8) . $fills . $v;
+        $v     = chr(($filln - 2) | 0xF8) . $fills . $v;
         $tmp_l = strlen($v) + 7;
-        $v = pack("a{$tmp_l}", $v);
-        $tr = pack("a8", '');
-        $to = pack("a8", '');
-        $r = '';
-        $o = pack("a8", '');
+        $v     = pack("a{$tmp_l}", $v);
+        $tr    = pack("a8", '');
+        $to    = pack("a8", '');
+        $r     = '';
+        $o     = pack("a8", '');
         for ($i = 0; $i < strlen($v); $i = $i + 8) {
-            $o = self::_xor(substr($v, $i, 8), $tr);
+            $o  = self::_xor(substr($v, $i, 8), $tr);
             $tr = self::_xor(self::encipher($o, $k), $to);
             $to = $o;
             $r .= $tr;
@@ -48,16 +44,17 @@ class Tea
 
     public static function decrypt($v, $k)
     {
-        $l = strlen($v);
+        self::checkLength($v, $k);
+        $l        = strlen($v);
         $prePlain = self::decipher($v, $k);
-        $pos = (ord($prePlain[0]) & 0x07) + 2;
-        $r = $prePlain;
+        $pos      = (ord($prePlain[0]) & 0x07) + 2;
+        $r        = $prePlain;
         $preCrypt = substr($v, 0, 8);
         for ($i = 8; $i < $l; $i = $i + 8) {
-            $x = self::_xor(
+            $x        = self::_xor(
                 self::decipher(self::_xor(
                     substr($v, $i, $i + 8), $prePlain),
-                    $k),
+                               $k),
                 $preCrypt);
             $prePlain = self::_xor($x, $preCrypt);
             $preCrypt = substr($v, $i, $i + 8);
@@ -71,10 +68,10 @@ class Tea
 
     private static function _xor($a, $b)
     {
-        $a = self::_str2long($a);
+        $a  = self::_str2long($a);
         $a1 = $a[0];
         $a2 = $a[1];
-        $b = self::_str2long($b);
+        $b  = self::_str2long($b);
         $b1 = $b[0];
         $b2 = $b[1];
         return self::_long2str(($a1 ^ $b1) & self::$op) .
@@ -83,13 +80,13 @@ class Tea
 
     public static function encipher($v, $k)
     {
-        $s = 0;
+        $s     = 0;
         $delta = 0x9e3779b9;
-        $n = 16;
-        $k = self::_str2long($k);
-        $v = self::_str2long($v);
-        $z = $v[1];
-        $y = $v[0];
+        $n     = 16;
+        $k     = self::_str2long($k);
+        $v     = self::_str2long($v);
+        $z     = $v[1];
+        $y     = $v[0];
         /* start cycle */
         for ($i = 0; $i < $n; $i++) {
             $s += $delta;
@@ -105,7 +102,7 @@ class Tea
     public static function decipher($v, $k)
     {
         $delta = 0x9e3779b9;
-        $s = ($delta << 4) & self::$op;
+        $s     = ($delta << 4) & self::$op;
         #$s=0xC6EF3720;
         $n = 16;
         $v = self::_str2long($v);
@@ -129,10 +126,10 @@ class Tea
 
     private static function _str2long($data)
     {
-        $n = strlen($data);
-        $tmp = unpack('N*', $data);
-        $data_long = array();
-        $j = 0;
+        $n         = strlen($data);
+        $tmp       = unpack('N*', $data);
+        $data_long = [];
+        $j         = 0;
         foreach ($tmp as $value) {
             $data_long[$j++] = $value;
             //if ($j >= 4) break;
@@ -143,6 +140,13 @@ class Tea
     private static function _long2str($l)
     {
         return pack('N', $l);
+    }
+
+    private static function checkLength($v, $k)
+    {
+        if (strlen($v) % 16 != 0 || strlen($k) != 16) {
+            throw new \InvalidArgumentException("data length must be a multiple of 16 and key length must be 16");
+        }
     }
 
 }
