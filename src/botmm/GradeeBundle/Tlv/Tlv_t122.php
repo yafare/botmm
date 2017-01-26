@@ -4,7 +4,7 @@
 namespace botmm\GradeeBundle\Tlv;
 
 
-class Tlv_t122 extends tlv_t
+class Tlv_t122 extends Tlv_t
 {
     protected $_lg;
     protected $_ln;

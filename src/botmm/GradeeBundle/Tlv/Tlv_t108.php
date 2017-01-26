@@ -12,7 +12,7 @@ use botmm\BufferBundle\Buffer\Buffer;
  *
  * @package botmm\GradeeBundle\Tlv
  */
-class Tlv_t108 extends tlv_t
+class Tlv_t108 extends Tlv_t
 {
     /** @var int _t108_body_len; */
     protected $_t108_body_len;

@@ -5,7 +5,6 @@ namespace botmm\tools\Cypher\Tests;
 use botmm\GradeeBundle\Tests\Tlv\TlvTestCase;
 use botmm\tools\Cypher\Tea;
 use botmm\tools\Hex;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class QqTeaTest extends TlvTestCase
 {

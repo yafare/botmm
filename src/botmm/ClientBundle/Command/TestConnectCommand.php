@@ -4,6 +4,7 @@ namespace botmm\ClientBundle\Command;
 
 use botmm\BufferBundle\Buffer\Buffer;
 use botmm\BufferBundle\Buffer\StreamOutputBuffer;
+use botmm\GradeeBundle\botmmGradeeBundle;
 use botmm\GradeeBundle\Tlv\Tlv_t1;
 use botmm\GradeeBundle\Tlv\Tlv_t100;
 use botmm\GradeeBundle\Tlv\Tlv_t106;
@@ -64,7 +65,6 @@ class TestConnectCommand extends ContainerAwareCommand
 
     protected function createClient()
     {
-
         swoole_async_dns_lookup('msfwifi.3g.qq.com', function ($host, $ip) {
             $client = new swoole_client(SWOOLE_SOCK_TCP, SWOOLE_SOCK_ASYNC);
 

@@ -6,7 +6,7 @@ namespace botmm\GradeeBundle\Tlv;
 
 use botmm\BufferBundle\Buffer\Buffer;
 
-class Tlv_t109 extends tlv_t
+class Tlv_t109 extends Tlv_t
 {
     protected $_t109_body_len;
 

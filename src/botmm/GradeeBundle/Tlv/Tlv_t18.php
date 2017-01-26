@@ -6,7 +6,7 @@ namespace botmm\GradeeBundle\Tlv;
 
 use botmm\BufferBundle\Buffer\Buffer;
 
-class Tlv_t18 extends tlv_t
+class Tlv_t18 extends Tlv_t
 {
     protected $_ping_version;
     protected $_sso_version;

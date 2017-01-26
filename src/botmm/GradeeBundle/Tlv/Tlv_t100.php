@@ -7,7 +7,7 @@ namespace botmm\GradeeBundle\Tlv;
 use botmm\BufferBundle\Buffer\Buffer;
 use botmm\tools\util;
 
-class Tlv_t100 extends tlv_t
+class Tlv_t100 extends Tlv_t
 {
     /** @var int _db_buf_ver */
     protected $_db_buf_ver;

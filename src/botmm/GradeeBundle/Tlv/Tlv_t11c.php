@@ -4,7 +4,7 @@
 namespace botmm\GradeeBundle\Tlv;
 
 
-class Tlv_t11c extends tlv_t
+class Tlv_t11c extends Tlv_t
 {
     public function __construct()
     {

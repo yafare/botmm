@@ -1,14 +1,17 @@
 botmm_buffer:
-    resource: "@botmmBufferBundle/Resources/config/routing.php"
-    prefix:   /
+    resource: "@botmmBufferBundle/Controller/"
+    type:     annotation
+    prefix:   /buffer
 
 botmm_client:
-    resource: "@botmmClientBundle/Resources/config/routing.php"
-    prefix:   /
+    resource: "@botmmClientBundle/Controller/"
+    type:     annotation
+    prefix:   /client
 
 botmm_gradee:
-    resource: "@botmmGradeeBundle/Resources/config/routing.php"
-    prefix:   /
+    resource: "@botmmGradeeBundle/Controller/"
+    type:     annotation
+    prefix:   /gradee
 
 inspect_containter:
     resource: "@InspectContainterBundle/Controller/"

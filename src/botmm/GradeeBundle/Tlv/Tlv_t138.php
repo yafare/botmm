@@ -13,7 +13,7 @@ use botmm\BufferBundle\Buffer\Buffer;
  *
  * @package botmm\GradeeBundle\Tlv
  */
-class tlv_t138 extends tlv_t
+class tlv_t138 extends Tlv_t
 {
     protected $_count;
 
