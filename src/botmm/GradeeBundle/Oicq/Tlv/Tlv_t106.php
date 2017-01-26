@@ -5,9 +5,9 @@ namespace botmm\GradeeBundle\Oicq\Tlv;
 
 
 use botmm\BufferBundle\Buffer\Buffer;
-use botmm\tools\Cryptor;
-use botmm\tools\Hex;
-use botmm\tools\util;
+use botmm\GradeeBundle\Oicq\Cypher\Cryptor;
+use botmm\GradeeBundle\Oicq\Cypher\MD5;
+use botmm\GradeeBundle\Oicq\Tools\util;
 
 class Tlv_t106 extends Tlv_t
 {

@@ -4,7 +4,6 @@
 namespace botmm\BufferBundle\Buffer;
 
 
-use botmm\tools\Hex;
 use swoole_buffer;
 
 class Buffer

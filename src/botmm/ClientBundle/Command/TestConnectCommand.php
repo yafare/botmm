@@ -2,32 +2,10 @@
 
 namespace botmm\ClientBundle\Command;
 
+use botmm\GradeeBundle\Oicq\Tools\Hex;
+use swoole_client;
 use botmm\BufferBundle\Buffer\Buffer;
 use botmm\BufferBundle\Buffer\StreamOutputBuffer;
-use botmm\GradeeBundle\botmmGradeeBundle;
-use botmm\GradeeBundle\Tlv\Tlv_t1;
-use botmm\GradeeBundle\Tlv\Tlv_t100;
-use botmm\GradeeBundle\Tlv\Tlv_t106;
-use botmm\GradeeBundle\Tlv\Tlv_t107;
-use botmm\GradeeBundle\Tlv\Tlv_t108;
-use botmm\GradeeBundle\Tlv\Tlv_t109;
-use botmm\GradeeBundle\Tlv\Tlv_t116;
-use botmm\GradeeBundle\Tlv\Tlv_t124;
-use botmm\GradeeBundle\Tlv\Tlv_t128;
-use botmm\GradeeBundle\Tlv\Tlv_t141;
-use botmm\GradeeBundle\Tlv\Tlv_t142;
-use botmm\GradeeBundle\Tlv\Tlv_t144;
-use botmm\GradeeBundle\Tlv\Tlv_t145;
-use botmm\GradeeBundle\Tlv\Tlv_t147;
-use botmm\GradeeBundle\Tlv\Tlv_t16b;
-use botmm\GradeeBundle\Tlv\Tlv_t16e;
-use botmm\GradeeBundle\Tlv\Tlv_t177;
-use botmm\GradeeBundle\Tlv\Tlv_t18;
-use botmm\GradeeBundle\Tlv\Tlv_t187;
-use botmm\GradeeBundle\Tlv\Tlv_t188;
-use botmm\GradeeBundle\Tlv\Tlv_t191;
-use botmm\GradeeBundle\Tlv\Tlv_t8;
-use swoole_client;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -59,7 +37,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
         $output->writeln('Command result.');
 
-        $this->createClient();
+        $this->packLogin();
 
     }
 
@@ -95,8 +73,8 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function packLogin()
     {
-        $this->qq_info = $this->getContainer()->get('qq_info');
-        $this->global  = $this->getContainer()->get('global');
+        $this->qq_info = $this->getContainer()->get('platform.qq_info');
+        $this->global  = $this->getContainer()->get('platform.information');
         $buffer        = new Buffer();
         $loginBuffer   = new StreamOutputBuffer($buffer);
         $loginBuffer->writeHex("00 09");
@@ -120,8 +98,9 @@ class TestConnectCommand extends ContainerAwareCommand
         $loginBuffer->write($this->get_tlv188());
         $loginBuffer->write($this->get_tlv191());
 
+        $bytes = $loginBuffer->getBytes();
 
-
+        print_r(Hex::BinToHexString($bytes));
     }
 
     public function get_tlv144()
@@ -131,13 +110,13 @@ class TestConnectCommand extends ContainerAwareCommand
         $tlv128 = $this->get_tlv128();
         $tlv16e = $this->get_tlv16e();
 
-        $tlv = new Tlv_t144();
+        $tlv = $this->getContainer()->get('tlv.t144');
         return $tlv->get_tlv_144($tlv109, $tlv124, $tlv128, $tlv16e, $this->qq_info->TGTKey);
     }
 
     public function get_tlv18()
     {
-        $tlv = new Tlv_t18();
+        $tlv = $this->getContainer()->get('tlv.t18');
         return $tlv->get_tlv_18(
             $this->qq_info->appid,
             $this->qq_info->client_version,
@@ -147,7 +126,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     public function get_tlv1()
     {
-        $tlv = new Tlv_t1();
+        $tlv = $this->getContainer()->get('tlv.t1');
         return $tlv->get_tlv_1(
             $this->qq_info->uin,
             $this->qq_info->client_ip
@@ -156,7 +135,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     public function get_tlv106()
     {
-        $tlv = new Tlv_t106();
+        $tlv = $this->getContainer()->get('tlv.t106');
         return $tlv->get_tlv_106(
             $this->global->appid,
             $this->global->subAppId,
@@ -176,7 +155,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv116()
     {
-        $tlv = new Tlv_t116();
+        $tlv = $this->getContainer()->get('tlv.t116');
         return $tlv->get_tlv_116(
             $this->qq_info->bitmap,
             $this->qq_info->get_sig,
@@ -186,7 +165,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv100()
     {
-        $tlv = new Tlv_t100();
+        $tlv = $this->getContainer()->get('tlv.t100');
         return $tlv->get_tlv_100(
             $this->global->appid,
             $this->global->wxappid,
@@ -197,7 +176,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv107()
     {
-        $tlv = new Tlv_t107();
+        $tlv = $this->getContainer()->get('tlv.t107');
         return $tlv->get_tlv_107(
             $this->qq_info->pic_type,
             $this->qq_info->cap_type,
@@ -208,7 +187,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv108()
     {
-        $tlv = new Tlv_t108();
+        $tlv = $this->getContainer()->get('tlv.t108');
         return $tlv->get_tlv_108(
             $this->global->ksid
         );
@@ -216,7 +195,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv109()
     {
-        $tlv = new Tlv_t109();
+        $tlv = $this->getContainer()->get('tlv.t109');
         return $tlv->get_tlv_109(
             $this->global->imei
         );
@@ -224,7 +203,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv124()
     {
-        $tlv = new Tlv_t124();
+        $tlv = $this->getContainer()->get('tlv.t124');
         return $tlv->get_tlv_124(
             $this->global->ostype,
             $this->global->osver,
@@ -237,7 +216,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv128()
     {
-        $tlv = new Tlv_t128();
+        $tlv = $this->getContainer()->get('tlv.t128');
         return $tlv->get_tlv_128(
             $this->qq_info->newins,
             $this->global->readguid,
@@ -250,7 +229,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv16e()
     {
-        $tlv = new Tlv_t16e();
+        $tlv = $this->getContainer()->get('tlv.t16e');
         return $tlv->get_tlv_16e(
             $this->global->device
         );
@@ -258,7 +237,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv142()
     {
-        $tlv = new Tlv_t142();
+        $tlv = $this->getContainer()->get('tlv.t142');
         return $tlv->get_tlv_142(
             $this->global->apk_id
         );
@@ -266,7 +245,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv145()
     {
-        $tlv = new Tlv_t145();
+        $tlv = $this->getContainer()->get('tlv.t145');
         return $tlv->get_tlv_145(
             $this->global->imei
         );
@@ -274,7 +253,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv141()
     {
-        $tlv = new Tlv_t141();
+        $tlv = $this->getContainer()->get('tlv.t141');
         return $tlv->get_tlv_141(
             $this->global->operator_name,
             $this->global->network_type,
@@ -284,13 +263,13 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv8()
     {
-        $tlv = new Tlv_t8();
+        $tlv = $this->getContainer()->get('tlv.t8');
         return $tlv->get_tlv_8(0, $this->global->local_id, 0);
     }
 
     private function get_tlv16b()
     {
-        $tlv = new Tlv_t16b();
+        $tlv = $this->getContainer()->get('tlv.t16b');
         return $tlv->get_tlv_16b(
             [
                 "game.qq.com"
@@ -299,7 +278,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv147()
     {
-        $tlv = new Tlv_t147();
+        $tlv = $this->getContainer()->get('tlv.t147');
         return $tlv->get_tlv_147(
             $this->global->appid,
             $this->global->appVer,
@@ -309,7 +288,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv177()
     {
-        $tlv = new Tlv_t177();
+        $tlv = $this->getContainer()->get('tlv.t177');
         return $tlv->get_tlv_177(
             $this->global->time,
             $this->global->version //﻿5.2.3.0
@@ -318,7 +297,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv187()
     {
-        $tlv = new Tlv_t187();
+        $tlv = $this->getContainer()->get('tlv.t187');
         return $tlv->get_tlv_187(
             $this->global->device
         );
@@ -326,7 +305,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv188()
     {
-        $tlv = new Tlv_t188();
+        $tlv = $this->getContainer()->get('tlv.t188');
         return $tlv->get_tlv_188(
             $this->global->android_id
         );
@@ -334,7 +313,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
     private function get_tlv191()
     {
-        $tlv = new Tlv_t191();
+        $tlv = $this->getContainer()->get('tlv.t191');
         return $tlv->get_tlv_191();
     }
 

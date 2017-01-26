@@ -1,11 +1,10 @@
 <?php
 
 
-namespace botmm\tools;
+namespace botmm\GradeeBundle\Oicq\Cypher;
 
 
 use botmm\BufferBundle\Buffer\Buffer;
-use botmm\tools\Cypher\Tea;
 
 class Cryptor
 {

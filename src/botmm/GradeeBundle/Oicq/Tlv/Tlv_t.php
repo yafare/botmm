@@ -4,8 +4,8 @@
 namespace botmm\GradeeBundle\Oicq\Tlv;
 
 
-use botmm\tools\Cryptor;
-use botmm\tools\Hex;
+use botmm\GradeeBundle\Oicq\Cypher\Cryptor;
+use botmm\GradeeBundle\Oicq\Tools\Hex;
 use botmm\BufferBundle\Buffer\Buffer;
 
 class Tlv_t

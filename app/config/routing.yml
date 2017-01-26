@@ -1,17 +1,22 @@
-botmm_buffer:
-    resource: "@botmmBufferBundle/Controller/"
+botmm_gradee:
+    resource: "@botmmGradeeBundle/Controller/"
     type:     annotation
-    prefix:   /buffer
+    prefix:   /gradee
 
 botmm_client:
     resource: "@botmmClientBundle/Controller/"
     type:     annotation
     prefix:   /client
 
-botmm_gradee:
-    resource: "@botmmGradeeBundle/Controller/"
+botmm_server:
+    resource: "@botmmServerBundle/Controller/"
     type:     annotation
-    prefix:   /gradee
+    prefix:   /
+
+botmm_buffer:
+    resource: "@botmmBufferBundle/Controller/"
+    type:     annotation
+    prefix:   /buffer
 
 app:
     resource: "@AppBundle/Controller/"

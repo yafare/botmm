@@ -4,9 +4,9 @@
 namespace botmm\ClientBundle\Client;
 
 
-use botmm\GradeeBundle\Tlv\tlv_t1;
-use botmm\GradeeBundle\Tlv\tlv_t18;
-use botmm\tools\Hex;
+use botmm\GradeeBundle\Oicq\Tlv\tlv_t1;
+use botmm\GradeeBundle\Oicq\Tlv\tlv_t18;
+use botmm\GradeeBundle\Oicq\Tools\Hex;
 
 /**
  * Class Login

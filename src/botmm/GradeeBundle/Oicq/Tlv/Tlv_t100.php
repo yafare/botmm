@@ -5,7 +5,7 @@ namespace botmm\GradeeBundle\Oicq\Tlv;
 
 
 use botmm\BufferBundle\Buffer\Buffer;
-use botmm\tools\util;
+use botmm\GradeeBundle\Oicq\Tools\util;
 
 class Tlv_t100 extends Tlv_t
 {

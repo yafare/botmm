@@ -6,13 +6,14 @@ use Symfony\Component\DependencyInjection\Reference;
 
 $container->addDefinitions(
     [
-        'platform.device'      => new Definition('botmm\GradeeBundle\Platform\AndroidDevice'),
-        'platform.apk'         => new Definition('botmm\GradeeBundel\Platform\ApkInfo'),
-        'platform.information' => new Definition('botmm\GradeeBundle\Platform\PlatformInformation',
+        'platform.device'      => new Definition('botmm\GradeeBundle\Oicq\Platform\AndroidDevice'),
+        'platform.apk'         => new Definition('botmm\GradeeBundle\Oicq\Platform\ApkInfo'),
+        'platform.information' => new Definition('botmm\GradeeBundle\Oicq\Platform\PlatformInformation',
                                                  [
                                                      new Reference('platform.device'),
                                                      new Reference('platform.apk')
                                                  ]),
+        'platform.qq_info'     => new Definition('botmm\GradeeBundle\Oicq\Platform\QqInfo'),
     ]
 );
 

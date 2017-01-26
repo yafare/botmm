@@ -1,6 +1,6 @@
 <?php
 
-namespace botmm\tools\Cypher;
+namespace botmm\GradeeBundle\Oicq\Cypher;
 
 
 /**

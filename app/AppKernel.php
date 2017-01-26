@@ -18,9 +18,10 @@ class AppKernel extends Kernel
             new AppBundle\AppBundle(),
 
             new FSi\Bundle\DataGridBundle\DataGridBundle(),
-            new botmm\GradeeBundle\botmmGradeeBundle(),
             new botmm\ClientBundle\botmmClientBundle(),
+            new botmm\ServerBundle\botmmServerBundle(),
             new botmm\BufferBundle\botmmBufferBundle(),
+            new botmm\GradeeBundle\botmmGradeeBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {

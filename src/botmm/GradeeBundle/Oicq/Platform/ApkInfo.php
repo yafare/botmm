@@ -1,7 +1,7 @@
 <?php
 
 
-namespace botmm\GradeeBundle\Platform;
+namespace botmm\GradeeBundle\Oicq\Platform;
 
 
 class ApkInfo

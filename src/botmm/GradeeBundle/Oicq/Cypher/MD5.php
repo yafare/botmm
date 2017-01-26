@@ -1,7 +1,6 @@
 <?php
 
-
-namespace botmm\tools;
+namespace botmm\GradeeBundle\Oicq\Cypher;
 
 
 class MD5

@@ -1,6 +1,6 @@
 <?php
 
-namespace botmm\BufferBundle\Tests\Controller;
+namespace botmm\ServerBundle\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 

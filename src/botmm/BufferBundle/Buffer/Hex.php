@@ -1,7 +1,7 @@
 <?php
 
 
-namespace botmm\tools;
+namespace botmm\BufferBundle\Buffer;
 
 
 class Hex

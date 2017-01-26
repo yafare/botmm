@@ -1,11 +1,14 @@
 <?php
 
 
-namespace botmm\GradeeBundle\Platform;
+namespace botmm\GradeeBundle\Oicq\Platform;
 
 
-class PlatFormInformation
+class PlatformInformation
 {
+    public $adroidDevice;
+    public $apkInfo;
+
     public function __construct(
         $androidDevice,
         $apkInfo

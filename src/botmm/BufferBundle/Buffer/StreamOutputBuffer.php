@@ -3,9 +3,6 @@
 
 namespace botmm\BufferBundle\Buffer;
 
-
-use botmm\tools\Hex;
-
 class StreamOutputBuffer
 {
 

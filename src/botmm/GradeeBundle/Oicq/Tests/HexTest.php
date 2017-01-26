@@ -3,7 +3,6 @@
 namespace botmm\GradeeBundle\Tests\Controller;
 
 use botmm\tools\Hex;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class HexTest extends \PHPUnit_Framework_TestCase
 {

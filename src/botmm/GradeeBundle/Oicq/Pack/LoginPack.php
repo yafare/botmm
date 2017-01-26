@@ -5,7 +5,7 @@ namespace botmm\pack;
 
 
 use botmm\common\qq_info;
-use botmm\tools\Hex;
+use botmm\GradeeBundle\Oicq\Tools\Hex;
 use TrafficCophp\ByteBuffer\Buffer;
 
 class LoginPack

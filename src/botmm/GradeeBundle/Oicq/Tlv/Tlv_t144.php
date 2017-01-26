@@ -3,7 +3,7 @@
 
 namespace botmm\GradeeBundle\Oicq\Tlv;
 
-use botmm\tools\Cryptor;
+use botmm\GradeeBundle\Oicq\Cypher\Cryptor;
 use botmm\BufferBundle\Buffer\Buffer;
 
 class Tlv_t144 extends Tlv_t

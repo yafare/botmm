@@ -1,7 +1,7 @@
 <?php
 
 
-namespace botmm\tools;
+namespace botmm\GradeeBundle\Oicq\Tools;
 
 
 class ServerTools
