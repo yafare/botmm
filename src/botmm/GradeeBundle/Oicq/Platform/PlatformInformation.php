@@ -88,6 +88,12 @@ class PlatformInformation
 
     public $ssoVer = Util::SSO_VERSION;
 
+    /**
+     * 大于1000000时重置
+     * 每次请求+1, 服务端返回ssoseq
+     * 重置时初始值在[60000,160000]之间
+     * @var int
+     */
     public $ssoSeq      = 0x00016a91;
     public $userDomains = [
         "tenpay.com",
