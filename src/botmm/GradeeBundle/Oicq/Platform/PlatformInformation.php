@@ -13,7 +13,7 @@ class PlatformInformation
     public $apkInfo;
 
 
-    public $readflg       = 0x01;        //imei readFlag
+    public $readflg = 0x01;        //imei readFlag
     //md5("Device_id + MAC address")
     public $imei          = "d1 61 60 d5 b3 56 a0 a5 4f b9 93 24 a3 63 28 6b";           // 文本型
     public $ver           = "5.8.0.157158";            // 字节集 ﻿ 5.8.0.157158
@@ -92,6 +92,7 @@ class PlatformInformation
      * 大于1000000时重置
      * 每次请求+1, 服务端返回ssoseq
      * 重置时初始值在[60000,160000]之间
+     *
      * @var int
      */
     public $ssoSeq      = 0x00016a91;
