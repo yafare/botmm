@@ -19,7 +19,7 @@ class Tlv_t16e extends Tlv_t
     }
 
     /**
-     * @param byte[] $device
+     * @param byte[]|string $device
      * @return mixed
      */
     public function get_tlv_16e($device)

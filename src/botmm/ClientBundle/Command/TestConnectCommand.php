@@ -350,11 +350,11 @@ class TestConnectCommand extends ContainerAwareCommand
     {
         $tlv = $this->getContainer()->get('tlv.t128');
         return $tlv->get_tlv_128(
-            $this->qq_info->newins,//00
-            $this->global->readguid,//00
-            $this->global->guidchg,//01
-            $this->global->t128_flag,//10 00 00 00
-            $this->global->devicetype, //MI 4LTE
+            $this->global->newinstall,//00
+            $this->global->readguid,//01
+            $this->global->guidchg,//00
+            $this->global->dev_report,//10 00 00 00 _dev_report
+            $this->global->devicetype, //MI 4LTE  _device
             $this->global->imei, //d1 61 60 d5 b3 56 a0 a5 4f b9 93 24 a3 63 28 6b
             $this->global->deviceName//XiaoMi
         );
@@ -364,7 +364,7 @@ class TestConnectCommand extends ContainerAwareCommand
     {
         $tlv = $this->getContainer()->get('tlv.t16e');
         return $tlv->get_tlv_16e(
-            $this->global->device
+            $this->global->devicetype
         );
     }
 
@@ -436,7 +436,7 @@ class TestConnectCommand extends ContainerAwareCommand
     {
         $tlv = $this->getContainer()->get('tlv.t187');
         return $tlv->get_tlv_187(
-            $this->global->device
+            $this->global->macHash
         );
     }
 
@@ -482,7 +482,7 @@ class TestConnectCommand extends ContainerAwareCommand
     {
         $tlv = $this->getContainer()->get('tlv.t202');
         return $tlv->get_tlv_202(
-            $this->global->bassaddr,
+            $this->global->bssidaddr,
             $this->global->ssid
         );
     }

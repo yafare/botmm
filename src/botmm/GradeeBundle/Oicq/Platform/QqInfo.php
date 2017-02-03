@@ -47,6 +47,5 @@ class QqInfo
     public $picSize;
     public $retType;
 
-    public $newins = 0x0000;
 
 }

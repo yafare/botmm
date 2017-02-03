@@ -48,7 +48,7 @@ class Tlv_t128 extends Tlv_t
     {
         $devicetype_len       = $this->limit_len($devicetype, 32);
         $guid_len             = $this->limit_len($guid, 16);
-        $deviceName_len       = $this->limit_len($deviceName, 32);
+        $deviceName_len       = $this->limit_len($deviceName, 16);
         $this->_t128_body_len = ((($devicetype_len + 11) + 2) + $guid_len) + 2 + $deviceName_len;
         $body                 = new Buffer($this->_t128_body_len);
         $pos                  = 0;
