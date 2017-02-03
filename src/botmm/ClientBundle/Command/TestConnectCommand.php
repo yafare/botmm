@@ -2,6 +2,9 @@
 
 namespace botmm\ClientBundle\Command;
 
+use botmm\GradeeBundle\Oicq\Cypher\Cryptor;
+use botmm\GradeeBundle\Oicq\Platform\PlatformInformation;
+use botmm\GradeeBundle\Oicq\Platform\QqInfo;
 use botmm\GradeeBundle\Oicq\Tools\Hex;
 use swoole_client;
 use botmm\BufferBundle\Buffer\Buffer;
@@ -14,8 +17,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TestConnectCommand extends ContainerAwareCommand
 {
-    public    $uin;
+    public $uin;
+    /**
+     * @var QqInfo
+     */
     protected $qq_info;
+    /**
+     * @var PlatformInformation
+     */
     protected $global;
 
     protected function configure()
@@ -37,7 +46,7 @@ class TestConnectCommand extends ContainerAwareCommand
 
         $output->writeln('Command result.');
 
-        $this->packLogin();
+        $this->createClient();
 
     }
 
@@ -77,7 +86,7 @@ class TestConnectCommand extends ContainerAwareCommand
         $this->global  = $this->getContainer()->get('platform.information');
         $buffer        = new Buffer();
         $loginBuffer   = new StreamOutputBuffer($buffer);
-        $loginBuffer->writeHex("00 09");
+        $loginBuffer->writeHex("00 09");//sub_cmd
         $loginBuffer->writeInt16BE(19); //tlv 个数
         $loginBuffer->write($this->get_tlv18());
         $loginBuffer->write($this->get_tlv1());
@@ -98,9 +107,122 @@ class TestConnectCommand extends ContainerAwareCommand
         $loginBuffer->write($this->get_tlv188());
         $loginBuffer->write($this->get_tlv191());
 
-        $bytes = $loginBuffer->getBytes();
+        $wupBufferbytes = $loginBuffer->getBytes();
+        $encrypt = Cryptor::encrypt($wupBufferbytes, 0, strlen($wupBufferbytes), $this->qq_info->shareKey);
 
-        print_r(Hex::BinToHexString($bytes));
+        $packed  = $this->fill_head(0x0810, $encrypt, $this->qq_info->randKey, $this->qq_info->pubKey);
+
+        $this->Make_login_sendSsoMsg("wtlogin.login",
+                                     $packed,
+                                     "",
+                                     $this->global->imei,
+                                     $this->global->ksid,
+                                     $this->global->ver,
+                                     true);
+    }
+
+    private function Make_login_sendSsoMsg(
+        $serviceCmd,
+        $wupBuffer,
+        $extBin,
+        $imei,
+        $ksid,
+        $ver,
+        $isLogin
+    ) {
+        $msgCookie = "﻿B6 CC 78 FC";
+
+        $pack = new StreamOutputBuffer(new Buffer());
+        $pack->writeInt32BE(
+            4 + 4 + 4 + 4 + 12 +
+            4 + strlen($extBin) +
+            4 + strlen($serviceCmd) +
+            4 + strlen($msgCookie) +
+            4 + strlen($imei) +
+            4 + strlen($ksid) +
+            2 + strlen($ver)
+        );
+        $pack->writeInt32BE($this->global->requestId);
+        $pack->writeInt32BE(0x20029f53);
+        $pack->writeInt32BE(0x20029f53);
+        //new 71 00 00 00 00 00 00 00 00 00 00 00
+        $pack->writeHex("01 00 00 00 00 00 00 00 00 00 00 00");
+        $pack->writeInt32BE(strlen($extBin));
+        $pack->write($extBin, strlen($extBin));
+        $pack->writeInt32BE(strlen($serviceCmd) + 4);
+        $pack->write($serviceCmd);
+        $pack->writeInt32BE(strlen($msgCookie) + 4);
+        $pack->write($msgCookie);
+        $pack->writeInt32BE(strlen($imei) + 4);
+        $pack->write($imei);
+        $pack->writeInt32BE(strlen($ksid) + 4);
+        $pack->write($ksid);
+        $pack->writeInt16BE(strlen($ver) + 2);
+        $pack->write($ver);
+        //new write something here
+
+        $pack->writeInt32BE(strlen($wupBuffer) + 4);
+        $pack->write($wupBuffer);
+        $encrypt = Cryptor::encrypt($pack->getBytes(), 0, $pack->getLength(), $this->qq_info->key);
+        return $isLogin ? $encrypt . hex2bin("00") : $encrypt . hex2bin("01");
+    }
+
+    public function fill_head($cmd, $encrypt, $randKey, $pubKey)
+    {
+        static $subcmd = 0;
+        $pack = new StreamOutputBuffer(new Buffer());
+        //step03
+        $pack->writeInt8($this->global->pcVer);
+        //step04
+        $pack->writeInt16BE($cmd);
+        //step05
+        $pack->writeInt16BE($subcmd++);//sequence
+        //step06
+        $pack->writeInt32BE($this->qq_info->uin);
+        /**
+         * $pack->writeInt8("03");
+         * $pack->writeInt8("00");
+         * $pack->writeInt8($retry);
+         * $pack->writeInt32BE($type);
+         * $pack->writeInt32BE($no);
+         * $pack->writeInt32BE($instance);
+         */
+        $pack->write(Hex::HexStringToBin("
+        ﻿03 
+        07 
+        00 
+        00 00 00 02 
+        00 00 00 00 
+        00 00 00 00"));
+        //have 24 bytes used
+        //end of head bytes writes
+        //$pack->write(strlen($randKey), 0);
+        //$pack->write($randKey, strlen($randKey))
+        //$pack->write(strlen($encrypt), 0);
+        //$pack->write($randKey, strlen($encrypt))
+
+        $pack->writeHex("01 01");
+        $pack->write($randKey);
+        $pack->writeHex("01 02");
+        $pack->writeInt16BE(strlen($pubKey));
+        if ($pubKey) {
+            $pack->write($pubKey);
+        } else {
+            $pack->writeHex("00 00");
+        }
+
+        $pack->write($encrypt);
+        $pack->writeInt8(0x03);//end
+
+        $finalBuffer_len = $pack->getLength() + 3;
+        $finalBuffer     = (new Buffer($finalBuffer_len));
+        //step01
+        $finalBuffer->writeInt8(0x02, 0);
+        //step02
+        $finalBuffer->writeInt16BE($finalBuffer_len, 1); //27+2+body_len
+        //step03
+        $finalBuffer->write($pack->getBytes(), 3);
+        return $finalBuffer->read(0, $finalBuffer_len);
     }
 
     public function get_tlv144()
@@ -118,8 +240,8 @@ class TestConnectCommand extends ContainerAwareCommand
     {
         $tlv = $this->getContainer()->get('tlv.t18');
         return $tlv->get_tlv_18(
-            $this->qq_info->appid,
-            $this->qq_info->client_version,
+            $this->global->appId,
+            $this->global->clientVersion,
             $this->qq_info->uin,
             0);
     }
@@ -129,7 +251,7 @@ class TestConnectCommand extends ContainerAwareCommand
         $tlv = $this->getContainer()->get('tlv.t1');
         return $tlv->get_tlv_1(
             $this->qq_info->uin,
-            $this->qq_info->client_ip
+            $this->global->clientIp
         );
     }
 
@@ -137,13 +259,13 @@ class TestConnectCommand extends ContainerAwareCommand
     {
         $tlv = $this->getContainer()->get('tlv.t106');
         return $tlv->get_tlv_106(
-            $this->global->appid,
+            $this->global->appId,
             $this->global->subAppId,
-            $this->global->client_ver,
+            $this->global->clientVersion,
             $this->qq_info->uin,
-            $this->qq_info->init_time,
-            $this->qq_info->client_ip,
-            $this->global->seve_pwd,
+            $this->global->initTime,
+            $this->global->clientIp,
+            $this->global->sevePwd,
             $this->qq_info->md5,
             //$uin,
             //$mUserAccount,
@@ -168,8 +290,8 @@ class TestConnectCommand extends ContainerAwareCommand
         $tlv = $this->getContainer()->get('tlv.t100');
         return $tlv->get_tlv_100(
             $this->global->appid,
-            $this->global->wxappid,
-            $this->global->client_ver,
+            $this->global->wxAppId,
+            $this->global->clientVersion,
             $this->qq_info->get_sig
         );
     }
@@ -178,10 +300,10 @@ class TestConnectCommand extends ContainerAwareCommand
     {
         $tlv = $this->getContainer()->get('tlv.t107');
         return $tlv->get_tlv_107(
-            $this->qq_info->pic_type,
-            $this->qq_info->cap_type,
-            $this->qq_info->pic_size,
-            $this->qq_info->ret_type
+            $this->qq_info->picType,
+            $this->qq_info->capType,
+            $this->qq_info->picSize,
+            $this->qq_info->retType
         );
     }
 
@@ -205,9 +327,9 @@ class TestConnectCommand extends ContainerAwareCommand
     {
         $tlv = $this->getContainer()->get('tlv.t124');
         return $tlv->get_tlv_124(
-            $this->global->ostype,
-            $this->global->osver,
-            $this->global->nettype,
+            $this->global->osType,
+            $this->global->osVersion,
+            $this->global->network_type,
             $this->global->netdetail,
             $this->global->addr,
             $this->global->apn
@@ -239,7 +361,7 @@ class TestConnectCommand extends ContainerAwareCommand
     {
         $tlv = $this->getContainer()->get('tlv.t142');
         return $tlv->get_tlv_142(
-            $this->global->apk_id
+            $this->global->_apkId
         );
     }
 

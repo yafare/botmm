@@ -27,7 +27,7 @@ class Tlv_ta extends Tlv_t {
     }
 
     public function get_tlv_ta($in, $len) {
-        $this->set_buf2($in, $len);
+        $this->set_buf($in, $len);
     }
 
     public function get_msg() {

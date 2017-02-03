@@ -44,7 +44,7 @@ class Tea
 
     public static function decrypt($v, $k)
     {
-        self::checkLength($v, $k);
+        self::checkLength($v, $k, true);
         $l        = strlen($v);
         $prePlain = self::decipher($v, $k);
         $pos      = (ord($prePlain[0]) & 0x07) + 2;
@@ -142,10 +142,13 @@ class Tea
         return pack('N', $l);
     }
 
-    private static function checkLength($v, $k)
+    private static function checkLength($v, $k, $isDecrypt = false)
     {
-        if (strlen($v) % 16 != 0 || strlen($k) != 16) {
-            throw new \InvalidArgumentException("data length must be a multiple of 16 and key length must be 16");
+        if (strlen($k) != 16) {
+            throw new \InvalidArgumentException("key length must be 16 bytes");
+        }
+        if ($isDecrypt && (strlen($v) % 8 != 0 || strlen($v) < 16)) {
+            throw new \InvalidArgumentException("data length must be a multiple of 8 bytes");
         }
     }
 

@@ -25,10 +25,19 @@ class StreamOutputBuffer
         }
     }
 
+    /**
+     * @param string|woolebuffer|StreamOutputBuffer $string
+     * @param null                      $length
+     */
     public function write($string, $length = null)
     {
-        if ($length == null) {
-            $length = strlen($string);
+        if (is_string($string)) {
+            if ($length == null) {
+                $length = strlen($string);
+            }
+        } elseif ($string instanceof self) {
+            $length = $string->getLength();
+            $string = $string->getBuffer();
         }
         $this->checkCapacity($length);
         $this->buffer->write($string, $this->offset, $length);
@@ -106,6 +115,16 @@ class StreamOutputBuffer
     }
 
     public function getOffset()
+    {
+        return $this->offset;
+    }
+
+    /**
+     * write length
+     *
+     * @return mixed
+     */
+    public function getLength()
     {
         return $this->offset;
     }

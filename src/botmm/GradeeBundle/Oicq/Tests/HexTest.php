@@ -2,7 +2,8 @@
 
 namespace botmm\GradeeBundle\Tests\Controller;
 
-use botmm\tools\Hex;
+
+use botmm\GradeeBundle\Oicq\Tools\Hex;
 
 class HexTest extends \PHPUnit_Framework_TestCase
 {
@@ -29,5 +30,18 @@ class HexTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("65 78 61 6d 70 6c 65 20 68 65 78 20 64 61 74 61",
                             Hex::BinToHexString("example hex data"),
                             "the bin to hex string should equal");
+    }
+
+    public function testMd52()
+    {
+        
+        print_r(Hex::BinToHexString("123456789" . Hex::HexStringToBin("00 00 00 00 00 2b c0 65")));
+        print_r("\n");
+        print_r(md5("123456789"));
+        $this->assertEquals(
+        "054fbeea6f63996f36a7b4fee12547fb",
+        md5("123456789". Hex::HexStringToBin("00 00 00 00 00 2b c0 65")),
+        "md5_pass2"
+        );
     }
 }

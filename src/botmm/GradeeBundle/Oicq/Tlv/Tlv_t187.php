@@ -6,7 +6,7 @@ namespace botmm\GradeeBundle\Oicq\Tlv;
 
 use botmm\BufferBundle\Buffer\Buffer;
 
-class  tlv_t187 extends Tlv_t
+class Tlv_t187 extends Tlv_t
 {
     protected $_t187_body_len = 0;
 
@@ -20,7 +20,7 @@ class  tlv_t187 extends Tlv_t
      * hex
      * F8 FF 12 23 6E 0D AF 24 97 CE 7E D6 A0 7B DD 68
      *
-     *@param $mac
+     * @param $mac
      * @return mixed
      */
     public function get_tlv_187($mac)

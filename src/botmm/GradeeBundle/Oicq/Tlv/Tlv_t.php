@@ -19,23 +19,24 @@ class Tlv_t
     protected $_head_len;
     protected $_max;
     protected $_pos;
-    protected $_type;
+
+    //protected $_type;
 
     public function __construct()
-	{
-        $this->_max      = 128;
-        $this->_pos      = 0;
-        $this->_type     = 0;
+    {
+        $this->_max = 128;
+        $this->_pos = 0;
+        //$this->_type     = 0;
         $this->_head_len = 4;
         $this->_body_len = 0;
         $this->_buf      = new Buffer($this->_max);
         $this->_cmd      = 0;
     }
 
-    public function get_type()
-    {
-        return $this->_cmd;
-    }
+    //public function get_type()
+    //{
+    //    return $this->_cmd;
+    //}
 
     public function get_buf()
     {
@@ -53,8 +54,8 @@ class Tlv_t
     }
 
     /**
-     * @param byte $in
-     * @param int  $len
+     * @param string $in
+     * @param int    $len
      */
     public function set_data($in, $len)
     {
@@ -71,11 +72,26 @@ class Tlv_t
         $this->_buf->writeInt16BE($this->_body_len, 2);
     }
 
+    public function set_buf()
+    {
+        $args = func_get_args();
+        switch (count($args)) {
+            case 2:
+                return call_user_func_array([$this, 'set_buf2'], $args);
+            case 3:
+                return call_user_func_array([$this, 'set_buf3'], $args);
+            case 5:
+                return call_user_func_array([$this, 'set_buf5'], $args);
+            default:
+                throw new \InvalidArgumentException("set_buf arguments error");
+        }
+    }
+
     /**
-     * @param in  byte[]
-     * @param int len
+     * @param string $in
+     * @param int    $len
      */
-    public function set_buf2($in, $len)
+    private function set_buf2($in, $len)
     {
         if ($len > $this->_max) {
             $this->_max = $len + 128;
@@ -89,11 +105,11 @@ class Tlv_t
     }
 
     /**
-     * @param byte $in
-     * @Param int $pos
-     * @Param int $len
+     * @param string $in
+     * @param  int   $pos
+     * @param  int   $len
      */
-    public function set_buf3($in, $pos, $len)
+    private function set_buf3($in, $pos, $len)
     {
         if ($len > $this->_max) {
             $this->_max = $len + 128;
@@ -106,7 +122,7 @@ class Tlv_t
         $this->_body_len = $len - $this->_head_len;
     }
 
-    public function set_buf5($in, $pos, $len, $cmd, $body_len)
+    private function set_buf5($in, $pos, $len, $cmd, $body_len)
     {
         if ($len > $this->_max) {
             $this->_max = $len + 128;
@@ -146,7 +162,9 @@ class Tlv_t
 
     function search_tlv($in, $pos, $len, $type)
     {
+        //if($len == null){
         $max      = strlen($in);
+        //}
         $inBuffer = new Buffer($in);
         while ($pos < $max && $pos + 2 <= $max) {
             if ($inBuffer->readInt16BE($pos) == $type) {
@@ -161,7 +179,49 @@ class Tlv_t
         return -1;
     }
 
-    function get_tlv2($in, $len)
+    /**
+     *
+     * <p>
+     *     <b>param</b> string $in  <br/>
+     *     <b>param</b> int    $len        <br/>
+     *     <b>return</b> int|string <br/>
+     * </p>
+     *<br/>
+     * <p>
+     *     <b>param</b> string $in  <br/>
+     *     <b>param</b> int    $pos        <br/>
+     *     <b>param</b> int    $len        <br/>
+     *     <b>return</b> int|string <br/>
+     * </p>
+     *<br/>
+     * <p>
+     *     <b>param</b> string $in  <br/>
+     *     <b>param</b> int    $pos        <br/>
+     *     <b>param</b> int    $len        <br/>
+     *     <b>param</b> string $key        <br/>
+     *     <b>return</b> int|string <br/>
+     * </p>
+     */
+    public function get_tlv()
+    {
+        $args = func_get_args();
+        switch (count($args)) {
+            case 2:
+                return call_user_func_array([$this, 'get_tlv2'], $args);
+            case 3:
+                if (is_int($args[2])) {
+                    return call_user_func_array([$this, 'get_tlv3'], $args);
+                } else {
+                    return call_user_func_array([$this, 'get_tlv_cryptor'], $args);
+                }
+            case 4:
+                return call_user_func_array([$this, 'get_tlv4'], $args);
+            default:
+                throw new \InvalidArgumentException("get_tlv arguments error");
+        }
+    }
+
+    private function get_tlv2($in, $len)
     {
         if ($this->_head_len >= $len) {
             return -1;
@@ -178,7 +238,13 @@ class Tlv_t
         return -1005;
     }
 
-    public function get_tlv3($in, $pos, $len)
+    /**
+     * @param string $in
+     * @param int    $pos
+     * @param int    $len
+     * @return int
+     */
+    private function get_tlv3($in, $pos, $len)
     {
         $p = $this->search_tlv($in, $pos, $len, $this->_cmd);
         if ($p < 0) {
@@ -201,6 +267,31 @@ class Tlv_t
         return -1005;
     }
 
+    /**
+     * @param string $in
+     * @param int    $pos
+     * @param int    $len
+     * @param string $key
+     * @return int|string
+     */
+    private function get_tlv4($in, $pos, $len, $key)
+    {
+        $p = $this->search_tlv($in, $pos, $len, $this->_cmd);
+        if ($p < 0) {
+            return -1;
+        }
+        $len -= $p - $pos;
+        $in1 = new Buffer($len);
+        $in1->write((new Buffer($in))->read($p, $len), 0, $len);
+        return $this->get_tlv_cryptor($in1, $len, $key);
+    }
+
+    /**
+     * @param $in
+     * @param $len
+     * @param $key
+     * @return int
+     */
     function get_tlv_cryptor($in, $len, $key)
     {
         if ($this->_head_len >= $len) {
@@ -229,23 +320,6 @@ class Tlv_t
         return !$this->verify() ? -1005 : 0;
     }
 
-    /**
-     * @param byte   $in
-     * @param int    $pos
-     * @param int    $len
-     * @param byte[] $key
-     */
-    public function get_tlv4($in, $pos, $len, $key)
-    {
-        $p = $this->search_tlv($in, $pos, $len, $this->_cmd);
-        if ($p < 0) {
-            return -1;
-        }
-        $len -= $p - $pos;
-        $in1 = new Buffer($len);
-        $in1->write((new Buffer($in))->read($p, $len), 0, $len);
-        return $this->get_tlv3($in1, $len, $key);
-    }
 
     /**
      * @return bool

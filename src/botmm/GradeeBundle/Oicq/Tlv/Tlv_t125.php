@@ -6,7 +6,7 @@ namespace botmm\GradeeBundle\Oicq\Tlv;
 
 use botmm\BufferBundle\Buffer\Buffer;
 
-class tlv_t125 extends Tlv_t
+class Tlv_t125 extends Tlv_t
 {
     protected $_openid_len;
     protected $_openkey_len;

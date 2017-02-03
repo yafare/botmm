@@ -13,17 +13,6 @@ class QqTeaTest extends TlvTestCase
 
     }
 
-    //有毒
-    public function testCypher()
-    {
-        $data   = 'abcdef';
-        $key    = '00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00';
-        $result = TEA::encrypt($key, $data);
-
-        print_r($result);
-
-    }
-
     public function testCypher01()
     {
         $data = '
@@ -119,6 +108,7 @@ HEX;
 
 00 00 00 04
  
+//wtlogin.login
 00 00 00 11 
 77 74 6c 6f 67 69 6e 2e 6c 6f 67 69 6e 
 

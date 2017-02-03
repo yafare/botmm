@@ -17,7 +17,6 @@ class AppKernel extends Kernel
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new AppBundle\AppBundle(),
 
-            new FSi\Bundle\DataGridBundle\DataGridBundle(),
             new botmm\ClientBundle\botmmClientBundle(),
             new botmm\ServerBundle\botmmServerBundle(),
             new botmm\BufferBundle\botmmBufferBundle(),

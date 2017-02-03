@@ -4,7 +4,7 @@
 namespace botmm\GradeeBundle\Tests\Tlv;
 
 
-use botmm\tools\Hex;
+use botmm\GradeeBundle\Oicq\Tools\Hex;
 use PHPUnit_Framework_TestCase;
 
 class TlvTestCase extends PHPUnit_Framework_TestCase

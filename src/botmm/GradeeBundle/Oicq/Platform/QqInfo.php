@@ -9,6 +9,7 @@ class QqInfo
 
     public $Account;        // 文本型       qq
     public $QQ;             // 长整数型     qq 10
+    public $uin;            // 64位
     public $user;           // 字节集       qq_hex
     public $caption;        // 字节集       qq_utf-8
     public $pass;           // 文本型
@@ -37,5 +38,15 @@ class QqInfo
     public $VieryToken;     // 字节集      验证码token
     public $VieryToken2;    // 字节集      验证码token
     public $Viery;          // 字节集      验证码
+
+    public $TGTGT;
+    public $bitmap;
+    public $get_sig;
+    public $picType;
+    public $capType;
+    public $picSize;
+    public $retType;
+
+    public $newins;
 
 }

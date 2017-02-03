@@ -6,7 +6,7 @@ namespace botmm\GradeeBundle\Oicq\Tlv;
 
 use botmm\BufferBundle\Buffer\Buffer;
 
-class tlv_t129 extends Tlv_t
+class Tlv_t129 extends Tlv_t
 {
     protected $_random_len;
 

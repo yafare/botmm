@@ -48,7 +48,7 @@ class Tlv_t116 extends Tlv_t
             $p += 4;
         }
         $this->fill_head($this -> _cmd);
-        $this->fill_body($body, $this -> _t116_body_len);
+        $this->fill_body($body, $p);
         $this->set_length();
         return $this->get_buf();
     }

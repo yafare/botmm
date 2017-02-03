@@ -24,6 +24,9 @@ class Buffer
 
     public function __construct($size = 128)
     {
+        if (!$size) {
+            $size = 128;
+        }
         $this->buffer = new swoole_buffer($size);
     }
 
@@ -54,9 +57,12 @@ class Buffer
     public function write($string, $offset, $length = null)
     {
         if ($string instanceof swoole_buffer || $string instanceof Buffer) {
-            if ($length == null) {
+            if ($length === 0) {
+                return;
+            } elseif ($length === null) {
                 throw new \InvalidArgumentException("when write swoole buffer or Buffer itself, must set length");
-            } else {
+            }
+            {
                 $string = $string->read(0, $length);
             }
         } elseif ($length == null) {
@@ -122,7 +128,7 @@ class Buffer
 
     public function readBuffer($offset, $length)
     {
-        $bytes = $this->read($offset, $length);
+        $bytes  = $this->read($offset, $length);
         $buffer = new Buffer($length);
         $buffer->write($bytes, 0, $length);
         return $buffer;
@@ -173,7 +179,8 @@ class Buffer
         return $MSB << 4 + $LSB;
     }
 
-    public function getBufferCapacity() {
+    public function getBufferCapacity()
+    {
         return $this->buffer->capacity;
     }
 

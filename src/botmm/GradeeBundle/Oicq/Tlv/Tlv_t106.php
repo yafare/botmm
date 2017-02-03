@@ -5,34 +5,35 @@ namespace botmm\GradeeBundle\Oicq\Tlv;
 
 
 use botmm\BufferBundle\Buffer\Buffer;
+use botmm\BufferBundle\Buffer\StreamOutputBuffer;
 use botmm\GradeeBundle\Oicq\Cypher\Cryptor;
 use botmm\GradeeBundle\Oicq\Cypher\MD5;
-use botmm\GradeeBundle\Oicq\Tools\util;
+use botmm\GradeeBundle\Oicq\Tools\Util;
 
 class Tlv_t106 extends Tlv_t
 {
 
-    protected $_SSoVer;
+    protected $_SSoVer = Util::SSO_VERSION;
 
-    protected $_TGTGTVer;
+    protected $_TGTGTVer = Util::TGTGTVer;
 
     protected $_t106_body_len;
 
     public function __construct()
     {
         parent::__construct();
-        $this->_cmd    = 262;
-        $this->_SSoVer = util::SSO_VERSION;
-        if (util::SSO_VERSION <= 2) {
-            $this->_TGTGTVer      = 1;
+        $this->_cmd      = 262;
+        $this->_SSoVer   = Util::SSO_VERSION;
+        $this->_TGTGTVer = Util::TGTGTVer;
+
+        if ($this->_SSoVer <= 2 && $this->_TGTGTVer == 1) {
             $this->_t106_body_len = 69;
-            return;
-        } elseif ($this->_SSoVer == 3) {
-            $this->_TGTGTVer      = 2;
+        } elseif ($this->_SSoVer == 3 && $this->_TGTGTVer == 2) {
             $this->_t106_body_len = 90;
-        } elseif ($this->_SSoVer == 5) {
-            $this->_TGTGTVer      = 3; //or 4
+        } elseif ($this->_SSoVer == 5 && $this->_TGTGTVer == 3) {
             $this->_t106_body_len = 98 + 2; //98 + 2 + n;
+        } elseif ($this->_SSoVer == 5 && $this->_TGTGTVer == 4) {
+            $this->_t106_body_len = 98 + 2 + 15; //98 + 2 + n; 多加一点
         }
     }
 
@@ -238,34 +239,21 @@ class Tlv_t106 extends Tlv_t
         $readflg,
         $guid
     ) {
-        $body = new Buffer($this->_t106_body_len);
-        $p    = 0;
-        $body->writeInt16BE($this->_TGTGTVer, $p); //can be 4
-        $p += 2;
-        $body->writeInt32BE(mt_rand(), $p);
-        $p += 4;
-        $body->writeInt32BE($this->_SSoVer, $p);
-        $p += 4;
-        $body->writeInt32BE($appid, $p);
-        $p += 4;
-        $body->writeInt32BE($client_ver, $p);
-        $p += 4;
-        $body->writeInt64BE($uin, $p);
-        $p += 8;
-        $body->write($init_time, $p, 4);
-        $p += 4;
-        $body->write($client_ip, $p, 4);
-        $p += 4;
-        $body->writeInt8($seve_pwd, $p);
-        $p++;
-        $body->write($md5, $p, 16);
-        $p += 16;
-        $body->write($TGTGT, $p, 16);
-        $p += 16;
-        $body->writeInt32BE(0, $p);
-        $p += 4;
-        $body->writeInt8($readflg, $p);
-        $p++;
+        $userAccount = strval($uin);
+        $body        = new StreamOutputBuffer(new Buffer());
+        $body->writeInt16BE($this->_TGTGTVer); //can be 4
+        $body->writeInt32BE(mt_rand());
+        $body->writeInt32BE($this->_SSoVer);
+        $body->writeInt32BE($appid);
+        $body->writeInt32BE($client_ver);
+        $body->writeInt64BE($uin);
+        $body->write($init_time, 4);
+        $body->write($client_ip, 4);
+        $body->writeInt8($seve_pwd);
+        $body->write($md5, 16);
+        $body->write($TGTGT, 16);
+        $body->writeInt32BE(0);
+        $body->writeInt8($readflg);
         if ($guid == null || strlen($guid) <= 0) {
             $guid = new Buffer(16);
             $guid->writeInt32BE(mt_rand(), 0);
@@ -273,26 +261,20 @@ class Tlv_t106 extends Tlv_t
             $guid->writeInt32BE(mt_rand(), 8);
             $guid->writeInt32BE(mt_rand(), 12);
         }
-        $body->write($guid, $p, 16);
-        $p += 16;
+        $body->write($guid, 16);
         //sso 5
-        $body->writeInt32BE($subAppId, $p);
-        $p += 4;
-        $body->writeInt32BE(1, $p); //1
-        $p += 4;
-        $body->writeInt16BE(0, $p); //不写uin长度
-        $p += 2;
-        $body->write(0, $p, 0);
-        //$this->_t106_body_len = 90 + 4 + 4 + 2 + strlen(0);
+        $body->writeInt32BE($subAppId);
+        $body->writeInt32BE(1); //1
+        $body->writeInt16BE(0); //不写uin长度
+        $body->write(0, $userAccount);
         //end sso 5
-        //print_r(Hex::BinToHexString($body->read(0, $p)));
         $s2 = new Buffer(24);
         $s2->write($md5, 0);
         $s2->writeInt64BE($uin, 16);
-        $body                 = Cryptor::encrypt($body, 0, $p, md5($s2, true));
-        $this->_t106_body_len = strlen($body);
+        $encryptedBody        = Cryptor::encrypt($body, 0, $body->getLength(), md5($s2->read(0, 24), true));
+        $this->_t106_body_len = strlen($encryptedBody);
         $this->fill_head($this->_cmd);
-        $this->fill_body($body, $this->_t106_body_len);
+        $this->fill_body($encryptedBody, $this->_t106_body_len);
         $this->set_length();
         return $this->get_buf();
     }

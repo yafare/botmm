@@ -44,6 +44,7 @@ use botmm\GradeeBundle\Oicq\Tlv\Tlv_t165;
 use botmm\GradeeBundle\Oicq\Tlv\Tlv_t167;
 use botmm\GradeeBundle\Oicq\Tlv\Tlv_t169;
 use botmm\GradeeBundle\Oicq\Tlv\Tlv_t16a;
+use botmm\GradeeBundle\Oicq\Tlv\Tlv_t171;
 use botmm\GradeeBundle\Oicq\Tlv\Tlv_t305;
 
 class oicq_request
@@ -110,8 +111,6 @@ class oicq_request
     protected $_service_cmd;
     /** int */
     protected $_sub_cmd;
-    /** int */
-    protected $_transport_type;
 
 
     public function __construct()
@@ -146,7 +145,7 @@ class oicq_request
         $this->_rsp_head_len           = 15;
         $this->_rsp_body_len           = 0;
         $this->_buf                    = new Buffer($this->_max);
-        $this->_default_client_version = 8001;
+        $this->_default_client_version = 8001;//pc_ver
         $this->_default_client_seq     = 0;
         $this->_default_ext_version    = 3;
         $this->_default_ext_version1   = 0;
@@ -154,7 +153,6 @@ class oicq_request
         $this->_default_ext_type       = 0;
         $this->_default_ext_no         = 0;
         $this->_default_ext_instance   = 0;
-        $this->_transport_type         = 0;
         $this->_server_ip              = null;
         $this->_server_port            = 0;
         $this->_cmd                    = 0;
@@ -166,16 +164,16 @@ class oicq_request
     public function get_static_ip(bool $is_wap_retry)
     {
         if ($is_wap_retry) {
-            return self::_static_web_wlogin_ip[((int)(mt_rand())) % count(static::_static_web_wlogin_ip)];
+            return self::$_static_web_wlogin_ip[((int)(mt_rand())) % count(static::$_static_web_wlogin_ip)];
         }
 
-        return self::_static_wlogin_ip[((int)(mt_rand())) % count(static::_static_wlogin_ip)];
+        return self::$_static_wlogin_ip[((int)(mt_rand())) % count(static::$_static_wlogin_ip)];
     }
 
     public static function set_test(int $test, string $host)
     {
-        self::_test      = $test;
-        self::_test_host = $host;
+        self::$_test      = $test;
+        self::$_test_host = $host;
     }
 
     public
@@ -183,8 +181,8 @@ class oicq_request
         int $test,
         string $host
     ) {
-        self::_test_push      = $test;
-        self::_test_push_host = $host;
+        self::$_test_push      = $test;
+        self::$_test_push_host = $host;
     }
 
     public function fill_head(
@@ -195,23 +193,21 @@ class oicq_request
         int $retry,
         int $type,
         int $no,
-        int $intstance,
+        int $instance,
         int $body_len
     ) {
-        $seq                       = $this->_default_client_seq + 1;
-        $this->_default_client_seq = $seq;
-        $this->_pos                = 0;
+        $this->_default_client_seq++;
+
+        $this->_pos = 0;
         $this->_buf->writeInt8(2, $this->_pos);
         $this->_pos++;
-        if ($this->get_transport_type() == 0) {
-            $this->_buf->writeInt16BE(($this->_req_head_len + 2) + $body_len, $this->_pos);
-            $this->_pos += 2;
-        }
+        $this->_buf->writeInt16BE(($this->_req_head_len + 2) + $body_len, $this->_pos);
+        $this->_pos += 2;
         $this->_buf->writeInt16BE($version, $this->_pos);
         $this->_pos += 2;
         $this->_buf->writeInt16BE($cmd, $this->_pos);
         $this->_pos += 2;
-        $this->_buf->writeInt16BE($seq, $this->_pos);
+        $this->_buf->writeInt16BE($this->_default_client_seq, $this->_pos);
         $this->_pos += 2;
         $this->_buf->writeInt32BE($uin, $this->_pos);
         $this->_pos += 4;
@@ -225,7 +221,7 @@ class oicq_request
         $this->_pos += 4;
         $this->_buf->writeInt32BE($no, $this->_pos);
         $this->_pos += 4;
-        $this->_buf->writeInt32BE($intstance, $this->_pos);
+        $this->_buf->writeInt32BE($instance, $this->_pos);
         $this->_pos += 4;
     }
 
@@ -297,7 +293,7 @@ class oicq_request
     {
         $len = $this->_pos;
         if ($len <= $this->_rsp_head_len + 2) {
-            return util->E_PK_LEN;
+            return -1009;
         }
         $this->_rsp_body_len = ($len - $this->_rsp_head_len) - 2;
         $ret                 = $this->decrypt_body($this->_buf, $this->_rsp_head_len + 1, $this->_rsp_body_len,
@@ -364,7 +360,7 @@ class oicq_request
         return $ret;
     }
 
-    protected function encrypt_body($in)
+    protected function encrypt_body1($in)
     {
         //util->LOGD("encrypt_body key:" + util->buf_to_string($this->_g->_rand_key));
         $en_buf        = Cryptor:: encrypt($in, 0, strlen($in), $this->_g->_rand_key);
@@ -374,11 +370,6 @@ class oicq_request
         $ret->write($this->_g->_rand_key, 0);
         $ret->write($en_buf, $_rand_key_len);
         return $ret;
-    }
-
-    public function get_transport_type()
-    {
-        return $this->_transport_type;
     }
 
     public function get_sk()
@@ -415,8 +406,8 @@ class oicq_request
     ) {
         $host = "";
         $retry_no /= 2;
-        if ($_test != 0 && $_test_host != null && _test_host->length() > 0) {
-            $host = $_test_host;
+        if (self::$_test != 0 && self::$_test_host != null && strlen(self::$_test_host) > 0) {
+            $host = self::$_test_host;
         } else {
             if ($retry_no < 1) {
                 if ($is_wap_retry) {
@@ -452,29 +443,12 @@ class oicq_request
         return $host;
     }
 
-    public function snd_rcv_req_none()
-    {
-        $type = $this->get_transport_type();
-        //util->LOGD("snd_rcv_req", getClass()->getName());
-        if ($type == 1) {
-            $ret = $this->snd_rcv_req_udp();
-        } else {
-            if ($type == 0) {
-                $ret = $this->snd_rcv_req_tcp();
-            } else {
-                $ret = $this->snd_rcv_req_tcp();
-            }
-        }
-        //util->LOGD(new StringBuilder(String->valueOf(getClass()->getName()))->append("::snd_rcv_req")->toString(), "ret=" + ret + ", type=" + type);
-        return $ret;
-    }
-
     public function snd_rcv_req(string $uin, boolean $flag, WUserSigInfo $userSigInfo)
     {
         if ($this->_g->is_use_msf_transport()) {
             return $this->snd_rcv_req_msf($uin, $flag, $userSigInfo);
         }
-        return $this->snd_rcv_req_none();
+        return $this->snd_rcv_req_tcp();
     }
 
     public function snd_rcv_req_msf(string $uin, boolean $flag, WUserSigInfo $userSigInfo)
@@ -543,18 +517,9 @@ class oicq_request
         return $ret;
     }
 
-    public function snd_rcv_req_udp()
-    {
-        return util->E_NO_RET;
-    }
-
     public function get_rsp_length($head)
     {
-        if ($this->get_transport_type() == 0) {
-            return util->buf_to_int16(head, 1);
-        }
-
-        return 0;
+        return $head->readInt16BE(1);
     }
 
     public function get_response_ret_code(
@@ -638,7 +603,7 @@ class oicq_request
     {
         $key = "%4;7t>;28<fc.5*6";
         if ($this->request_global->_IMEI_KEY == null || $this->request_global->_IMEI_KEY->length <= 0) {
-            $ret = Cryptor::decrypt($en_a1, 0,strlen($en_a1), $key->getBytes());
+            $ret = Cryptor::decrypt($en_a1, 0, strlen($en_a1), $key->getBytes());
         } else {
             $key1 = new Buffer(16);
             $key1->write($this->request_global->_IMEI_KEY, 0, 16);
@@ -648,7 +613,7 @@ class oicq_request
             return null;
         }
         $a1_len = strlen($ret) - 16;
-        $ret1 = new Buffer($a1_len);
+        $ret1   = new Buffer($a1_len);
         $ret1->write($ret, $a1_len);
         $this->_g->_key_tgtgt = new Buffer(16);
         $this->_g->_key_tgtgt = $ret->read($a1_len, 16);
@@ -670,6 +635,7 @@ class oicq_request
 
     public function on_return_A1($a1)
     {
+        $this->_g->_fast_login_info = $a1;
     }
 
     public function get_response_body($in, int $pos, int $len)
@@ -720,11 +686,11 @@ class oicq_request
         /*Tlv_t125*/
         $t125 = new Tlv_t125();
         /*Tlv_t122*/
-        $t122 = new Tlv_t122();
+        $t122 = new Tlv_t122();//fixme sames that it have been removed from 4.7
         /*Tlv_t126*/
         $t126 = new Tlv_t126();
         /*Tlv_t129*/
-        $t129 = new Tlv_t129();
+        $t129 = new Tlv_t129();//fixme sames that it have been removed from 4.7
         /*Tlv_t11f*/
         $t11f = new Tlv_t11f();
         /*Tlv_t138*/
@@ -749,6 +715,38 @@ class oicq_request
         $t16a = new Tlv_t16a();
         /*Tlv_t169*/
         $t169 = new Tlv_t169();
+
+        // todo add it
+        ///*Tlv_t161*/
+        //$t161 = new Tlv_t161();
+        ///*Tlv_t171*/
+        //$t171 = new Tlv_t171();
+        ///*Tlv_t16c*/
+        //$t16c = new Tlv_t16c();
+        ///*Tlv_t16d*/
+        //$t16d = new Tlv_t16d();
+        ///*Tlv_t174*/
+        //$t174 = new Tlv_t174();
+        ///*Tlv_t178*/
+        //$t178 = new Tlv_t178();
+        ///*Tlv_t179*/
+        //$t179 = new Tlv_t179();
+        ///*Tlv_t17d*/
+        //$t17d = new Tlv_t17d();
+        ///*Tlv_t17e*/
+        //$t17e = new Tlv_t17e();
+        ///*Tlv_t182*/
+        //$t182 = new Tlv_t182();
+        ///*Tlv_t183*/
+        //$t183 = new Tlv_t183();
+        ///*Tlv_t186*/
+        //$t186 = new Tlv_t186();
+        ///*Tlv_t402*/
+        //$t402 = new Tlv_t402();
+        ///*Tlv_t403*/
+        //$t403 = new Tlv_t403();
+        //
+
         /*byte[]*/
         $t102_data = null;
         /*byte[]*/
@@ -761,6 +759,8 @@ class oicq_request
         $t121_data = null;
         /*byte[]*/
         $t103_data = null;
+        /*byte[]*/
+        $t169_data = null;//todo add it
         /*byte[]*/
         $openid_data = null;
         /*byte[]*/
@@ -780,11 +780,16 @@ class oicq_request
         } elseif ($this->_cmd == 2064 && $this->_sub_cmd == 4) {
             $flowid = 3;
         } elseif ($this->_cmd == 2064 && $this->_sub_cmd == 6) {
+        //} elseif ($this->_cmd == 2064 && $this->_sub_cmd == 13) { todo add it
             $flowid = 4;
         } elseif ($this->_cmd == 2064 && $this->_sub_cmd == 7) {
+        //} elseif ($this->_cmd == 2064 && $this->_sub_cmd == 15) { todo add it
             $flowid = 5;
         } elseif ($this->_cmd == 2064 && $this->_sub_cmd == 8) {
+        //} elseif ($this->_cmd == 2064 && $this->_sub_cmd == 7) { todo add it
             $flowid = 6;
+        } elseif ($this->_cmd == 2064 && $this->_sub_cmd == 18) {
+            $flowid = 7;
         } elseif ($this->_cmd != 2064 || $this->_sub_cmd != 13) {
             return -1012;
         } else {
@@ -807,57 +812,69 @@ class oicq_request
                     if ($this->_g->_master_tgt_key == null) {
                         return -1006;//util->E_NO_TGTKEY;
                     }
-                    if ($t150->get_tlv3($in, $pos, ($this->_pos - $pos) - 1) >= 0) {
+                    if ($t150->get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0) {
                         $this->_g->_t150 = $t150;
                     }
-                    $ret = $t119->get_tlv4($in, $pos, ($this->_pos - $pos) - 1, $this->_g->_master_tgt_key);
+                    //todo add it
+                    //if ($t161->get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0) {
+                    //    $this->parse_t161($t161)
+                    //}
+                    $ret = $t119->get_tlv($in, $pos, ($this->_pos - $pos) - 1, $this->_g->_master_tgt_key);
                     //util->LOGD("decrypt key=", util->buf_to_string($this->_g->_master_tgt_key));
-                } else {
-                    if ($flowid == 2) {
-                        if ($this->get_last_flowid() == 3) {
-                            if ($t113->get_tlv3($in, $pos, ($this->_pos - $pos) - 1) >= 0) {
-                                $this->_g->_t113 = $t113;
-                                $this->_g->_uin  = $this->_g->_t113->get_uin();
-                                $this->_g->put_account($this->_g->_name, $this->_g->_uin);
-                            }
-                            if ($t104->get_tlv3($in, $pos, ($this->_pos - $pos) - 1) >= 0) {
-                                $this->_g->_t104 = $t104;
-                            }
-                            $ret = $type;
+                } elseif ($flowid == 2) {
+                    if ($this->get_last_flowid() == 3) {
+                        if ($t113->get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0) {
+                            $this->_g->_t113 = $t113;
+                            $this->_g->_uin  = $this->_g->_t113->get_uin();
+                            $this->_g->put_account($this->_g->_name, $this->_g->_uin);
+                        }
+                        if ($t104->get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0) {
+                            $this->_g->_t104 = $t104;
+                        }
+                        $ret = $type;
+                        break;
+                    }
+                    if ($t150->get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0) {
+                        $this->_g->_t150 = $t150;
+                    }
+                    //todo add it
+                    //if ($t161->get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0) {
+                    //    $this->parse_t161($t161)
+                    //}
+                    $ret = $t119->get_tlv($in, $pos, ($this->_pos - $pos) - 1, $this->_g->_key_tgtgt);
+                } elseif ($flowid == 3 || ($this->get_last_flowid() == 3 && $flowid == 4)) {
+                //todo add it
+                //elseif ($flowid == 3 || $flowid == 7 || ($this->get_last_flowid() == 3 && $flowid == 4)) {
+                    $ret = $t113->get_tlv($in, $pos, $this->_pos - $pos);
+                    if ($ret >= 0) {
+                        $this->_g->_t113 = $t113;
+                        $this->_g->_uin  = $this->_g->_t113->get_uin();
+                        $this->_g->put_account($this->_g->_name, $this->_g->_uin);
+                        $ret = $t104->get_tlv($in, $pos, $this->_pos - $pos);
+                        if ($ret >= 0) {
+                            $this->_g->_t104 = $t104;
+                            $ret             = $type;
                             break;
                         }
-                        if ($t150->get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0) {
-                            $this->_g->_t150 = $t150;
-                        }
-                        $ret = $t119->get_tlv($in, $pos, ($this->_pos - $pos) - 1, $this->_g->_key_tgtgt);
-                    } else {
-                        if ($flowid == 3 || ($this->get_last_flowid() == 3 && $flowid == 4)) {
-                            $ret = $t113 -> get_tlv($in, $pos, $this->_pos - $pos);
-                            if ($ret >= 0) {
-                                $this->_g -> _t113 = $t113;
-                                $this->_g -> _uin  = $this->_g -> _t113 -> get_uin();
-                                $this->_g -> put_account($this->_g->_name, $this->_g->_uin);
-                                $ret = $t104 -> get_tlv($in, $pos, $this->_pos - $pos);
-                                if ($ret >= 0) {
-                                    $this->_g->_t104 = $t104;
-                                    $ret               = $type;
-                                    break;
-                                }
-                            }
-                        } else {
-                            if ($t150 -> get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0) {
-                                $this->_g->_t150 = $t150;
-                            }
-                            $ret = $t119 -> get_tlv($in, $pos, ($this->_pos - $pos) - 1, $this->_g->_key_tgtgt);
-                        }
                     }
+                } else {
+                    if ($t150->get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0) {
+                            $this->_g->_t150 = $t150;
+                    }
+                    //todo add it
+                    //if ($t161->get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0) {
+                    //    $this->parse_t161($t161)
+                    //}
+                    $ret = $t119->get_tlv($in, $pos, ($this->_pos - $pos) - 1, $this->_g->_key_tgtgt);
                 }
+
+
                 if ($ret < 0) {
                     //util->LOGD("119 can not decrypt");
                     break;
                 }
-                $in1 = $t119 -> get_data();
-                $tl = $in1->length;
+                $in1 = $t119->get_data();
+                $tl  = $in1->length;
                 if ($t149->get_tlv($in1, 2, $tl) > 0) {
                     $this->show_alert_dialog($t149);
                 }
@@ -874,7 +891,7 @@ class oicq_request
                         $t103_data = $t103->get_data();
                     }
                     if ($t108->get_tlv($in1, 2, $tl) >= 0) {
-                        $this->_g->_ksid= $t108->get_data();
+                        $this->_g->_ksid = $t108->get_data();
                     }
                     if ($t102->get_tlv($in1, 2, $tl) >= 0) {
                         $t102_data = $t102->get_data();
@@ -882,12 +899,11 @@ class oicq_request
                     if ($t10b->get_tlv($in1, 2, $tl) >= 0) {
                         $t10b_data = $t10b->get_data();
                     }
-                    $ret = $t11c->get_tlv($in1, 2, $tl);
-                    //LOGD("t11c ret=", $ret);
-                    if ($ret >= 0) {
+                    if ($t11c->get_tlv($in1, 2, $tl) >= 0) {
+                        //LOGD("t11c ret=", $ret);
                         $t11c_data = $t11c->get_data();
+                        //LOGD("t11c ret=", util->buf_to_string(t11c_data));
                     }
-                    //LOGD("t11c ret=", util->buf_to_string(t11c_data));
                     if ($t120->get_tlv($in1, 2, $tl) >= 0) {
                         $t120_data = $t120->get_data();
                     }
@@ -912,6 +928,12 @@ class oicq_request
                     // " openid len:" + util->buf_len(openid_data) +
                     // " openkey len:" + util->buf_len(t125_openkey_data),
                     //            $this->_g->_context, $this->_g->_uin, 1);
+                    //todo add it
+                    //if ($t168->get_tlv($in1, 2, $tl) >= 0) {
+                    //    if($name = $this->_g->get_userAccount($this->_g->_uin)){
+                    //        $this->_g->put_account($name, $this->_g->_uin, $tlv_t186->getPwdflag());
+                    //    }
+                    //}
                     if ($t169->get_tlv($in1, 2, $tl) >= 0) {
                         $this->on_return_A1($t169->get_data());
                         //util->LOGD("t169 ret=", util->buf_to_string(t169->get_data()));
@@ -924,11 +946,13 @@ class oicq_request
                         $reserve_uin_info[1] = $t167->get_img_format();
                         $reserve_uin_info[2] = $t167->get_img_url();
                         //LOGI("type:" + util->buf_to_string(reserve_uin_info[0]) + " format:" + util->buf_to_string(reserve_uin_info[1]) + " url:" + new String(reserve_uin_info[2]));
+                        //todo add it
+                        //$this->_g.put_account($reserve_uin_info, $this->_g->_uin, $tlv_t186->getPwdflag());
                     }
                     //byte[][] reserve = (byte[][]) Array.newInstance(Byte->TYPE, new int[]{9, 0});
-                    for ($i = 0; $i < 9 {;} $i++) {
-                        $reserve[i] = new byte[0];
-                    }
+                    //for ($i = 0; $i < 9;$i++) {
+                    $reserve = [];//8
+                    //}
                     if ($t133->get_tlv($in1, 2, $tl) >= 0) {
                         $reserve[0] = $t133->get_data();
                     }
@@ -943,9 +967,9 @@ class oicq_request
                         //util->LOGD("update A1 from server:", util->buf_to_string(t106->get_data()));
                         //util->LOGD("key:", util->buf_to_string(t10c->get_data()));
                         $this->_g->_key_tgtgt  = $t10c->get_data();
-                        $this->_g->_encrypt_a1 = encrypt_a1(t106->get_data());
+                        $this->_g->_encrypt_a1 = $this->encrypt_a1($t106->get_data());
                         //util->LOGD("key2:", util->buf_to_string($this->_g->_key_tgtgt));
-                        $reserve[3] = (byte[]) $this->_g->_encrypt_a1->clone();
+                        $reserve[3] = $this->_g->_encrypt_a1->clone();
                     }
                     if ($t132->get_tlv($in1, 2, $tl) >= 0) {
                         $reserve[4]  = $t132->get_access_token();
@@ -963,6 +987,58 @@ class oicq_request
                     if ($t16a->get_tlv($in1, 2, $tl) >= 0) {
                         $reserve[8] = $t16a->get_data();
                     }
+
+                    //todo add it
+                    //if ($t106->get_tlv($in1, 2, $tl) >= 0 && $ret1 >= 0) {
+                    //    //util->LOGD("update A1 from server:", util->buf_to_string(t106->get_data()));
+                    //    //util->LOGD("key:", util->buf_to_string(t10c->get_data()));
+                    //    $this->_g->_key_tgtgt  = $t10c->get_data();
+                    //    $this->_g->_encrypt_a1 = $this->encrypt_a1($t106->get_data());
+                    //    //util->LOGD("key2:", util->buf_to_string($this->_g->_key_tgtgt));
+                    //    $reserve[0] = $this->_g->_encrypt_a1->clone();
+                    //}
+                    //if ($t16a->get_tlv($in1, 2, $tl) >= 0) {
+                    //    $reserve[1]  = $t16a->get_data();
+                    //}
+                    //if($async_context->_sec_guid_flag){
+                    //    $reserve[2]  = $async_context->_G;
+                    //    $reserve[3]  = $async_context->_dpwd;
+                    //    $reserve[4]  = $async_context->_t403->get_data();
+                    //}
+                    //end
+
+                    //todo add it
+                    //if ($t136->get_tlv($in1, 2, $tl) >= 0) {
+                    //    $vkey[0] = $t136->get_data();
+                    //}
+                    //if ($t132->get_tlv($in1, 2, $tl) >= 0) {
+                    //    $vkey[1]  = $t132->get_access_token();
+                    //    $openid_data = $t132->get_openid();
+                    //}
+                    //if ($t143->get_tlv($in1, 2, $tl) >= 0) {
+                    //    $vkey[2] = $t143->get_data();
+                    //}
+                    //if ($t305->get_tlv($in1, 2, $tl) >= 0) {
+                    //    $vkey[3] = $t305->get_data();
+                    //}
+                    //if ($t164->get_tlv($in1, 2, $tl) >= 0) {
+                    //    $vkey[4] = $t164->get_data();
+                    //}
+                    //if ($t171->get_tlv($in1, 2, $tl) >= 0) {
+                    //    $vkey[5] = $t171->get_data();
+                    //}
+                    //if ($t16c->get_tlv($in1, 2, $tl) >= 0) {
+                    //    $vkey[6] = $t16c->get_data();
+                    //}
+                    //if ($t16d->get_tlv($in1, 2, $tl) >= 0) {
+                    //    $vkey[7] = $t16d->get_data();
+                    //}
+                    //if($t11f->get_tlv($t104, 2, $tl)){
+                    //    $l1 = $t11f->get_tk_pri();
+                    //}
+
+
+
                     // util->LOGI(
                     // "new_st len:" + util->buf_len(reserve[0]) +
                     // " net_st_key len:" + util->buf_len(reserve[1]) +
@@ -983,7 +1059,7 @@ class oicq_request
                         //util->LOGD("tk_expire=" + new Long(tk_expire)->toString());
                     }
                     $reserve_expire = new long[7];
-                    $ret                   = 2;
+                    $ret            = 2;
                     while (true) {
                         $ret = $t138->get_tlv($in1, $ret, $tl);
                         if ($ret < 0) {
@@ -1027,6 +1103,38 @@ class oicq_request
                                                           $t125_openkey_data,
                                                           $reserve,
                                                           $reserve_expire);
+                            //todo add it
+                            //$ret = $this->_g->put_siginfo($this->_g->_uin,
+                            //                              $async_context->_sappid,
+                            //                              $encrypt_a1,
+                            //                              //$this->_g->_appid,
+                            //                              $async_context->_appid,
+                            //                              $app_pri,
+                            //                              $this->request_global->get_cur_time(),
+                            //                              $this->request_global->get_cur_time() + $tk_expire,
+                            //                              $this->request_global->get_cur_time() + $a2_expire,
+                            //                              $t11a->get_face(),
+                            //                              $t11a->get_age(),
+                            //                              $t11a->get_gander(),
+                            //                              $t11a->get_nick(),
+                            //                              //$reserve_uin_info, $t10a->get_data(),
+                            //                              $t169,
+                            //                              $t10a->get_data(),
+                            //                              $t10d->get_data(),
+                            //                              $t114->get_data(),
+                            //                              $t10e->get_data(),
+                            //                              $t103_data,
+                            //                              $t10b_data,
+                            //                              $t102_data,
+                            //                              $t11c_data,
+                            //                              $t120_data,
+                            //                              $t121_data,
+                            //                              $openid_data,
+                            //                              $t125_openkey_data,
+                            //                              $vkey,
+                            //                              //$reserve_expire
+                            //                              $async_context->_login_bitmap
+                            //);
                             if ($ret != 0) {
                                 //ErrMsg errMsg = new ErrMsg();
                                 //errMsg->setMessage("手机存储异常，请删除帐号重试。");
@@ -1046,9 +1154,10 @@ class oicq_request
                                     break;
                                 }
                                 $this->_g->put_siginfo($this->_g->_uin, $t11d->get_appid(),
-                                                        $this->request_global->get_cur_time(),
-                                                        $this->request_global->get_cur_time() + $tk_expire, $t11d->get_st(),
-                                                        $t11d->get_stkey());
+                                                       $this->request_global->get_cur_time(),
+                                                       $this->request_global->get_cur_time() + $tk_expire,
+                                                       $t11d->get_st(),
+                                                       $t11d->get_stkey());
                             }
                         } else {
                             if ($t138->get_a2_chg_time() != 0) {
@@ -1109,7 +1218,7 @@ class oicq_request
                 $ret = $t104->get_tlv($in, $pos, ($this->_pos - $pos) - 1);
                 if ($ret >= 0) {
                     $this->_g->_t104 = $t104;
-                    $ret              = $t105->get_tlv($in, $pos, ($this->_pos - $pos) - 1);
+                    $ret             = $t105->get_tlv($in, $pos, ($this->_pos - $pos) - 1);
                     if ($ret >= 0) {
                         $this->_g->_t105 = $t105;
                         if ($t165->get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0) {
@@ -1130,7 +1239,7 @@ class oicq_request
                 $ret = $t104->get_tlv($in, $pos, ($this->_pos - $pos) - 1);
                 if ($ret >= 0) {
                     $this->_g->_t104 = $t104;
-                    $ret              = $t122->get_tlv($in, $pos, ($this->_pos - $pos) - 1);
+                    $ret             = $t122->get_tlv($in, $pos, ($this->_pos - $pos) - 1);
                     if ($ret >= 0) {
                         $this->_g->_t122 = $t122;
                         $this->get_err_msg($in, $pos, ($this->_pos - $pos) - 1);
@@ -1152,10 +1261,10 @@ class oicq_request
                 $ret = $t104->get_tlv($in, $pos, ($this->_pos - $pos) - 1);
                 if ($ret >= 0) {
                     $this->_g->_t104 = $t104;
-                    $ret              = $t126->get_tlv($in, $pos, ($this->_pos - $pos) - 1);
+                    $ret             = $t126->get_tlv($in, $pos, ($this->_pos - $pos) - 1);
                     if ($ret >= 0) {
                         $this->_g->_t126 = $t126;
-                        $ret              = $t129->get_tlv($in, $pos, ($this->_pos - $pos) - 1);
+                        $ret             = $t129->get_tlv($in, $pos, ($this->_pos - $pos) - 1);
                         if ($ret >= 0) {
                             $this->_g->_t129 = $t129;
                             $this->get_err_msg($in, $pos, ($this->_pos - $pos) - 1);
@@ -1165,23 +1274,72 @@ class oicq_request
                     }
                 }
                 break;
+            // todo add it
+            //case 174:
+            //    $ret = $t174->get_tlv($in, $pos, ($this->_pos - $pos) - 1);
+            //    if ($ret >= 0) {
+            //        $this->_g->_t174 = $t174;
+            //        $ret = $type;
+            //        break;
+            //    }
+            //    break;
             case 176:
                 $this->get_err_msg($in, $pos, ($this->_pos - $pos) - 1);
                 $ret = $type;
                 $this->_g->remove_account($this->_g->_name);
                 break;
+            // todo add it
+            //case 178:
+            //    if ($t178->get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0) {
+            //        $async_context->_devlock_info->CountryCode          = $tlv_t178->get_country_code();
+            //        $async_context->_devlock_info->Mobile               = $tlv_t178->get_mobile();
+            //        $async_context->_devlock_info->MbItemSmsCodeStatus  = $tlv_t178->get_smscode_status();
+            //        $async_context->_devlock_info->AvailableMsgCount    = $tlv_t178->get_available_msg_cnt();
+            //        $async_context->_devlock_info->TimeLimit            = $tlv_t178->get_time_limit();
+            //        break;
+            //    }
+            //    if ($t179->get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0) {
+            //        $async_context->_devlock_info->UnionVerifyUrl = $tlv_t179->get_verify_url();
+            //    }
+            //    if ($t17d->get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0)
+            //    {
+            //        $async_context->_devlock_info->MbGuideType      =   $tlv_t17d->get_mb_guide_type();
+            //        $async_context->_devlock_info->MbGuideMsg       =   $tlv_t17d->get_mb_guide_msg();
+            //        $async_context->_devlock_info->MbGuideInfoType  =   $tlv_t17d->get_mb_guide_info_type();
+            //        $async_context->_devlock_info->MbGuideInfo      =   $tlv_t17d->get_mb_guide_info();
+            //    }
+            //    if ($t17e->get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0) {
+            //        $async_context->_devlock_info->VerifyReason = $t17e->get_data());
+            //    }
+            //    if ($t402->get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0)
+            //    {
+            //        $async_context->_t402 = $tlv_t402;
+            //    }
+            //    if ($t182->get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0)
+            //    {
+            //        $async_context->_smslogin_msgcnt    = $tlv_t182->getMsgCnt();
+            //        $async_context->_smslogin_timelimit = $tlv_t182->getTimeLimit();
+            //    }
+            //    if ($t183->get_tlv($in, $pos, ($this->_pos - $pos) - 1) >= 0)
+            //    {
+            //        $async_context->_msalt      = $t183->getMsalt();
+            //    }
+            //    break;
             default:
                 $this->get_err_msg($in, $pos, ($this->_pos - $pos) - 1);
                 $ret = $type;
                 break;
         }
         if ($ret == 9 || $ret == 10 || $ret == 161 || $ret == 162 || $ret == 164 || $ret == 165 || $ret == 166 || $ret == 154 || ($ret >= 128 && $ret <= 143)) {
+        // todo add it
+        //if ($ret == 10 || $ret == 161 || $ret == 162 || $ret == 164 || $ret == 165 || $ret == 166 || $ret == 154 || ($ret >= 128 && $ret <= 143)) {
             $ret = -1000;
         }
         if ($type == 0 && $ret != 0) {
             $this->set_err_msg(new ErrMsg());
         }
         if (!($flowid == 2 || $flowid == 4 || $flowid == 5 || $flowid == 6)) {
+        //if (!($flowid == 2 || $flowid == 6 || $flowid == 7)) { todo add it
             $this->set_last_flowid($flowid);
         }
         return $ret;
