@@ -87,7 +87,7 @@ class TestConnectCommand extends ContainerAwareCommand
         $buffer        = new Buffer();
         $loginBuffer   = new StreamOutputBuffer($buffer);
         $loginBuffer->writeHex("00 09");//sub_cmd
-        $loginBuffer->writeInt16BE(19); //tlv 个数
+        $loginBuffer->writeInt16BE(0x18); //tlv 个数
         $loginBuffer->write($this->get_tlv18());
         $loginBuffer->write($this->get_tlv1());
         $loginBuffer->write($this->get_tlv106());
@@ -95,22 +95,29 @@ class TestConnectCommand extends ContainerAwareCommand
         $loginBuffer->write($this->get_tlv100());
         $loginBuffer->write($this->get_tlv107());
         $loginBuffer->write($this->get_tlv108());
-        $loginBuffer->write($this->get_tlv144());
         $loginBuffer->write($this->get_tlv142());
+        $loginBuffer->write($this->get_tlv144());
         $loginBuffer->write($this->get_tlv145());
+        $loginBuffer->write($this->get_tlv147());
+        $loginBuffer->write($this->get_tlv154());
         $loginBuffer->write($this->get_tlv141());
         $loginBuffer->write($this->get_tlv8());
-        $loginBuffer->write($this->get_tlv16b());
-        $loginBuffer->write($this->get_tlv147());
-        $loginBuffer->write($this->get_tlv177());
+        $loginBuffer->write($this->get_tlv511());
         $loginBuffer->write($this->get_tlv187());
         $loginBuffer->write($this->get_tlv188());
+        $loginBuffer->write($this->get_tlv194());
         $loginBuffer->write($this->get_tlv191());
+        $loginBuffer->write($this->get_tlv202());
+        $loginBuffer->write($this->get_tlv177());
+        $loginBuffer->write($this->get_tlv516());
+        $loginBuffer->write($this->get_tlv521());
+        $loginBuffer->write($this->get_tlv525());
+        //$loginBuffer->write($this->get_tlv16b());
 
         $wupBufferbytes = $loginBuffer->getBytes();
-        $encrypt = Cryptor::encrypt($wupBufferbytes, 0, strlen($wupBufferbytes), $this->qq_info->shareKey);
+        $encrypt        = Cryptor::encrypt($wupBufferbytes, 0, strlen($wupBufferbytes), $this->qq_info->shareKey);
 
-        $packed  = $this->fill_head(0x0810, $encrypt, $this->qq_info->randKey, $this->qq_info->pubKey);
+        $packed = $this->fill_head(0x0810, $encrypt, $this->qq_info->randKey, $this->qq_info->pubKey);
 
         $this->Make_login_sendSsoMsg("wtlogin.login",
                                      $packed,
@@ -243,7 +250,8 @@ class TestConnectCommand extends ContainerAwareCommand
             $this->global->appId,
             $this->global->clientVersion,
             $this->qq_info->uin,
-            0);
+            0
+        );
     }
 
     public function get_tlv1()
@@ -281,7 +289,9 @@ class TestConnectCommand extends ContainerAwareCommand
         return $tlv->get_tlv_116(
             $this->qq_info->bitmap,
             $this->qq_info->get_sig,
-            $this->global->appid
+            [
+                $this->global->appid
+            ]
         );
     }
 
@@ -300,10 +310,10 @@ class TestConnectCommand extends ContainerAwareCommand
     {
         $tlv = $this->getContainer()->get('tlv.t107');
         return $tlv->get_tlv_107(
-            $this->qq_info->picType,
-            $this->qq_info->capType,
-            $this->qq_info->picSize,
-            $this->qq_info->retType
+            $this->qq_info->picType, //00 00
+            $this->qq_info->capType, //00
+            $this->qq_info->picSize, //00 00
+            $this->qq_info->retType //01
         );
     }
 
@@ -311,7 +321,7 @@ class TestConnectCommand extends ContainerAwareCommand
     {
         $tlv = $this->getContainer()->get('tlv.t108');
         return $tlv->get_tlv_108(
-            $this->global->ksid
+            $this->global->ksid //c5 91 b0 f2 d4 51 bb 9a 5a 70 49 bf 3d 50 6e 1f
         );
     }
 
@@ -340,12 +350,13 @@ class TestConnectCommand extends ContainerAwareCommand
     {
         $tlv = $this->getContainer()->get('tlv.t128');
         return $tlv->get_tlv_128(
-            $this->qq_info->newins,
-            $this->global->readguid,
-            $this->global->guidchg,
-            $this->global->t128_flag,
-            $this->global->devicetype,
-            $this->global->imei
+            $this->qq_info->newins,//00
+            $this->global->readguid,//00
+            $this->global->guidchg,//01
+            $this->global->t128_flag,//10 00 00 00
+            $this->global->devicetype, //MI 4LTE
+            $this->global->imei, //d1 61 60 d5 b3 56 a0 a5 4f b9 93 24 a3 63 28 6b
+            $this->global->deviceName//XiaoMi
         );
     }
 
@@ -361,6 +372,8 @@ class TestConnectCommand extends ContainerAwareCommand
     {
         $tlv = $this->getContainer()->get('tlv.t142');
         return $tlv->get_tlv_142(
+        //com.tencent.mobileqq
+        //63 6f 6d 2e 74 65 6e 63 65 6e 74 2e 6d 6f 62 69 6c 65 71 71
             $this->global->_apkId
         );
     }
@@ -386,7 +399,9 @@ class TestConnectCommand extends ContainerAwareCommand
     private function get_tlv8()
     {
         $tlv = $this->getContainer()->get('tlv.t8');
-        return $tlv->get_tlv_8(0, $this->global->local_id, 0);
+        return $tlv->get_tlv_8(
+            0, $this->global->local_id, 0
+        );
     }
 
     private function get_tlv16b()
@@ -439,5 +454,78 @@ class TestConnectCommand extends ContainerAwareCommand
         return $tlv->get_tlv_191();
     }
 
+    private function get_tlv154()
+    {
+        $tlv = $this->getContainer()->get('tlv.t154');
+        return $tlv->get_tlv_154(
+            $this->global->ssoSeq
+        );
+    }
+
+    private function get_tlv511()
+    {
+        $tlv = $this->getContainer()->get('tlv.t511');
+        return $tlv->get_tlv_511(
+            $this->global->userDomains
+        );
+    }
+
+    private function get_tlv194()
+    {
+        $tlv = $this->getContainer()->get('tlv.t194');
+        return $tlv->get_tlv_194(
+            $this->global->imsi
+        );
+    }
+
+    private function get_tlv202()
+    {
+        $tlv = $this->getContainer()->get('tlv.t202');
+        return $tlv->get_tlv_202(
+            $this->global->bassaddr,
+            $this->global->ssid
+        );
+    }
+
+    private function get_tlv516()
+    {
+        $tlv = $this->getContainer()->get('tlv.t516');
+        return $tlv->get_tlv_516(
+            $this->global->source_type
+        );
+    }
+
+    private function get_tlv521()
+    {
+        $tlv = $this->getContainer()->get('tlv.t521');
+        return $tlv->get_tlv_521(
+            $this->global->product_type
+        );
+    }
+
+    private function get_tlv525()
+    {
+        $tlv = $this->getContainer()->get('tlv.t525');
+        return $tlv->get_tlv_525(
+            $this->get_tlv522()
+        );
+    }
+
+    /**
+     * 登录历史记录
+     * [{
+     * $loginExtraData['mUin']
+     * $loginExtraData['mIp']
+     * $loginExtraData['mTime']
+     * $loginExtraData['mVersion']
+     * }]
+     *
+     * @return mixed
+     */
+    private function get_tlv522()
+    {
+        $tlv = $this->getContainer()->get('tlv.t522');
+        return $tlv->get_tlv_522([]);
+    }
 
 }

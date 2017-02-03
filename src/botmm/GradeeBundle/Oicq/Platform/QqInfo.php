@@ -41,12 +41,12 @@ class QqInfo
 
     public $TGTGT;
     public $bitmap;
-    public $get_sig;
+    public $get_sig = 0x021610e0;
     public $picType;
     public $capType;
     public $picSize;
     public $retType;
 
-    public $newins;
+    public $newins = 0x0000;
 
 }

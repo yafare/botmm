@@ -15,7 +15,7 @@ class Tlv_t142 extends Tlv_t {
 		parent::__construct();
     $this->_version = 0;
     $this->_t142_body_len = 0;
-    $this->_cmd = 322;
+    $this->_cmd = 0x142;
     }
 
     /**

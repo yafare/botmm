@@ -195,6 +195,7 @@ class Buffer
             $actual = hexdec(bin2hex($actual));
         }
         if ($actual > $excpected_max) {
+            $actual &= $excpected_max;
             throw new \InvalidArgumentException(sprintf('%d exceeded limit of %d', $actual, $excpected_max));
         }
     }

@@ -265,13 +265,15 @@ class Tlv_t106 extends Tlv_t
         //sso 5
         $body->writeInt32BE($subAppId);
         $body->writeInt32BE(1); //1
-        $body->writeInt16BE(0); //不写uin长度
-        $body->write(0, $userAccount);
+        $body->writeInt16BE(strlen($userAccount)); //uin长度
+        $body->write($userAccount);
+        $body->writeInt16BE(0);//imei length
+        //$body->write($imei);//imei
         //end sso 5
         $s2 = new Buffer(24);
         $s2->write($md5, 0);
         $s2->writeInt64BE($uin, 16);
-        $encryptedBody        = Cryptor::encrypt($body, 0, $body->getLength(), md5($s2->read(0, 24), true));
+        $encryptedBody        = Cryptor::encrypt($body->getBytes(), 0, $body->getLength(), md5($s2->read(0, 24), true));
         $this->_t106_body_len = strlen($encryptedBody);
         $this->fill_head($this->_cmd);
         $this->fill_body($encryptedBody, $this->_t106_body_len);

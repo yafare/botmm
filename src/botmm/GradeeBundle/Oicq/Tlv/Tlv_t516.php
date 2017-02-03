@@ -4,28 +4,25 @@
 namespace botmm\GradeeBundle\Oicq\Tlv;
 
 
-use botmm\BufferBundle\Buffer\Buffer;
-
-class Tlv_t191 extends Tlv_t
+class Tlv_t516 extends Tlv_t
 {
-
     public function __construct()
     {
         parent::__construct();
-        $this->_cmd = 401;
+        $this->_cmd = 0x516;
     }
 
     /**
+     * WUserSignInfo $source_type
+     * @param $source_type 0
      * @return mixed
      */
-    public function get_tlv_191()
+    public function get_tlv_516($source_type)
     {
-        $body = new Buffer(1);
-        $body->writeInt8(1, 0); //or 0
         $this->fill_head($this->_cmd);
-        $this->fill_body($body, 1);
+        $this->fill_body($source_type, 4);
         $this->set_length();
         return $this->get_buf();
     }
-}
 
+}

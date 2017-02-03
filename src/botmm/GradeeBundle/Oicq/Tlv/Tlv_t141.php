@@ -17,9 +17,9 @@ class Tlv_t141 extends Tlv_t {
     }
 
     /**
-     * @param byte[] $operator_name
+     * @param byte[]|string $operator_name
      * @param int $network_type
-     * @param byte[] $apn
+     * @param byte[]|string $apn
      * @return mixed
      */
     public function get_tlv_141($operator_name, $network_type, $apn) {

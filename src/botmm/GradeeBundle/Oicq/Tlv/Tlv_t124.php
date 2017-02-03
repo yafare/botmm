@@ -11,8 +11,8 @@ class Tlv_t124 extends Tlv_t
     protected $_t124_body_len;
 
     public function __construct()
-	{
-		parent::__construct();
+    {
+        parent::__construct();
         $this->_t124_body_len = 0;
         $this->_cmd           = 292;
     }
@@ -29,12 +29,12 @@ class Tlv_t124 extends Tlv_t
     }
 
     /**
-     * @param byte[] $ostype
-     * @param byte[] $osver
-     * @param int    $nettype
-     * @param byte[] $netdetail
-     * @param byte[] $addr
-     * @param byte[] $apn
+     * @param byte[]|string $ostype
+     * @param byte[]|string $osver
+     * @param int           $nettype
+     * @param byte[]|string $netdetail
+     * @param byte[]|string $addr
+     * @param byte[]|string $apn
      */
     public function get_tlv_124($ostype, $osver, $nettype, $netdetail, $addr, $apn)
     {

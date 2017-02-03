@@ -67,7 +67,7 @@ class Tlv_t1 extends Tlv_t
         $body->writeInt16BE(0, $p);
         $p += 2;
         $this->fill_head($this->_cmd);
-        $this->fill_body($body, $this->_t1_body_len);
+        $this->fill_body($body, $p);
         $this->set_length();
         return $this->get_buf();
     }
