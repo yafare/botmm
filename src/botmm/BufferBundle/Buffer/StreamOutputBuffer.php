@@ -12,22 +12,27 @@ class StreamOutputBuffer
     protected $buffer;
     protected $offset = 0;
 
-    public function __construct($buffer)
+    public function __construct($buffer = null)
     {
-        $this->buffer = $buffer;
+        if ($buffer == null) {
+            $this->buffer = new Buffer();
+        } else {
+            $this->buffer = $buffer;
+        }
     }
 
     protected function checkCapacity($length)
     {
         $capacity = $this->buffer->getBufferCapacity();
         if ($this->offset + $length > $capacity) {
-            $this->buffer->expand($capacity + 64);
+            $length = $length < 32 ? 32 : $length;
+            $this->buffer->expand($capacity + $length << 1);
         }
     }
 
     /**
      * @param string|woolebuffer|StreamOutputBuffer $string
-     * @param null                      $length
+     * @param null                                  $length
      */
     public function write($string, $length = null)
     {
@@ -103,6 +108,35 @@ class StreamOutputBuffer
         $this->buffer->writeInt64LE($value, $this->offset);
         $this->offset += 8;
     }
+
+    public function writeFloatBE($value)
+    {
+        $this->checkCapacity(4);
+        $this->buffer->writeFloatBE($value, $this->offset);
+        $this->offset += 4;
+    }
+
+    public function writeFloatLE($value)
+    {
+        $this->checkCapacity(4);
+        $this->buffer->writeFloatLE($value, $this->offset);
+        $this->offset += 4;
+    }
+
+    public function writeDoubleBE($value)
+    {
+        $this->checkCapacity(8);
+        $this->buffer->writeDoubleBE($value, $this->offset);
+        $this->offset += 8;
+    }
+
+    public function writeDoubleLE($value)
+    {
+        $this->checkCapacity(8);
+        $this->buffer->writeDoubleLE($value, $this->offset);
+        $this->offset += 8;
+    }
+
 
     public function getBytes()
     {

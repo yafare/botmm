@@ -4,7 +4,6 @@
 namespace botmm\BufferBundle\Buffer;
 
 
-
 class StreamInputBuffer
 {
 
@@ -47,19 +46,19 @@ class StreamInputBuffer
 
     public function readInt16LE()
     {
-        $this->buffer->readInt16LE( $this->offset);
+        $this->buffer->readInt16LE($this->offset);
         $this->offset += 2;
     }
 
     public function readInt32BE()
     {
-        $this->buffer->readInt32BE( $this->offset);
+        $this->buffer->readInt32BE($this->offset);
         $this->offset += 4;
     }
 
     public function readInt32LE()
     {
-        $this->buffer->readInt32LE( $this->offset);
+        $this->buffer->readInt32LE($this->offset);
         $this->offset += 4;
     }
 
@@ -73,6 +72,18 @@ class StreamInputBuffer
     public function readInt64LE()
     {
         $this->buffer->readInt64LE($this->offset);
+        $this->offset += 8;
+    }
+
+    public function readFloat()
+    {
+        $this->buffer->readFloat($this->offset);
+        $this->offset += 4;
+    }
+
+    public function readDouble()
+    {
+        $this->buffer->readDouble($this->offset);
         $this->offset += 8;
     }
 

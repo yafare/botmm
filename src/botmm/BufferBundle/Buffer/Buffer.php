@@ -19,7 +19,9 @@ class Buffer
         'v' => 2,
         'V' => 4,
         'c' => 1,
-        'C' => 1
+        'C' => 1,
+        'f' => 4,
+        'd' => 8,
     ];
 
     public function __construct($size = 128)
@@ -120,6 +122,50 @@ class Buffer
         $this->write($bytes, $offset);
     }
 
+    public function writeFloatBE($value, $offset)
+    {
+        if ($this->isBigEndian()) {
+            $this->insert('f', $value, $offset, 4);
+        } else {
+            $bytes = pack('f', $value);
+            $bytes = strrev($bytes);
+            $this->write($bytes, $offset, 4);
+        }
+    }
+
+    public function writeFloatLE($value, $offset)
+    {
+        if ($this->isBigEndian()) {
+            $bytes = pack('f', $value);
+            $bytes = strrev($bytes);
+            $this->write($bytes, $offset, 4);
+        } else {
+            $this->insert('f', $value, $offset, 4);
+        }
+    }
+
+    public function writeDoubleBE($value, $offset)
+    {
+        if ($this->isBigEndian()) {
+            $this->insert('d', $value, $offset, 8);
+        } else {
+            $bytes = pack('d', $value);
+            $bytes = strrev($bytes);
+            $this->write($bytes, $offset, 8);
+        }
+    }
+
+    public function writeDoubleLE($value, $offset)
+    {
+        if ($this->isBigEndian()) {
+            $bytes = pack('d', $value);
+            $bytes = strrev($bytes);
+            $this->write($bytes, $offset, 8);
+        } else {
+            $this->insert('d', $value, $offset, 8);
+        }
+    }
+
     public function read($offset, $length)
     {
         $format = 'a' . $length;
@@ -179,6 +225,54 @@ class Buffer
         return $MSB << 4 + $LSB;
     }
 
+    public function readFloatBE($offset)
+    {
+        if ($this->isBigEndian()) {
+            return $this->extract('f', $offset, 4);
+        } else {
+            $bytes = $this->read($offset, 4);
+            $bytes = strrev($bytes);
+            list(, $result) = unpack('f', $bytes);
+            return $result;
+        }
+    }
+
+    public function readFloatLE($offset)
+    {
+        if ($this->isBigEndian()) {
+            $bytes = $this->read($offset, 4);
+            $bytes = strrev($bytes);
+            list(, $result) = unpack('f', $bytes);
+            return $result;
+        } else {
+            return $this->extract('f', $offset, 4);
+        }
+    }
+
+    public function readDoubleBE($offset)
+    {
+        if ($this->isBigEndian()) {
+            return $this->extract('d', $offset, 8);
+        } else {
+            $bytes = $this->read($offset, 8);
+            $bytes = strrev($bytes);
+            list(, $result) = unpack('d', $bytes);
+            return $result;
+        }
+    }
+
+    public function readDoubleLE($offset)
+    {
+        if ($this->isBigEndian()) {
+            $bytes = $this->read($offset, 8);
+            $bytes = strrev($bytes);
+            list(, $result) = unpack('d', $bytes);
+            return $result;
+        } else {
+            return $this->extract('d', $offset, 8);
+        }
+    }
+
     public function getBufferCapacity()
     {
         return $this->buffer->capacity;
@@ -200,5 +294,16 @@ class Buffer
         }
     }
 
+    public function isBigEndian()
+    {
+        static $endianness;
+
+        if (null === $endianness) {
+            list(, $result) = unpack('L', pack('V', 1));
+            $endianness = $result !== 1;
+        }
+
+        return $endianness;
+    }
 
 }
