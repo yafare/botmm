@@ -14,24 +14,72 @@ class TEATest extends TlvTestCase
     public function testDec001()
     {
         $data = "
-2a 2d 67 a5 cb 89
-1c 8e 5e 3c 0b 7a 51 ed 22 31 c9 a7 7f 66 6e 88
-63 b2 24 b1 38 62 74 a6 b2 41 b6 89 30 6b 38 fb
-74 e5 ca 98 1c cc 4b 97 7c 23 b3 56 5a 9b 29 6b
-f3 b6 4c 42 5e 85 94 77 92 93 e2 e0 41 27 b2 ec
-79 58 aa 6d 10 a4 c4 0f 18 e0 54 70 82 6b 58 bc
-6e 6f 66 75 b1 5f 5d a4 f2 cc 26 07 61 b6 8b 90
-af 39 06 95 35 07 4e 94 85 0b 86 ee f6 6d ed 11
-60 c7 ";
-        //$key    = '4da0f614fc9f29c2054c77048a6566d7';
-        //$key = '76 c9 a6 37 9c 3c 6d 8e 3c a9 5a 89 b3 d0 b8 67';
+cf e8 d6 98 b0 ab 00 96 e1 a4 26
+e8 98 3d 54 c5 aa 8c 6c ab 48 78 78 2d 2e cc 6d
+29 9d 4e 38 fa b2 5c 87 f5 1c 50 67 51 1e 77 fe
+94 e2 f6 c6 86 
+";
         //$key = '00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00';
-        //$key  = '7d 1f fc 96 23 9d 17 a2 36 f1 22 d2 b4 97 a3 00';//sharekey
-        $key = '74ccb6a8c92f95de435fa9c329f2c816';//md5_2+uin
+        //$key  = '7d1ffc96239d17a236f122d2b497a300';//sharekey
+        //$key = '74ccb6a8c92f95de435fa9c329f2c816';//md5_2+uin 123456789
+        //$key = md5(md5('thirstyzebra', true).hex2bin('00000000002bc065'));//md5_2+uin 12345678
+        $key = md5(md5('123456', true).hex2bin('00000000002bc065'));//md5_2+uin 12345678
+        //$key = 'cf 2c 33 2a 1b af 36 d0 34 9f ab 27 ac 0b 29 2c';//tmp 009 tgtgt
+        //$key  = '66 6f 55 bc 4d 6b 3a 34 6c f4 b0 b1 b4 b9 6c a9';
+        $key = '67 24 2e 42 35 55 74 55 44 62 67 73 3c 38 66 58';
+        $key = '3f 25 4b 0e 79 39 59 32 55 30 9b 31 d0 ba d5 82';
 
         $str    = Hex::HexStringToBin($data);
         $result = Cryptor::decrypt($str, 0, strlen($str), Hex::HexStringToBin($key));
 
+
         $this->assertBinEqualsHex("0c", $result, "should equal");
+    }
+
+    public function testGzinflate()
+    {
+        $source   = Hex::HexStringToBin("7B226170705F736967223A22EFBFBDEFBFBD45EFBFBD24EFBFBDEFBFBD7752775C7530303136EFBFBDEFBFBD6EEFBFBDEFBFBD222C226170705F6E223A22636F6D2E74656E63656E742E6D6F62696C657171222C226F73223A2232222C2262766572223A22362E332E312E31393933222C226F735F76223A22342E342E32222C22646973705F6E616D65223A225151222C226274696D65223A22323031365C2F31325C2F32382031333A35303A3432222C22646576696365223A224D4920344C5445222C226170705F76223A22362E362E39222C226B736964223A223966323638613662353231623532333364616266663561663862653531393435222C226C7374223A5B7B22737562617070223A22353337303439373232222C22617070223A223136222C2272737431223A2230222C2272737432223A2230222C226170706C697374223A2231363030303030323236222C22656D61696C223A2232383637333031222C227374617274223A2231343836333936383239222C226F706572223A22434D4343222C2261747472223A302C2275696E223A2232383637333031222C2275736564223A22343934222C2274797065223A226C6F67696E222C226C6F67223A5B7B22776170223A2233222C22706F7274223A2230222C22737562223A22307839222C22636F6E6E223A2230222C22686F7374223A22222C22726C656E223A223733222C226E6574223A2230222C2275736564223A223335222C226970223A22222C22736C656E223A22393038222C22636D64223A223078383130222C22737472223A22222C2272737432223A2230222C22747279223A2230227D2C7B22776170223A2233222C22706F7274223A2230222C22737562223A22307839222C22636F6E6E223A2230222C22686F7374223A22222C22726C656E223A2231353933222C226E6574223A2230222C2275736564223A22313338222C226970223A22222C22736C656E223A22393135222C22636D64223A223078383130222C22737472223A22222C2272737432223A2230222C22747279223A2230227D5D7D5D2C2273646B5F76223A2235227D");
+        $composed = gzcompress($source, -1, ZLIB_ENCODING_DEFLATE);
+        $composed2 = gzencode($source, -1, FORCE_DEFLATE);
+        $this->assertEquals($composed, $composed2);
+        //print_r(Hex::BinToHexString($composed));
+        //$uncomposed = gzuncompress($composed);
+        //print_r(Hex::BinToHexString($uncomposed));
+
+        $str = Hex::HexStringToBin("
+        78 9c a5 52 cb 6e c2 30 10 fc 15 64 f5 88 82 df
+        d8 5c 51 0f 95
+        da 43 ab de 0a aa 12 62 a8 45 5e c5 06 8a 10 9f 56 f5 93
+        fa 0b dd 75 e8 01 89 4b d5 28 91 67 d7 33 bb b3
+        ab 1c 49 de 75 af c1 af c8 84 7c 7f 7d c2 7b 0b
+        df 4d 0f f7 4f fb d9 96 52 a6 fb b0 e9 0f 32 4c
+        9a 06 14 8b b6 ce a2 6b 16 ae 89 59 dd 16 be 72
+        ef ef 70 dd 06 b8 e3 00 8a 9d db 00 d4 99 c8 58
+        c6 ac 15 e9 f2 75 07 39 99 c9 0c 29 a5 0f 50 2b
+        af 1d e4 1e 1f 51 13 7d 0a 38 f4 9d 8d 18 9f 8d
+        b8 19 30 31 51 74 22 93 c0 ed fc 02 09 0f 77 03
+        79 ff 7c 7b b6 b3 4b 7d 74 66 21 5e 07 5f 42 68
+        97 5c 9b 5c 17 8a 33 f8 84 28 f3 62 b9 54 f9 d2
+        14 4e 31 2b 15 30 ab 10 c9 e4 e5 48 c2 b6 80 22
+        a0 51 62 4c a5 1d 73 de 97 85 0c d3 00 37 21 32
+        c0 b4 87 fc 0c 81 50 79 ac 00 24 8a 0f e7 48 76
+        75 ee 2b 9c c0 e8 b1 a0 0c 32 21 e6 9b 44 93 46
+        0b ab 0d 47 97 6d 97 96 33 7d 98 4e b1 56 8c 10
+        d1 21 d9 fa e6 42 bb 0d 0e 87 91 56 42 10 0f 1d
+        8e 5e b5 2b 60 0d f1 4c f6 f7 39 3a c5 ed 76 6d
+        6a 84 ee 60 26 44 1f d8 6b d1 36 cd 39 fd d6 26
+        c7 38 49 e5 30 39 46 5d e3 7e 65 e7 7e 02 d7 e3
+        bb 9e 19 7a a6 a5 06 6b d5 65 aa 6b 58 ea 82 b6
+        c9 e5 5e e2 e6 90 d0 69 f8 4f 6b 4c d9 ab e6 98
+        30 57 dc 31 f5 37 77 f3 d3 1c 18 e5 3a fd 3b 8a
+        9c 7e 00 2c 9e db 4a
+        ");
+
+        //$bin = gzinflate($str);
+        //
+        $bin = gzuncompress($str);
+        print_r($bin);
+        print_r(Hex::BinToHexString($bin));
+
     }
 }

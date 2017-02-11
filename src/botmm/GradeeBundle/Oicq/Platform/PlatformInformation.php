@@ -19,7 +19,7 @@ class PlatformInformation
     public $ver           = "5.8.0.157158";            // 字节集 ﻿ 5.8.0.157158
     public $appId         = 0x00000010;          // 整数型
     public $subAppId      = 0x2002ba7a;          // 整数型
-    public $pcVer         = 0x1F41;          // 文本型 0x02
+    public $pcVer         = 0x1F41;
     public $clientVersion = 0x00000000;
 
     // md5('A0:99:9B:09:5F:FF') 这里是大写mac地址
@@ -32,7 +32,8 @@ class PlatformInformation
     public $sevePwd  = 1;
     public $appid    = 0x00000010;
     public $wxAppId  = 0x2002ba7a;
-    public $ksid;
+    //5.8 "c5 91 b0 f2 d4 51 bb 9a 5a 70 49 bf 3d 50 6e 1f"
+    public $ksid     = "﻿93 AC 68 93 96 D5 7E 5F 94 96 B8 15 36 AA FE 91";
 
     public $osType        = "android";        // 文本型
     public $osVersion     = "4.4.2";     // 文本型

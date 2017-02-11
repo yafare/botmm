@@ -1,3 +1,11 @@
+botmm_tars:
+    resource: "@botmmTarsBundle/Resources/config/routing.php"
+    prefix:   /
+
+test_test001:
+    resource: "@testTest001Bundle/Resources/config/routing.yml"
+    prefix:   /
+
 botmm_gradee:
     resource: "@botmmGradeeBundle/Controller/"
     type:     annotation

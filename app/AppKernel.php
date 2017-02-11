@@ -21,6 +21,8 @@ class AppKernel extends Kernel
             new botmm\ServerBundle\botmmServerBundle(),
             new botmm\BufferBundle\botmmBufferBundle(),
             new botmm\GradeeBundle\botmmGradeeBundle(),
+            new test\Test001Bundle\testTest001Bundle(),
+            new botmm\TarsBundle\botmmTarsBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
