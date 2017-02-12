@@ -1,7 +1,7 @@
 <?php
 
 
-namespace botmm\TarsBundle\protocol\tars;
+namespace botmm\Tars\protocol\tars;
 
 
 abstract class TarsStructBase implements \Serializable

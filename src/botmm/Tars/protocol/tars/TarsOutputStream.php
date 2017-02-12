@@ -6,6 +6,7 @@ namespace botmm\Tars\protocol\tars;
 
 use botmm\BufferBundle\Buffer\StreamOutputBuffer;
 use botmm\Tars\protocol\tars\exception\TarsEncodeException;
+use Ds\Map;
 use Iterator;
 
 class TarsOutputStream
@@ -163,15 +164,15 @@ class TarsOutputStream
         }
     }
 
-    public function writeMap($m, int $tag)
+    public function writeMap(Map $m, int $tag)
     {
         //reserve(8);
-        $this->writeHead(TarsStructBase::MAP, $tag);
-        $this->write($m == null ? 0 : $m->size(), 0);
+        $this->writeHead(TarsStructBase::$MAP, $tag);
+        $this->write($m == null ? 0 : count($m), 0);
         if ($m != null) {
-            for (Map . Entry < K, V > en : m . entrySet()) {
-                write(en . getKey(), 0);
-                write(en . getValue(), 1);
+            foreach ($m as $mKey => $mValue) {
+                $this->write($mKey, 0);
+                $this->write($mValue, 1);
             }
         }
     }
@@ -183,7 +184,7 @@ class TarsOutputStream
     public function writeBooleanArray($l, int $tag)
     {
         //reserve(8);
-        $this->writeHead(TarsStructBase::LIST, $tag);
+        $this->writeHead(TarsStructBase::$LIST, $tag);
         $this->write(count($l), 0);
         foreach ($l as $e) {
             $this->writeBoolean($e, 0);
@@ -199,13 +200,16 @@ class TarsOutputStream
         //reserve(8 + l . length);
         $this->writeHead(TarsStructBase::$SIMPLE_LIST, $tag);
         $this->writeHead(TarsStructBase::$BYTE, 0);
-        write(l . length, 0);
-        bs . put(l);
+        $this->write(count($l), 0);
+        //bs . put(l);
+        foreach ($l as $e) {
+            $this->bs->writeInt8($e);
+        }
     }
 
     /**
-     * @param short[] $l
-     * @param int     $tag
+     * @param short[]|int[] $l
+     * @param int           $tag
      */
     public function writeShortArray($l, int $tag)
     {
@@ -281,17 +285,18 @@ class TarsOutputStream
     }
 
     /**
-     * @param object $o
-     * @param int    $tag
+     * @param int|mixed|string|object $o
+     * @param int                     $tag
      */
     public function write($o, int $tag)
     {
         //else if (is_short($o)) {
         //    $this->writeShort($o, $tag);
         //}
-        if ($o instanceof Byte) {
-            $this->writeByte($o, $tag);
-        } elseif (is_bool($o)) {
+        //if ($o instanceof Byte) {
+        //    $this->writeByte($o, $tag);
+        //} else
+        if (is_bool($o)) {
             $this->writeBoolean($o, $tag);
         } elseif (is_integer($o)) {
             $this->writeLong($o, $tag);

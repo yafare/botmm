@@ -19,4 +19,20 @@ $tst = pack('f', '1.1');
 var_dump(strrev_x(bin2hex($tst)));
 $tst = pack('f', 8-6.4);
 var_dump(strrev_x(bin2hex($tst)));
+
+class foo {
+
+}
+
+class bar {
+
+}
+
+$a = [];
+
+$a[new foo()] = new bar;
+
+var_dump($a);
+
+
 ?>
