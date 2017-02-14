@@ -34,57 +34,80 @@ class StreamInputBuffer
 
     public function readInt8()
     {
-        $this->buffer->readInt8($this->offset);
+        $bytes = $this->buffer->readInt8($this->offset);
         $this->offset += 1;
+        return $bytes;
     }
 
     public function readInt16BE()
     {
-        $this->buffer->readInt16BE($this->offset);
+        $bytes = $this->buffer->readInt16BE($this->offset);
         $this->offset += 2;
+        return $bytes;
     }
 
     public function readInt16LE()
     {
-        $this->buffer->readInt16LE($this->offset);
+        $bytes = $this->buffer->readInt16LE($this->offset);
         $this->offset += 2;
+        return $bytes;
     }
 
     public function readInt32BE()
     {
-        $this->buffer->readInt32BE($this->offset);
+        $bytes = $this->buffer->readInt32BE($this->offset);
         $this->offset += 4;
+        return $bytes;
     }
 
     public function readInt32LE()
     {
-        $this->buffer->readInt32LE($this->offset);
+        $bytes = $this->buffer->readInt32LE($this->offset);
         $this->offset += 4;
+        return $bytes;
     }
 
 
     public function readInt64BE()
     {
-        $this->buffer->readInt64BE($this->offset);
+        $bytes = $this->buffer->readInt64BE($this->offset);
         $this->offset += 8;
+        return $bytes;
     }
 
     public function readInt64LE()
     {
-        $this->buffer->readInt64LE($this->offset);
+        $bytes = $this->buffer->readInt64LE($this->offset);
         $this->offset += 8;
+        return $bytes;
     }
 
-    public function readFloat()
+    public function readFloatBE()
     {
-        $this->buffer->readFloat($this->offset);
+        $bytes = $this->buffer->readFloatBE($this->offset);
         $this->offset += 4;
+        return $bytes;
     }
 
-    public function readDouble()
+    public function readFloatLE()
     {
-        $this->buffer->readDouble($this->offset);
+        $bytes = $this->buffer->readFloatLE($this->offset);
+        $this->offset += 4;
+        return $bytes;
+    }
+
+    public function readDoubleBE()
+    {
+        $bytes = $this->buffer->readDoubleBE($this->offset);
         $this->offset += 8;
+        return $bytes;
+    }
+
+    public function readDoubleLE()
+    {
+        $bytes = $this->buffer->readDoubleLE($this->offset);
+        $this->offset += 8;
+        return $bytes;
     }
 
     public function getBytes()
@@ -100,5 +123,10 @@ class StreamInputBuffer
     public function getOffset()
     {
         return $this->offset;
+    }
+
+    public function setOffset($offset)
+    {
+        $this->offset = $offset;
     }
 }
