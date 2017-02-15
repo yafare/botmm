@@ -1,7 +1,7 @@
 <?php
 
 
-namespace botmm\Tars\protocol\tars;
+namespace botmm\Tars\Protocol\Tars;
 
 
 abstract class TarsStructBase implements \Serializable
@@ -24,9 +24,9 @@ abstract class TarsStructBase implements \Serializable
 
     public static $MAX_STRING_LENGTH = 100 * 1024 * 1024;
 
-    public abstract function writeTo($os);
+    public abstract function writeTo(TarsOutputStream $os);
 
-    public abstract function readFrom($is);
+    public abstract function readFrom(TarsInputStream $is);
 
     public function display($sb, $level): void
     {

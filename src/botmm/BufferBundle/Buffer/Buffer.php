@@ -111,14 +111,14 @@ class Buffer
     public function writeInt64BE($value, $offset)
     {
         $this->checkForOverSize(0xffffffffffffffff, $value);
-        $bytes = pack('N*', $value / (0xffffffff + 1), $value);
+        $bytes = pack('N*', $value >> 32, $value);
         $this->write($bytes, $offset);
     }
 
     public function writeInt64LE($value, $offset)
     {
         $this->checkForOverSize(0xffffffffffffffff, $value);
-        $bytes = pack('V*', $value, $value / (0xffffffff + 1));
+        $bytes = pack('V*', $value, $value >> 32);
         $this->write($bytes, $offset);
     }
 

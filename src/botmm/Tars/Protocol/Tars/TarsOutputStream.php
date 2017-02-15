@@ -1,11 +1,11 @@
 <?php
 
 
-namespace botmm\Tars\protocol\tars;
+namespace botmm\Tars\Protocol\Tars;
 
 
 use botmm\BufferBundle\Buffer\StreamOutputBuffer;
-use botmm\Tars\protocol\tars\exception\TarsEncodeException;
+use botmm\Tars\Protocol\Tars\Exception\TarsEncodeException;
 use Ds\Map;
 use Iterator;
 
@@ -18,15 +18,18 @@ class TarsOutputStream
     private $bs;
 
 
-    public function __construct($bs)
+    public function __construct($bs = null)
     {
-        $this->bs = $bs;
-        $this->bs = new StreamOutputBuffer();
+        if ($bs == null) {
+            $this->bs = new StreamOutputBuffer();
+        } else {
+            $this->bs = $bs;
+        }
     }
 
     public function getByteBuffer()
     {
-        return $this->bs;
+        return $this->bs->getBytes();
     }
 
     public function writeHead(int $type, int $tag)
@@ -48,7 +51,7 @@ class TarsOutputStream
         }
     }
 
-    public function writeBoolean(boolean $b, int $tag)
+    public function writeBoolean(bool $b, int $tag)
     {
         $by = ($b ? 0x01 : 0);
         $this->writeByte($by, $tag);
@@ -93,7 +96,7 @@ class TarsOutputStream
     public function writeLong(int $n, int $tag)
     {
         //$this->reserve(10);
-        if ($n >= 0x80000000 && $n <= 0x7fffffff) {
+        if ($n >= -0x80000000 && $n <= 0x7fffffff) {
             $this->writeInt($n, $tag);
         } else {
             $this->writeHead(TarsStructBase::$LONG, $tag);
@@ -111,7 +114,7 @@ class TarsOutputStream
         $this->bs->writeFloatBE($n);
     }
 
-    public function writeDouble(double $n, int $tag)
+    public function writeDouble(float $n, int $tag)
     {
         //reserve(10);
         $this->writeHead(TarsStructBase::$DOUBLE, $tag);
@@ -137,7 +140,7 @@ class TarsOutputStream
     public function writeByteString(String $s, int $tag)
     {
         //reserve(10 + s . length());
-        $by = hex2bin($s);
+        $by = $s;
         if (strlen($by) > 255) {
             $this->writeHead(TarsStructBase::$STRING4, $tag);
             $this->bs->writeInt32BE(strlen($by));
@@ -149,17 +152,17 @@ class TarsOutputStream
         }
     }
 
-    public function writeString(string $s, int $tag)
+    public function writeString(string $s, int $tag, $encode = "UTF-8")
     {
-        $by = mb_convert_encoding($s, $this->sServerEncoding);
+        $by = mb_convert_encoding($s, $this->sServerEncoding, ["auto", $encode]);
         //reserve(10 + by . length);
-        if (count($by) > 255) {
+        if (strlen($by) > 255) {
             $this->writeHead(TarsStructBase::$STRING4, $tag);
             $this->bs->writeInt32BE(strlen($by));
             $this->bs->write($by);
         } else {
             $this->writeHead(TarsStructBase::$STRING1, $tag);
-            $this->bs->writeInt8(count($by));
+            $this->bs->writeInt8(strlen($by));
             $this->bs->write($by);
         }
     }
@@ -168,7 +171,7 @@ class TarsOutputStream
     {
         //reserve(8);
         $this->writeHead(TarsStructBase::$MAP, $tag);
-        $this->write($m == null ? 0 : count($m), 0);
+        $this->writeInt($m == null ? 0 : $m->count(), 0);
         if ($m != null) {
             foreach ($m as $mKey => $mValue) {
                 $this->write($mKey, 0);
@@ -181,18 +184,18 @@ class TarsOutputStream
      * @param bool[] $l
      * @param int    $tag
      */
-    public function writeBooleanArray($l, int $tag)
+    public function writeBooleanArray(array $l, int $tag)
     {
         //reserve(8);
         $this->writeHead(TarsStructBase::$LIST, $tag);
-        $this->write(count($l), 0);
+        $this->writeInt(count($l), 0);
         foreach ($l as $e) {
             $this->writeBoolean($e, 0);
         }
     }
 
     /**
-     * @param byte[] $l
+     * @param int[]|byte[] $l
      * @param int    $tag
      */
     public function writeByteArray($l, int $tag)
@@ -200,7 +203,7 @@ class TarsOutputStream
         //reserve(8 + l . length);
         $this->writeHead(TarsStructBase::$SIMPLE_LIST, $tag);
         $this->writeHead(TarsStructBase::$BYTE, 0);
-        $this->write(count($l), 0);
+        $this->writeInt(count($l), 0);
         //bs . put(l);
         foreach ($l as $e) {
             $this->bs->writeInt8($e);
@@ -215,7 +218,7 @@ class TarsOutputStream
     {
         //reserve(8);
         $this->writeHead(TarsStructBase::$LIST, $tag);
-        $this->write(count($l), 0);
+        $this->writeInt(count($l), 0);
         foreach ($l as $e) {
             $this->writeShort($e, 0);
         }
@@ -225,7 +228,7 @@ class TarsOutputStream
     {
         //reserve(8);
         $this->writeHead(TarsStructBase::$LIST, $tag);
-        $this->write(count($l), 0);
+        $this->writeInt(count($l), 0);
         foreach ($l as $e) {
             $this->writeInt($e, 0);
         }
@@ -265,6 +268,24 @@ class TarsOutputStream
         }
     }
 
+    public function writeByteStringArray($l, int $tag)
+    {
+        $this->writeHead(TarsStructBase::$LIST, $tag);
+        $this->writeInt(count($l), 0);
+        foreach ($l as $e) {
+            $this->writeByteString($e, 0);
+        }
+    }
+
+    public function writeStringArray($l, int $tag, $encode = "UTF-8")
+    {
+        $this->writeHead(TarsStructBase::$LIST, $tag);
+        $this->writeInt(count($l), 0);
+        foreach ($l as $e) {
+            $this->writeString($e, 0, $encode);
+        }
+    }
+
     public function writeArray($l, int $tag)
     {
         //reserve(8);
@@ -275,7 +296,7 @@ class TarsOutputStream
         }
     }
 
-    public function writeStruct(TarsStructBase $o, int $tag)
+    public function writeTarsStruct(TarsStructBase $o, int $tag)
     {
         //reserve(2);
         $this->writeHead(TarsStructBase::$STRUCT_BEGIN, $tag);
@@ -290,28 +311,20 @@ class TarsOutputStream
      */
     public function write($o, int $tag)
     {
-        //else if (is_short($o)) {
-        //    $this->writeShort($o, $tag);
-        //}
-        //if ($o instanceof Byte) {
-        //    $this->writeByte($o, $tag);
-        //} else
         if (is_bool($o)) {
             $this->writeBoolean($o, $tag);
         } elseif (is_integer($o)) {
             $this->writeLong($o, $tag);
-        } elseif (is_long($o)) {
-            $this->writeLong($o, $tag);
         } elseif (is_float($o)) {
             $this->writeFloat($o, $tag);
-        } elseif (is_double($o)) {
-            $this->writeDouble($o, $tag);
+        //} elseif (is_double($o)) {
+        //    $this->writeDouble($o, $tag);
         } elseif (is_string($o)) {
             $this->writeString($o, $tag);
         } elseif ($o instanceof Map) {
             $this->writeMap($o, $tag);
         } elseif ($o instanceof TarsStructBase) {
-            $this->write($o, $tag);
+            $this->writeTarsStruct($o, $tag);
         } elseif (is_array($o)) {
             $this->writeArray($o, $tag);
         } elseif ($o instanceof Iterator) {
