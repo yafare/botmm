@@ -28,6 +28,31 @@ class TarsInputStream {
         }
     }
 
+    /**
+     * @param $bs
+     * @return TarsInputStream
+     */
+    public static function fromString($bs) {
+        return new self(Buffer::from($bs));
+    }
+
+    /**
+     * @param $bs
+     * @return TarsInputStream
+     */
+    public static function fromHexString($bs) {
+        $bs = hex2bin($bs);
+        return new self(Buffer::from($bs));
+    }
+
+    /**
+     * @param $bs
+     * @return TarsInputStream
+     */
+    public static function fromBuffer(Buffer $bs) {
+        return new self($bs);
+    }
+
     public function readHead(HeadData $hd):int {
         $b = $this->bs->readInt8();
         $hd->type = ($b & 0xf);
@@ -41,14 +66,14 @@ class TarsInputStream {
 
     private function peakHead(HeadData $hd) {
         //return $this->readHead($hd, bs.duplicate());
-        return $this->readHead($hd);
+        return (new self(clone $this->bs))->readHead($hd);
     }
 
     private function skip(int $len) {
         $this->bs->setOffset($this->bs->getOffset() + $len);
     }
 
-    public function skipToTag(int $tag):boolean {
+    public function skipToTag(int $tag):bool {
         try {
             $hd = new HeadData();
                 while (true) {
@@ -139,8 +164,8 @@ class TarsInputStream {
         }
     }
 
-    public function readBoolean(boolean $b, int $tag, boolean $isRequire):boolean {
-        $c = $this->readByte(0x0, $tag, $isRequire);
+    public function readBoolean(/*bool $b, */int $tag, bool $isRequire):bool {
+        $c = $this->readByte($tag, $isRequire);
         return $c != 0;
     }
 
@@ -150,7 +175,8 @@ class TarsInputStream {
      * @param bool $isRequire
      * @return int
      */
-    public function readByte($c, int $tag, boolean $isRequire)/*: byte*/ {
+    public function readByte(int $tag, bool $isRequire)/*: byte*/ {
+        $c = null;
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
             $this->readHead($hd);
@@ -176,7 +202,8 @@ class TarsInputStream {
      * @param bool  $isRequire
      * @return short|int
      */
-    public function readShort($n, int $tag, boolean $isRequire)/*:short*/ {
+    public function readShort(int $tag, bool $isRequire)/*:short*/ {
+        $n = null;
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
             $this->readHead($hd);
@@ -199,27 +226,43 @@ class TarsInputStream {
         return $n;
     }
 
-    public function readInt(int $n, int $tag, boolean $isRequire)/*:int*/ {
+    /**
+     * @param int  $tag
+     * @param bool $isRequire
+     * @param bool $sign
+     * @return int|null
+     */
+    public function readInt(int $tag, bool $isRequire, $sign = true) {
+        $n = null;
         if ($this->skipToTag($tag)) {
-                $hd = new HeadData();
-                $this->readHead($hd);
-                switch ($hd->type) {
-                    case TarsStructBase::$ZERO_TAG:
-                        $n = 0;
-                        break;
-                    case TarsStructBase::$BYTE:
-                        $n = $this->bs->readInt8();
-                        break;
-                    case TarsStructBase::$SHORT:
-                        $n = $this->bs->readInt16BE();
-                        break;
-                    case TarsStructBase::$INT:
-                        $n = $this->bs->readInt32BE();
-                        break;
-                    default:
-                        throw new TarsDecodeException("type mismatch.");
-                }
-            } else if ($isRequire) {
+            $hd = new HeadData();
+            $this->readHead($hd);
+            switch ($hd->type) {
+                case TarsStructBase::$ZERO_TAG:
+                    $n = 0;
+                    break;
+                case TarsStructBase::$BYTE:
+                    $n = $this->bs->readInt8();
+                    if($sign && $n > 0x7f) {
+                        $n -= 0x100;
+                    }
+                    break;
+                case TarsStructBase::$SHORT:
+                    $n = $this->bs->readInt16BE();
+                    if($sign && $n > 0x7fff) {
+                        $n -= 0x10000;
+                    }
+                    break;
+                case TarsStructBase::$INT:
+                    $n = $this->bs->readInt32BE();
+                    if($sign && $n > 0x7fffffff) {
+                        $n -= 0x100000000;
+                    }
+                    break;
+                default:
+                    throw new TarsDecodeException("type mismatch.");
+            }
+        } else if ($isRequire) {
             throw new TarsDecodeException("require field not exist.");
         }
         return $n;
@@ -231,7 +274,8 @@ class TarsInputStream {
      * @param bool $isRequire
      * @return long|int|string
      */
-    public function readLong($n, int $tag, boolean $isRequire)/*:long*/ {
+    public function readLong(int $tag, bool $isRequire, $sign = true)/*:long*/ {
+        $n = null;
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
             $this->readHead($hd);
@@ -241,12 +285,21 @@ class TarsInputStream {
                     break;
                 case TarsStructBase::$BYTE:
                     $n = $this->bs->readInt8();
+                    if($sign && $n > 0x7f) {
+                        $n -= 0x100;
+                    }
                     break;
                 case TarsStructBase::$SHORT:
                     $n = $this->bs->readInt16BE();
+                    if($sign && $n > 0x7fff) {
+                        $n -= 0x10000;
+                    }
                     break;
                 case TarsStructBase::$INT:
                     $n = $this->bs->readInt32BE();
+                    if($sign && $n > 0x7fffffff) {
+                        $n -= 0x100000000;
+                    }
                     break;
                 case TarsStructBase::$LONG:
                     $n = $this->bs->readInt64BE();
@@ -260,7 +313,8 @@ class TarsInputStream {
         return $n;
     }
 
-    public function readFloat(float $n, int $tag, boolean $isRequire)/*:float*/ {
+    public function readFloat(/*float $n, */int $tag, bool $isRequire)/*:float*/ {
+        $n = null;
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
             $this->readHead($hd);
@@ -280,7 +334,8 @@ class TarsInputStream {
         return $n;
     }
 
-    public function readDouble(double $n, int $tag, boolean $isRequire)/*:double*/ {
+    public function readDouble(/*double $n, */int $tag, bool $isRequire)/*:double*/ {
+        $n = null;
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
             $this->readHead($hd);
@@ -303,7 +358,7 @@ class TarsInputStream {
         return $n;
     }
 
-    public function readByteString(String $s, int $tag, boolean $isRequire)/*:string*/ {
+    public function readByteString(String $s, int $tag, bool $isRequire)/*:string*/ {
         if ($this->skipToTag($tag)) {
                 $hd = new HeadData();
                 $this->readHead($hd);
@@ -331,7 +386,7 @@ class TarsInputStream {
         return $s;
     }
 
-    public function readString(String $s, int $tag, boolean $isRequire):string {
+    public function readString(String $s, int $tag, bool $isRequire):string {
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
             $this->readHead($hd);
@@ -365,11 +420,11 @@ class TarsInputStream {
      * @param bool  $isRequire
      * @return mixed
      */
-    public function read(array $s, int $tag, boolean $isRequire)/*: String[]*/ {
+    public function read(array $s, int $tag, bool $isRequire)/*: String[]*/ {
         return $this->readArray($s, $tag, $isRequire);
     }
 
-    public function readStringMap(int $tag, boolean $isRequire)/*:Map<String, String>*/ {
+    public function readStringMap(int $tag, bool $isRequire)/*:Map<String, String>*/ {
         $mr = new Map();
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
@@ -394,11 +449,11 @@ class TarsInputStream {
         return $mr;
     }
 
-    //public function readMap($m, int $tag, boolean $isRequire)/*: <K, V> HashMap<K, V> */ {
+    //public function readMap($m, int $tag, bool $isRequire)/*: <K, V> HashMap<K, V> */ {
     //    return $this->readMap(new Map(), $m, $tag, $isRequire);
     //}
 
-    private function readMap(Map $mr, Map $m, int $tag, boolean $isRequire) {
+    private function readMap(Map $mr, Map $m, int $tag, bool $isRequire) {
         if ($m == null || $m.isEmpty()) {
             return new Map();
         }
@@ -431,7 +486,7 @@ class TarsInputStream {
         return $mr;
     }
 
-    public function readList(int $tag, boolean $isRequire) {
+    public function readList(int $tag, bool $isRequire) {
         //List $lr = new ArrayList();
         $lr = [];
         if ($this->skipToTag($tag)) {
@@ -513,22 +568,22 @@ class TarsInputStream {
     }
 
     /**
-     * @param boolean[]     $l
+     * @param bool[]     $l
      * @param int  $tag
      * @param bool $isRequire
      * @return mixed
      */
-    public function readBooleanArray($l, int $tag, boolean $isRequire)/*:boolean[]*/ {
+    public function readBooleanArray(int $tag, bool $isRequire)/*:bool[]*/ {
         $lr = [];
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
             $this->readHead($hd);
             switch ($hd->type) {
                 case TarsStructBase::$LIST: {
-                    $size = $this->readInt(0, 0, true);
+                    $size = $this->readInt(0, true);
                     if ($size < 0) throw new TarsDecodeException("size invalid: $size");
                     for ($i = 0; $i < $size; ++$i)
-                        $lr[$i] = $this->readBoolean($lr[0], 0, true);
+                        $lr[$i] = $this->readBoolean(0, true);
                     break;
                 }
                 default:
@@ -546,8 +601,8 @@ class TarsInputStream {
      * @param bool $isRequire
      * @return mixed
      */
-    public function readByteArray($l, int $tag, boolean $isRequire) {
-        $lr = "";
+    public function readByteArray(int $tag, bool $isRequire) {
+        $lr = [];
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
             $this->readHead($hd);
@@ -558,16 +613,17 @@ class TarsInputStream {
                     if ($hh->type != TarsStructBase::$BYTE) {
                         throw new TarsDecodeException("type mismatch, tag: {$tag}, type: {$hd->type}, {$hh->type}");
                     }
-                    $size = $this->readInt(0, 0, true);
+                    $size = $this->readInt(0, true);
                     if ($size < 0) throw new TarsDecodeException("invalid size, tag: {$tag}, type: {$hd->type}, {$hh->type}, size: {$size}");
-                    $lr = $this->bs->read($size);
+                    for ($i = 0; $i < $size; ++$i)
+                        $lr[] = $this->bs->readInt8();
                     break;
                 }
                 case TarsStructBase::$LIST: {
-                    $size = $this->readInt(0, 0, true);
+                    $size = $this->readInt(0, true);
                     if ($size < 0) throw new TarsDecodeException("size invalid: {$size}");
                     for ($i = 0; $i < $size; ++$i)
-                        $lr .= $this->readByte($lr[0], 0, true);
+                        $lr[] = $this->readByte(0, true);
                     break;
                 }
                 default:
@@ -585,7 +641,7 @@ class TarsInputStream {
      * @param bool $isRequire
      * @return array
      */
-    public function readShortArray( $l, int $tag, boolean $isRequire)/*:short[] */ {
+    public function readShortArray( $l, int $tag, bool $isRequire)/*:short[] */ {
         $lr = [];
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
@@ -613,17 +669,17 @@ class TarsInputStream {
      * @param bool $isRequire
      * @return mixed
      */
-    public function readIntArray($l, int $tag, boolean $isRequire) {
+    public function readIntArray(/*$l, */int $tag, bool $isRequire, $sign = true) {
         $lr = [];
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
             $this->readHead($hd);
             switch ($hd->type) {
                 case TarsStructBase::$LIST: {
-                    $size = $this->readInt(0, 0, true);
+                    $size = $this->readInt(0, true, $sign);
                     if ($size < 0) throw new TarsDecodeException("size invalid: $size");
                     for ($i = 0; $i < $size; ++$i)
-                        $lr[$i] = $this->readInt($lr[0], 0, true);
+                        $lr[$i] = $this->readInt(0, true, $sign);
                     break;
                 }
                 default:
@@ -641,17 +697,17 @@ class TarsInputStream {
      * @param bool $isRequire
      * @return mixed
      */
-    public function readLongArray($l, int $tag, boolean $isRequire) {
+    public function readLongArray(/*$l, */int $tag, bool $isRequire, $sign = true) {
         $lr = [];
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
             $this->readHead($hd);
             switch ($hd->type) {
                 case TarsStructBase::$LIST: {
-                    $size = $this->readInt(0, 0, true);
+                    $size = $this->readInt(0, true, $sign);
                     if ($size < 0) throw new TarsDecodeException("size invalid: $size");
                     for ($i = 0; $i < $size; ++$i)
-                        $lr[$i] = $this->readLong($lr[0], 0, true);
+                        $lr[$i] = $this->readLong(0, true, $sign);
                     break;
                 }
                 default:
@@ -669,7 +725,7 @@ class TarsInputStream {
      * @param bool $isRequire
      * @return mixed
      */
-    public function readFloatArray($l, int $tag, boolean $isRequire) {
+    public function readFloatArray($l, int $tag, bool $isRequire) {
         $lr = null;
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
@@ -697,7 +753,7 @@ class TarsInputStream {
      * @param bool $isRequire
      * @return mixed
      */
-    public function readDoubleArray($l, int $tag, boolean $isRequire) {
+    public function readDoubleArray($l, int $tag, bool $isRequire) {
         $lr = null;
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
@@ -731,7 +787,7 @@ class TarsInputStream {
      * @param bool $isRequire
      * @return mixed
      */
-    public function readArray($l, int $tag, boolean $isRequire) {
+    public function readArray($l, int $tag, bool $isRequire) {
         if ($l == null || count($l) == 0) {
             return [];
         };
@@ -744,7 +800,7 @@ class TarsInputStream {
      * @param bool $isRequire
      * @return null
      */
-    private function readArrayImpl($mt, int $tag, boolean $isRequire) {
+    private function readArrayImpl($mt, int $tag, bool $isRequire) {
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
                 $this->readHead($hd);
@@ -770,7 +826,7 @@ class TarsInputStream {
         return null;
     }
 
-    public function directReadTarsStruct(TarsStructBase $o, int $tag, boolean $isRequire) {
+    public function directReadTarsStruct(TarsStructBase $o, int $tag, bool $isRequire) {
         $ref = null;
         if ($this->skipToTag($tag)) {
             try {
@@ -796,7 +852,7 @@ class TarsInputStream {
      * @param bool $isRequire
      * @return null|ReflectionClass
      */
-    public function readTarsStruct(/*TarsStructBase*/ $o, int $tag, boolean $isRequire) {
+    public function readTarsStruct(/*TarsStructBase*/ $o, int $tag, bool $isRequire) {
         $ref = null;
         if ($this->skipToTag($tag)) {
             try {
@@ -823,7 +879,7 @@ class TarsInputStream {
      * @param bool $isRequire
      * @return mixed
      */
-     public function readTarsStructArray($o, int $tag, boolean $isRequire) {
+     public function readTarsStructArray($o, int $tag, bool $isRequire) {
         return $this->readArray($o, $tag, $isRequire);
     }
 

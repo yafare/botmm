@@ -316,7 +316,7 @@ class TarsOutputStream
         } elseif (is_integer($o)) {
             $this->writeLong($o, $tag);
         } elseif (is_float($o)) {
-            $this->writeFloat($o, $tag);
+            $this->writeDouble($o, $tag);
         //} elseif (is_double($o)) {
         //    $this->writeDouble($o, $tag);
         } elseif (is_string($o)) {

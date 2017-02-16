@@ -85,7 +85,7 @@ class TarsOutputStreamByteTest extends TarsTestCase
     public function getByteArrayData()
     {
         return [
-            ['19000300010c0001', [1, 0, 0x7f]],
+            ['1d00000301007f', [1, 0, 0x7f]],
         ];
     }
 
@@ -97,7 +97,7 @@ class TarsOutputStreamByteTest extends TarsTestCase
     public function testWriteByteArray($expected, $byteArray)
     {
         $stream = new TarsOutputStream();
-        $stream->writeBooleanArray($byteArray, 1);
+        $stream->writeByteArray($byteArray, 1);
         $this->assertEquals(hex2bin($expected), $stream->getByteBuffer());
     }
 

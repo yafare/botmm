@@ -32,6 +32,12 @@ class Buffer
         $this->buffer = new swoole_buffer($size);
     }
 
+    public static function from($bin) {
+        $buffer = new Buffer(strlen($bin));
+        $buffer->write($bin, 0, strlen($bin));
+        return $buffer;
+    }
+
     protected function insert($format, $value, $offset, $length)
     {
         $bytes = pack($format, $value);
@@ -213,16 +219,16 @@ class Buffer
 
     public function readInt64BE($offset)
     {
-        $LSB = $this->extract('V', $offset, 4);
-        $MSB = $this->extract('V', $offset + 4, 4);
-        return $LSB << 4 + $MSB;
+        $MSB = $this->extract('N', $offset, 4);
+        $LSB = $this->extract('N', $offset + 4, 4);
+        return ($MSB << 32) + $LSB;
     }
 
     public function readInt64LE($offset)
     {
         $LSB = $this->extract('V', $offset, 4);
         $MSB = $this->extract('V', $offset + 4, 4);
-        return $MSB << 4 + $LSB;
+        return ($MSB << 32) + $LSB;
     }
 
     public function readFloatBE($offset)
