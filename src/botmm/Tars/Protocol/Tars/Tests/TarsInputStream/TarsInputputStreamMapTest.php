@@ -35,11 +35,9 @@ class TarsInputStreamMapTest extends TarsTestCase
      * @dataProvider getMapData
      */
     public function testWriteMap($expected, $data) {
-        $stream = new TarsInputStream();
-
-        $stream->writeMap($data, 1);
-
-        $this->assertEquals(hex2bin($expected), $stream->getByteBuffer());
+        $stream = TarsInputStream::fromHexString($data);
+        $data = $stream->readMap(1, true);
+        $this->assertEquals($expected, $data);
 
     }
 

@@ -40,7 +40,7 @@ class TarsInputStreamIntTest extends TarsTestCase
     public function testReadInt($data, $expected)
     {
         $stream = TarsInputStream::fromHexString($data);
-        $data = $stream->readSignInt(1, true);
+        $data = $stream->readInt(1, true);
         $this->assertEquals($expected, $data);
     }
 

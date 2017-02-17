@@ -11,19 +11,21 @@ use Exception;
 use Reflection;
 use ReflectionClass;
 
-class TarsInputStream {
+class TarsInputStream
+{
 
     /**
      * @var StreamInputBuffer
      */
     private $bs; // 缓冲区
 
-    public function __construct($bs) {
-        if(is_string($bs)) {
+    public function __construct($bs)
+    {
+        if (is_string($bs)) {
             $this->bs = new StreamInputBuffer(new Buffer($bs));
-        }elseif($bs instanceof Buffer){
+        } elseif ($bs instanceof Buffer) {
             $this->bs = new StreamInputBuffer($bs);
-        }else{
+        } else {
             $this->bs = $bs;
         }
     }
@@ -32,7 +34,8 @@ class TarsInputStream {
      * @param $bs
      * @return TarsInputStream
      */
-    public static function fromString($bs) {
+    public static function fromString($bs)
+    {
         return new self(Buffer::from($bs));
     }
 
@@ -40,7 +43,8 @@ class TarsInputStream {
      * @param $bs
      * @return TarsInputStream
      */
-    public static function fromHexString($bs) {
+    public static function fromHexString($bs)
+    {
         $bs = hex2bin($bs);
         return new self(Buffer::from($bs));
     }
@@ -49,14 +53,16 @@ class TarsInputStream {
      * @param $bs
      * @return TarsInputStream
      */
-    public static function fromBuffer(Buffer $bs) {
+    public static function fromBuffer(Buffer $bs)
+    {
         return new self($bs);
     }
 
-    public function readHead(HeadData $hd):int {
-        $b = $this->bs->readInt8();
+    public function readHead(HeadData $hd): int
+    {
+        $b        = $this->bs->readInt8();
         $hd->type = ($b & 0xf);
-        $hd->tag = (($b & (0xf << 4)) >> 4);
+        $hd->tag  = (($b & (0xf << 4)) >> 4);
         if ($hd->tag == 0xf) {
             $hd->tag = $this->bs->readInt8() & 0x00ff;
             return 2;
@@ -64,33 +70,39 @@ class TarsInputStream {
         return 1;
     }
 
-    private function peakHead(HeadData $hd) {
+    private function peakHead(HeadData $hd)
+    {
         //return $this->readHead($hd, bs.duplicate());
         return (new self(clone $this->bs))->readHead($hd);
     }
 
-    private function skip(int $len) {
+    private function skip(int $len)
+    {
         $this->bs->setOffset($this->bs->getOffset() + $len);
     }
 
-    public function skipToTag(int $tag):bool {
+    public function skipToTag(int $tag): bool
+    {
         try {
             $hd = new HeadData();
-                while (true) {
-                    $len = $this->peakHead($hd);
-                    if ($hd->type == TarsStructBase::$STRUCT_END) {
-                        return false;
-                    }
-                    if ($tag <= $hd->tag) return $tag == $hd->tag;
-                    $this->skip($len);
-                    $this->skipField($hd->type);
+            while (true) {
+                $len = $this->peakHead($hd);
+                if ($hd->type == TarsStructBase::$STRUCT_END) {
+                    return false;
                 }
+                if ($tag <= $hd->tag) {
+                    return $tag == $hd->tag;
+                }
+                $this->skip($len);
+                $this->skipField($hd->type);
+            }
         } catch (TarsDecodeException $e) {
         }
         return false;
     }
 
-    public function skipToStructEnd() {
+    public function skipToStructEnd()
+    {
         $hd = new HeadData();
         do {
             $this->readHead($hd);
@@ -101,8 +113,9 @@ class TarsInputStream {
     /**
      * @param byte|null $type
      */
-    private function skipField(byte $type = null) {
-        if($type == null) {
+    private function skipField(byte $type = null)
+    {
+        if ($type == null) {
             $hd = new HeadData();
             $this->readHead($hd);
             $type = $hd->type;
@@ -128,7 +141,9 @@ class TarsInputStream {
                 break;
             case TarsStructBase::$STRING1:
                 $len = $this->bs->readInt8();
-                if ($len < 0) $len += 256;
+                if ($len < 0) {
+                    $len += 256;
+                }
                 $this->skip($len);
                 break;
             case TarsStructBase::$STRING4:
@@ -136,13 +151,15 @@ class TarsInputStream {
                 break;
             case TarsStructBase::$MAP:
                 $size = $this->readInt(0, 0, true);
-                for ($i = 0; $i < $size * 2; ++$i)
+                for ($i = 0; $i < $size * 2; ++$i) {
                     $this->skipField();
+                }
                 break;
             case TarsStructBase::$LIST:
                 $size = $this->readInt(0, 0, true);
-                for ($i = 0; $i < $size; ++$i)
+                for ($i = 0; $i < $size; ++$i) {
                     $this->skipField();
+                }
                 break;
             case TarsStructBase::$SIMPLE_LIST:
                 $hd = new HeadData();
@@ -164,18 +181,22 @@ class TarsInputStream {
         }
     }
 
-    public function readBoolean(/*bool $b, */int $tag, bool $isRequire):bool {
+    public function readBoolean(/*bool $b, */
+        int $tag,
+        bool $isRequire
+    ): bool {
         $c = $this->readByte($tag, $isRequire);
         return $c != 0;
     }
 
     /**
-     * @param int|string     $c
-     * @param int  $tag
-     * @param bool $isRequire
+     * @param int|string $c
+     * @param int        $tag
+     * @param bool       $isRequire
      * @return int
      */
-    public function readByte(int $tag, bool $isRequire)/*: byte*/ {
+    public function readByte(int $tag, bool $isRequire, bool $sign = true)/*: byte*/
+    {
         $c = null;
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
@@ -186,23 +207,30 @@ class TarsInputStream {
                     break;
                 case TarsStructBase::$BYTE:
                     $c = $this->bs->readInt8();
+                    if ($sign && $c > 0x7f) {
+                        $c -= 0x100;
+                    }
                     break;
                 default:
                     throw new TarsDecodeException("type mismatch.");
             }
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $c;
     }
 
     /**
-     * @param short $n
-     * @param int   $tag
-     * @param bool  $isRequire
+     * @param int  $tag
+     * @param bool $isRequire
+     * @param bool $sign
      * @return short|int
+     * @internal param short $n
      */
-    public function readShort(int $tag, bool $isRequire)/*:short*/ {
+    public function readShort(int $tag, bool $isRequire, bool $sign = true)/*:short*/
+    {
         $n = null;
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
@@ -213,15 +241,23 @@ class TarsInputStream {
                     break;
                 case TarsStructBase::$BYTE:
                     $n = $this->bs->readInt8();
+                    if ($sign && $n > 0x7f) {
+                        $n -= 0x100;
+                    }
                     break;
-                case TarsStructBase::$SHORT:
+                case  TarsStructBase::$SHORT:
                     $n = $this->bs->readInt16BE();
+                    if ($sign && $n > 0x7fff) {
+                        $n -= 0x10000;
+                    }
                     break;
                 default:
                     throw new TarsDecodeException("type mismatch.");
             }
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $n;
     }
@@ -232,7 +268,8 @@ class TarsInputStream {
      * @param bool $sign
      * @return int|null
      */
-    public function readInt(int $tag, bool $isRequire, $sign = true) {
+    public function readInt(int $tag, bool $isRequire, bool $sign = true)
+    {
         $n = null;
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
@@ -243,27 +280,29 @@ class TarsInputStream {
                     break;
                 case TarsStructBase::$BYTE:
                     $n = $this->bs->readInt8();
-                    if($sign && $n > 0x7f) {
+                    if ($sign && $n > 0x7f) {
                         $n -= 0x100;
                     }
                     break;
                 case TarsStructBase::$SHORT:
                     $n = $this->bs->readInt16BE();
-                    if($sign && $n > 0x7fff) {
+                    if ($sign && $n > 0x7fff) {
                         $n -= 0x10000;
                     }
                     break;
                 case TarsStructBase::$INT:
                     $n = $this->bs->readInt32BE();
-                    if($sign && $n > 0x7fffffff) {
+                    if ($sign && $n > 0x7fffffff) {
                         $n -= 0x100000000;
                     }
                     break;
                 default:
                     throw new TarsDecodeException("type mismatch.");
             }
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $n;
     }
@@ -274,7 +313,8 @@ class TarsInputStream {
      * @param bool $isRequire
      * @return long|int|string
      */
-    public function readLong(int $tag, bool $isRequire, $sign = true)/*:long*/ {
+    public function readLong(int $tag, bool $isRequire, $sign = true)/*:long*/
+    {
         $n = null;
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
@@ -285,19 +325,19 @@ class TarsInputStream {
                     break;
                 case TarsStructBase::$BYTE:
                     $n = $this->bs->readInt8();
-                    if($sign && $n > 0x7f) {
+                    if ($sign && $n > 0x7f) {
                         $n -= 0x100;
                     }
                     break;
                 case TarsStructBase::$SHORT:
                     $n = $this->bs->readInt16BE();
-                    if($sign && $n > 0x7fff) {
+                    if ($sign && $n > 0x7fff) {
                         $n -= 0x10000;
                     }
                     break;
                 case TarsStructBase::$INT:
                     $n = $this->bs->readInt32BE();
-                    if($sign && $n > 0x7fffffff) {
+                    if ($sign && $n > 0x7fffffff) {
                         $n -= 0x100000000;
                     }
                     break;
@@ -307,13 +347,19 @@ class TarsInputStream {
                 default:
                     throw new TarsDecodeException("type mismatch.");
             }
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $n;
     }
 
-    public function readFloat(/*float $n, */int $tag, bool $isRequire)/*:float*/ {
+    public function readFloat(/*float $n, */
+        int $tag,
+        bool $isRequire
+    )/*:float*/
+    {
         $n = null;
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
@@ -328,13 +374,19 @@ class TarsInputStream {
                 default:
                     throw new TarsDecodeException("type mismatch.");
             }
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $n;
     }
 
-    public function readDouble(/*double $n, */int $tag, bool $isRequire)/*:double*/ {
+    public function readDouble(/*double $n, */
+        int $tag,
+        bool $isRequire
+    )/*:double*/
+    {
         $n = null;
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
@@ -352,50 +404,65 @@ class TarsInputStream {
                 default:
                     throw new TarsDecodeException("type mismatch.");
             }
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $n;
     }
 
-    public function readByteString(String $s, int $tag, bool $isRequire)/*:string*/ {
+    public function readHexString(String $s, int $tag, bool $isRequire)/*:string*/
+    {
         if ($this->skipToTag($tag)) {
-                $hd = new HeadData();
-                $this->readHead($hd);
-                switch ($hd->type) {
-                    case TarsStructBase::$STRING1: {
-                        $len = $this->bs->readInt8();
-                        if ($len < 0) $len += 256;
-                        $ss = $this->bs->read($len);
-                        $s = HexUtil.bytes2HexStr($ss);
+            $hd = new HeadData();
+            $this->readHead($hd);
+            switch ($hd->type) {
+                case TarsStructBase::$STRING1: {
+                    $len = $this->bs->readInt8();
+                    if ($len < 0) {
+                        $len += 256;
                     }
-                        break;
-                    case TarsStructBase::$STRING4: {
-                        $len = $this->bs->readInt32BE();
-                        if ($len > TarsStructBase::$MAX_STRING_LENGTH || $len < 0) throw new TarsDecodeException("String too long: " + $len);
-                        $ss = $this->bs->read($len);
-                        $s = HexUtil.bytes2HexStr($ss);
-                    }
-                        break;
-                    default:
-                        throw new TarsDecodeException("type mismatch.");
+                    $ss = $this->bs->read($len);
+                    $s  = bin2hex($ss);
                 }
-            } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+                    break;
+                case TarsStructBase::$STRING4: {
+                    $len = $this->bs->readInt32BE();
+                    if ($len > TarsStructBase::$MAX_STRING_LENGTH || $len < 0) {
+                        throw new TarsDecodeException("String too long: " + $len);
+                    }
+                    $ss = $this->bs->read($len);
+                    $s  = bin2hex($ss);
+                }
+                    break;
+                default:
+                    throw new TarsDecodeException("type mismatch.");
+            }
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $s;
     }
 
-    public function readString(String $s, int $tag, bool $isRequire):string {
+    public function readString(/*String $s, */
+        int $tag,
+        bool $isRequire
+    ): string {
+        $s = null;
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
             $this->readHead($hd);
             switch ($hd->type) {
                 case TarsStructBase::$STRING1:
                     $len = $this->bs->readInt8();
-                    if ($len < 0) $len += 256;
+                    if ($len < 0) {
+                        $len += 256;
+                    }
                     $ss = $this->bs->read($len);
-                    $s = mb_convert_encoding($ss, $this->sServerEncoding);
+                    $s  = mb_convert_encoding($ss, $this->sServerEncoding);
                     break;
                 case TarsStructBase::$STRING4:
                     $len = $this->bs->readInt32BE();
@@ -403,39 +470,34 @@ class TarsInputStream {
                         throw new TarsDecodeException("String too long: $len");
                     }
                     $ss = $this->bs->read($len);
-                    $s = mb_convert_encoding($ss, $this->sServerEncoding);
+                    $s  = mb_convert_encoding($ss, $this->sServerEncoding);
                     break;
                 default:
                     throw new TarsDecodeException("type mismatch.");
             }
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $s;
     }
 
-    /**
-     * @param string[] $s
-     * @param int   $tag
-     * @param bool  $isRequire
-     * @return mixed
-     */
-    public function read(array $s, int $tag, bool $isRequire)/*: String[]*/ {
-        return $this->readArray($s, $tag, $isRequire);
-    }
-
-    public function readStringMap(int $tag, bool $isRequire)/*:Map<String, String>*/ {
+    public function readStringMap(int $tag, bool $isRequire)/*:Map<String, String>*/
+    {
         $mr = new Map();
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
             $this->readHead($hd);
             switch ($hd->type) {
                 case TarsStructBase::$MAP: {
-                    $size = $this->read(0, 0, true);
-                    if ($size < 0) throw new TarsDecodeException("size invalid: $size");
+                    $size = $this->readInt(0, true);
+                    if ($size < 0) {
+                        throw new TarsDecodeException("size invalid: $size");
+                    }
                     for ($i = 0; $i < $size; ++$i) {
-                        $k = $this->readString(null, 0, true);
-                        $v = $this->readString(null, 1, true);
+                        $k = $this->readString(0, true);
+                        $v = $this->readString(1, true);
                         $mr->put($k, $v);
                     }
                 }
@@ -443,36 +505,37 @@ class TarsInputStream {
                 default:
                     throw new TarsDecodeException("type mismatch.");
             }
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $mr;
     }
 
-    //public function readMap($m, int $tag, bool $isRequire)/*: <K, V> HashMap<K, V> */ {
-    //    return $this->readMap(new Map(), $m, $tag, $isRequire);
-    //}
+    public function readMap($mt, int $tag, bool $isRequire)
+    {
+        $mr = new Map();
 
-    private function readMap(Map $mr, Map $m, int $tag, bool $isRequire) {
-        if ($m == null || $m.isEmpty()) {
-            return new Map();
+        $mKey   = null;
+        $mValue = null;
+        foreach ($mt as $tmpKey => $tmpValue) {
+            $mKey   = ucfirst($tmpKey);
+            $mValue = ucfirst($tmpValue);
+            break;
         }
-
-        $it = $m->getIterator();
-        $en = $it->next();
-        $mk = $en->getKey();
-        $mv = $en->getValue();
-
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
             $this->readHead($hd);
             switch ($hd->type) {
                 case TarsStructBase::$MAP: {
                     $size = $this->readInt(0, 0, true);
-                    if ($size < 0) throw new TarsDecodeException("size invalid: $size");
+                    if ($size < 0) {
+                        throw new TarsDecodeException("size invalid: $size");
+                    }
                     for ($i = 0; $i < $size; ++$i) {
-                        $k = $this->read($mk, 0, true);
-                        $v = $this->read($mv, 1, true);
+                        $k = $this->{"read$mKey"}(0, true);
+                        $v = $this->{"read$mValue"}(1, true);
                         $mr->put($k, $v);
                     }
                 }
@@ -480,13 +543,16 @@ class TarsInputStream {
                 default:
                     throw new TarsDecodeException("type mismatch.");
             }
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $mr;
     }
 
-    public function readList(int $tag, bool $isRequire) {
+    public function readList(int $tag, bool $isRequire)
+    {
         //List $lr = new ArrayList();
         $lr = [];
         if ($this->skipToTag($tag)) {
@@ -494,8 +560,10 @@ class TarsInputStream {
             $this->readHead($hd);
             switch ($hd->type) {
                 case TarsStructBase::$LIST: {
-                    $size = $this->read(0, 0, true);
-                    if ($size < 0) throw new TarsDecodeException("size invalid: $size");
+                    $size = $this->readInt(0, true);
+                    if ($size < 0) {
+                        throw new TarsDecodeException("size invalid: $size");
+                    }
                     for ($i = 0; $i < $size; ++$i) {
                         $subH = new HeadData();
                         $this->readHead($subH);
@@ -518,36 +586,32 @@ class TarsInputStream {
                             case TarsStructBase::$DOUBLE:
                                 $this->skip(8);
                                 break;
-                            case TarsStructBase::$STRING1: {
+                            case TarsStructBase::$STRING1:
                                 $len = $this->bs->readInt8();
-                                if ($len < 0) $len += 256;
+                                if ($len < 0) {
+                                    $len += 256;
+                                }
                                 $this->skip($len);
-                            }
                                 break;
-                            case TarsStructBase::$STRING4: {
+                            case TarsStructBase::$STRING4:
                                 $this->skip($this->bs->readInt32BE());
-                            }
                                 break;
-                            case TarsStructBase::$MAP: {
-
-                            }
+                            case TarsStructBase::$MAP:
                                 break;
-                            case TarsStructBase::$LIST: {
-
-                            }
+                            case TarsStructBase::$LIST:
                                 break;
                             case TarsStructBase::$STRUCT_BEGIN:
                                 try {
-                                    $rf = new ReflectionClass(TarsStructBase::class);
+                                    $rf   = new ReflectionClass(TarsStructBase::class);
                                     $cons = $rf->getConstructor();
                                     /** @var TarsStructBase $struct */
                                     $struct = $cons->invoke(null);
-                                    $struct.readFrom($this);
+                                    $struct->readFrom($this);
                                     $this->skipToStructEnd();
                                     $lr[] = $struct;
                                 } catch (Exception $e) {
-                                throw new TarsDecodeException("type mismatch. {$e->getMessage()}");
-                            }
+                                    throw new TarsDecodeException("type mismatch. {$e->getMessage()}");
+                                }
                                 break;
                             case TarsStructBase::$ZERO_TAG:
                                 $lr[] = 0;
@@ -561,19 +625,21 @@ class TarsInputStream {
                 default:
                     throw new TarsDecodeException("type mismatch.");
             }
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $lr;
     }
 
     /**
-     * @param bool[]     $l
      * @param int  $tag
      * @param bool $isRequire
      * @return mixed
      */
-    public function readBooleanArray(int $tag, bool $isRequire)/*:bool[]*/ {
+    public function readBooleanArray(int $tag, bool $isRequire)/*:bool[]*/
+    {
         $lr = [];
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
@@ -581,27 +647,32 @@ class TarsInputStream {
             switch ($hd->type) {
                 case TarsStructBase::$LIST: {
                     $size = $this->readInt(0, true);
-                    if ($size < 0) throw new TarsDecodeException("size invalid: $size");
-                    for ($i = 0; $i < $size; ++$i)
+                    if ($size < 0) {
+                        throw new TarsDecodeException("size invalid: $size");
+                    }
+                    for ($i = 0; $i < $size; ++$i) {
                         $lr[$i] = $this->readBoolean(0, true);
+                    }
                     break;
                 }
                 default:
                     throw new TarsDecodeException("type mismatch.");
             }
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $lr;
     }
 
     /**
-     * @param byte[]     $l
      * @param int  $tag
      * @param bool $isRequire
      * @return mixed
      */
-    public function readByteArray(int $tag, bool $isRequire) {
+    public function readByteArray(int $tag, bool $isRequire)
+    {
         $lr = [];
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
@@ -614,34 +685,43 @@ class TarsInputStream {
                         throw new TarsDecodeException("type mismatch, tag: {$tag}, type: {$hd->type}, {$hh->type}");
                     }
                     $size = $this->readInt(0, true);
-                    if ($size < 0) throw new TarsDecodeException("invalid size, tag: {$tag}, type: {$hd->type}, {$hh->type}, size: {$size}");
-                    for ($i = 0; $i < $size; ++$i)
+                    if ($size < 0) {
+                        throw new TarsDecodeException("invalid size, tag: {$tag}, type: {$hd->type}, {$hh->type}, size: {$size}");
+                    }
+                    for ($i = 0; $i < $size; ++$i) {
                         $lr[] = $this->bs->readInt8();
+                    }
                     break;
                 }
                 case TarsStructBase::$LIST: {
                     $size = $this->readInt(0, true);
-                    if ($size < 0) throw new TarsDecodeException("size invalid: {$size}");
-                    for ($i = 0; $i < $size; ++$i)
+                    if ($size < 0) {
+                        throw new TarsDecodeException("size invalid: {$size}");
+                    }
+                    for ($i = 0; $i < $size; ++$i) {
                         $lr[] = $this->readByte(0, true);
+                    }
                     break;
                 }
                 default:
                     throw new TarsDecodeException("type mismatch.");
             }
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $lr;
     }
 
     /**
-     * @param short[]     $l
      * @param int  $tag
      * @param bool $isRequire
+     * @param bool $sign
      * @return array
      */
-    public function readShortArray( $l, int $tag, bool $isRequire)/*:short[] */ {
+    public function readShortArray(int $tag, bool $isRequire, $sign = true)/*:short[] */
+    {
         $lr = [];
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
@@ -649,27 +729,37 @@ class TarsInputStream {
             switch ($hd->type) {
                 case TarsStructBase::$LIST: {
                     $size = $this->readInt(0, 0, true);
-                    if ($size < 0) throw new TarsDecodeException("size invalid: {$size}");
-                    for ($i = 0; $i < $size; ++$i)
-                        $lr[$i] = $this->readShort($lr[0], 0, true);
+                    if ($size < 0) {
+                        throw new TarsDecodeException("size invalid: {$size}");
+                    }
+                    for ($i = 0; $i < $size; ++$i) {
+                        $lr[$i] = $this->readShort(0, true, $sign);
+                    }
                     break;
                 }
                 default:
                     throw new TarsDecodeException("type mismatch.");
             }
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $lr;
     }
 
     /**
-     * @param int[]     $l
      * @param int  $tag
      * @param bool $isRequire
+     * @param bool $sign
      * @return mixed
+     * @internal param \int[] $l
      */
-    public function readIntArray(/*$l, */int $tag, bool $isRequire, $sign = true) {
+    public function readIntArray(/*$l, */
+        int $tag,
+        bool $isRequire,
+        $sign = true
+    ) {
         $lr = [];
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
@@ -677,27 +767,37 @@ class TarsInputStream {
             switch ($hd->type) {
                 case TarsStructBase::$LIST: {
                     $size = $this->readInt(0, true, $sign);
-                    if ($size < 0) throw new TarsDecodeException("size invalid: $size");
-                    for ($i = 0; $i < $size; ++$i)
+                    if ($size < 0) {
+                        throw new TarsDecodeException("size invalid: $size");
+                    }
+                    for ($i = 0; $i < $size; ++$i) {
                         $lr[$i] = $this->readInt(0, true, $sign);
+                    }
                     break;
                 }
                 default:
                     throw new TarsDecodeException("type mismatch.");
             }
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $lr;
     }
 
     /**
-     * @param long[]     $l
      * @param int  $tag
      * @param bool $isRequire
+     * @param bool $sign
      * @return mixed
+     * @internal param long[] $l
      */
-    public function readLongArray(/*$l, */int $tag, bool $isRequire, $sign = true) {
+    public function readLongArray(/*$l, */
+        int $tag,
+        bool $isRequire,
+        $sign = true
+    ) {
         $lr = [];
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
@@ -705,27 +805,33 @@ class TarsInputStream {
             switch ($hd->type) {
                 case TarsStructBase::$LIST: {
                     $size = $this->readInt(0, true, $sign);
-                    if ($size < 0) throw new TarsDecodeException("size invalid: $size");
-                    for ($i = 0; $i < $size; ++$i)
+                    if ($size < 0) {
+                        throw new TarsDecodeException("size invalid: $size");
+                    }
+                    for ($i = 0; $i < $size; ++$i) {
                         $lr[$i] = $this->readLong(0, true, $sign);
+                    }
                     break;
                 }
                 default:
                     throw new TarsDecodeException("type mismatch.");
             }
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $lr;
     }
 
     /**
-     * @param float[]     $l
-     * @param int  $tag
-     * @param bool $isRequire
+     * @param float[] $l
+     * @param int     $tag
+     * @param bool    $isRequire
      * @return mixed
      */
-    public function readFloatArray($l, int $tag, bool $isRequire) {
+    public function readFloatArray($l, int $tag, bool $isRequire)
+    {
         $lr = null;
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
@@ -733,27 +839,32 @@ class TarsInputStream {
             switch ($hd->type) {
                 case TarsStructBase::$LIST: {
                     $size = $this->readInt(0, 0, true);
-                    if ($size < 0) throw new TarsDecodeException("size invalid: $size");
-                    for ($i = 0; $i < $size; ++$i)
-                        $lr[$i] = $this->readFloat($lr[0], 0, true);
+                    if ($size < 0) {
+                        throw new TarsDecodeException("size invalid: $size");
+                    }
+                    for ($i = 0; $i < $size; ++$i) {
+                        $lr[$i] = $this->readFloat(0, true);
+                    }
                     break;
                 }
                 default:
                     throw new TarsDecodeException("type mismatch.");
             }
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $lr;
     }
 
     /**
-     * @param double[]     $l
      * @param int  $tag
      * @param bool $isRequire
      * @return mixed
      */
-    public function readDoubleArray($l, int $tag, bool $isRequire) {
+    public function readDoubleArray(int $tag, bool $isRequire)
+    {
         $lr = null;
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
@@ -761,16 +872,21 @@ class TarsInputStream {
             switch ($hd->type) {
                 case TarsStructBase::$LIST: {
                     $size = $this->readInt(0, 0, true);
-                    if ($size < 0) throw new TarsDecodeException("size invalid: $size");
-                    for ($i = 0; $i < $size; ++$i)
-                        $lr[$i] = $this->readDouble($lr[0], 0, true);
+                    if ($size < 0) {
+                        throw new TarsDecodeException("size invalid: $size");
+                    }
+                    for ($i = 0; $i < $size; ++$i) {
+                        $lr[$i] = $this->readDouble(0, true);
+                    }
                     break;
                 }
                 default:
                     throw new TarsDecodeException("type mismatch.");
             }
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $lr;
     }
@@ -787,76 +903,103 @@ class TarsInputStream {
      * @param bool $isRequire
      * @return mixed
      */
-    public function readArray($l, int $tag, bool $isRequire) {
+    public function readArray($l, int $tag, bool $isRequire)
+    {
         if ($l == null || count($l) == 0) {
             return [];
         };
         return $this->readArrayImpl($l[0], $tag, $isRequire);
     }
 
-     /**
+    /**
      * @param      $mt define the type
      * @param int  $tag
      * @param bool $isRequire
      * @return null
      */
-    private function readArrayImpl($mt, int $tag, bool $isRequire) {
+    private function readArrayImpl($mt, int $tag, bool $isRequire)
+    {
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
-                $this->readHead($hd);
-                switch ($hd->type) {
-                    case TarsStructBase::$LIST: {
-                        $size = $this->readInt(0, 0, true);
-                        if ($size < 0) throw new TarsDecodeException("size invalid: $size");
+            $this->readHead($hd);
+            switch ($hd->type) {
+                case TarsStructBase::$LIST: {
+                    $size = $this->readInt(0, true);
+                    if ($size < 0) {
+                        throw new TarsDecodeException("size invalid: $size");
+                    }
 
-                        $readMethod = "read" . ucfirst($mt);
-                        $lr = [];
+                    $lr = [];
+                    if (is_array($mt)) {
+                        $readMethod = "readMap";
                         for ($i = 0; $i < $size; ++$i) {
-                            $t = $this->{$readMethod}($mt, 0, true);
+                            $t      = $this->{$readMethod}($mt, 0, true);
                             $lr[$i] = $t;
                         }
                         return $lr;
+                    } elseif (is_string($mt)) {
+                        $readMethod = "read" . ucfirst($mt);
+                        for ($i = 0; $i < $size; ++$i) {
+                            $t      = $this->{$readMethod}(0, true);
+                            $lr[$i] = $t;
+                        }
+                        return $lr;
+                    } else {
+                        throw new \InvalidArgumentException("read array must be string or array");
                     }
-                    default:
-                        throw new TarsDecodeException("type mismatch.");
                 }
-            } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+                default:
+                    throw new TarsDecodeException("type mismatch.");
+            }
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return null;
     }
 
-    public function directReadTarsStruct(TarsStructBase $o, int $tag, bool $isRequire) {
-        $ref = null;
+    public function directReadTarsStruct(TarsStructBase $o, int $tag, bool $isRequire)
+    {
+        $ref = $o;
         if ($this->skipToTag($tag)) {
-            try {
-                $ref = $o.newInit();
-            } catch (Exception $e) {
-                throw new TarsDecodeException($e->getMessage());
-            }
+            //try {
+            //    $ref = $o.newInit();
+            //} catch (Exception $e) {
+            //    throw new TarsDecodeException($e->getMessage());
+            //}
 
             $hd = new HeadData();
             $this->readHead($hd);
-            if ($hd->type != TarsStructBase::$STRUCT_BEGIN) throw new TarsDecodeException("type mismatch.");
-            $ref.readFrom($this);
+            if ($hd->type != TarsStructBase::$STRUCT_BEGIN) {
+                throw new TarsDecodeException("type mismatch.");
+            }
+            $ref->readFrom($this);
             $this->skipToStructEnd();
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $ref;
     }
 
     /**
-     * @param string     $o class's name, the class extend TarsStructBase
-     * @param int  $tag
-     * @param bool $isRequire
+     * @param string $o class's name, the class extend TarsStructBase
+     * @param int    $tag
+     * @param bool   $isRequire
      * @return null|ReflectionClass
      */
-    public function readTarsStruct(/*TarsStructBase*/ $o, int $tag, bool $isRequire) {
+    public function readTarsStruct(/*TarsStructBase*/
+        $o,
+        int $tag,
+        bool $isRequire
+    ) {
         $ref = null;
         if ($this->skipToTag($tag)) {
             try {
                 //$ref = $o.getClass().newInstance();
+                /** @var TarsStructBase $ref */
                 $ref = new ReflectionClass($o);
             } catch (Exception $e) {
                 throw new TarsDecodeException($e->getMessage());
@@ -864,33 +1007,40 @@ class TarsInputStream {
 
             $hd = new HeadData();
             $this->readHead($hd);
-            if ($hd->type != TarsStructBase::$STRUCT_BEGIN) throw new TarsDecodeException("type mismatch.");
-            $ref.readFrom($this);
+            if ($hd->type != TarsStructBase::$STRUCT_BEGIN) {
+                throw new TarsDecodeException("type mismatch.");
+            }
+            $ref->readFrom($this);
             $this->skipToStructEnd();
-        } else if ($isRequire) {
-            throw new TarsDecodeException("require field not exist.");
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
         }
         return $ref;
     }
 
     /**
-     * @param TarsStructBase[]     $o
-     * @param int  $tag
-     * @param bool $isRequire
+     * @param TarsStructBase[] $o
+     * @param int              $tag
+     * @param bool             $isRequire
      * @return mixed
      */
-     public function readTarsStructArray($o, int $tag, bool $isRequire) {
+    public function readTarsStructArray($o, int $tag, bool $isRequire)
+    {
         return $this->readArray($o, $tag, $isRequire);
     }
 
     protected $sServerEncoding = "GBK";
 
-    public function setServerEncoding(string $se):int {
+    public function setServerEncoding(string $se): int
+    {
         $this->sServerEncoding = $se;
         return 0;
     }
 
-    public function getBs() {
+    public function getBs()
+    {
         return $this->bs;
     }
 }
