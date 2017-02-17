@@ -113,7 +113,7 @@ class TarsInputStream
     /**
      * @param byte|null $type
      */
-    private function skipField(byte $type = null)
+    private function skipField($type = null)
     {
         if ($type == null) {
             $hd = new HeadData();
@@ -412,8 +412,14 @@ class TarsInputStream
         return $n;
     }
 
-    public function readHexString(String $s, int $tag, bool $isRequire)/*:string*/
+    public function readHexString(int $tag, bool $isRequire): string
     {
+        return bin2hex($this->readByteString($tag, $isRequire));
+    }
+
+    public function readByteString(int $tag, bool $isRequire): string
+    {
+        $s = null;
         if ($this->skipToTag($tag)) {
             $hd = new HeadData();
             $this->readHead($hd);
@@ -423,17 +429,15 @@ class TarsInputStream
                     if ($len < 0) {
                         $len += 256;
                     }
-                    $ss = $this->bs->read($len);
-                    $s  = bin2hex($ss);
+                    $s = $this->bs->read($len);
                 }
                     break;
                 case TarsStructBase::$STRING4: {
                     $len = $this->bs->readInt32BE();
                     if ($len > TarsStructBase::$MAX_STRING_LENGTH || $len < 0) {
-                        throw new TarsDecodeException("String too long: " + $len);
+                        throw new TarsDecodeException("String too long: $len");
                     }
-                    $ss = $this->bs->read($len);
-                    $s  = bin2hex($ss);
+                    $s = $this->bs->read($len);
                 }
                     break;
                 default:
@@ -462,7 +466,7 @@ class TarsInputStream
                         $len += 256;
                     }
                     $ss = $this->bs->read($len);
-                    $s  = mb_convert_encoding($ss, $this->sServerEncoding);
+                    $s  = mb_convert_encoding($ss, "UTF-8", ["UTF-8", $this->sServerEncoding, "auto"]);
                     break;
                 case TarsStructBase::$STRING4:
                     $len = $this->bs->readInt32BE();
@@ -470,7 +474,7 @@ class TarsInputStream
                         throw new TarsDecodeException("String too long: $len");
                     }
                     $ss = $this->bs->read($len);
-                    $s  = mb_convert_encoding($ss, $this->sServerEncoding);
+                    $s  = mb_convert_encoding($ss, ["UTF-8", $this->sServerEncoding, "auto"]);
                     break;
                 default:
                     throw new TarsDecodeException("type mismatch.");
@@ -922,28 +926,48 @@ class TarsInputStream
         return $lr;
     }
 
-    /**
-     * define array like this
-     * [
-     *  foo|int
-     *  bar|float
-     * ]
-     *
-     * @param      $l
-     * @param int  $tag
-     * @param bool $isRequire
-     * @return mixed
-     */
-    public function readArray($l, int $tag, bool $isRequire)
-    {
-        if ($l == null || count($l) == 0) {
-            return [];
-        };
-        return $this->readArrayImpl($l[0], $tag, $isRequire);
+    public function readStringArray($tag, $isRequire) {
+        $lr = null;
+        if ($this->skipToTag($tag)) {
+            $hd = new HeadData();
+            $this->readHead($hd);
+            switch ($hd->type) {
+                case TarsStructBase::$LIST: {
+                    $size = $this->readInt(0, 0, true);
+                    if ($size < 0) {
+                        throw new TarsDecodeException("size invalid: $size");
+                    }
+                    for ($i = 0; $i < $size; ++$i) {
+                        $lr[$i] = $this->readString(0, true);
+                    }
+                    break;
+                }
+                default:
+                    throw new TarsDecodeException("type mismatch.");
+            }
+        } else {
+            if ($isRequire) {
+                throw new TarsDecodeException("require field not exist.");
+            }
+        }
+        return $lr;
     }
 
     /**
-     * @param      $mt define the type
+     *
+     * @param string|array     $mt
+     * @param int  $tag
+     * @param bool $isRequire
+     * @return mixed
+     * @internal param $l
+     */
+    public function readArray($mt, int $tag, bool $isRequire)
+    {
+        return $this->readArrayImpl($mt, $tag, $isRequire);
+    }
+
+    /**
+     * @param string|array     $mt define the type
      * @param int  $tag
      * @param bool $isRequire
      * @return null
@@ -1031,7 +1055,11 @@ class TarsInputStream
             try {
                 //$ref = $o.getClass().newInstance();
                 /** @var TarsStructBase $ref */
-                $ref = new ReflectionClass($o);
+                if($o instanceof TarsStructBase) {
+                    $ref = $o;
+                }else{
+                    $ref = new ReflectionClass($o);
+                }
             } catch (Exception $e) {
                 throw new TarsDecodeException($e->getMessage());
             }
@@ -1126,10 +1154,9 @@ class TarsInputStream
 
     protected $sServerEncoding = "GBK";
 
-    public function setServerEncoding(string $se): int
+    public function setServerEncoding(string $se)
     {
         $this->sServerEncoding = $se;
-        return 0;
     }
 
     public function getBs()

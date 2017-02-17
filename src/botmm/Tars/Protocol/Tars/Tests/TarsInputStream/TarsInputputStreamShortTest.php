@@ -23,8 +23,10 @@ class TarsInputStreamShortTest extends TarsTestCase
             ['11ff7f', -129],
             ['117fff', 0x7fff], //sign positive max
             ['118000', -0x8000],//sign negative max
-            ['118000', 0x8000], //overflow for short
-            ['117fff', -0x8001], //overflow for short
+            //['118000', 0x8000], //overflow for short
+            //['117fff', -0x8001], //overflow for short
+            ['118000', -0x8000], //overflow for short
+            ['117fff', 0x7fff], //overflow for short
 
         ];
     }
@@ -34,11 +36,11 @@ class TarsInputStreamShortTest extends TarsTestCase
      * @param $expected
      * @param $data
      */
-    public function testWriteShort($expected, $data)
+    public function testWriteShort($data, $expected)
     {
-        $stream = new TarsInputStream();
-        $stream->writeShort($data, 1);
-        $this->assertEquals(hex2bin($expected), $stream->getByteBuffer());
+        $stream = TarsInputStream::fromHexString($data);
+        $data   = $stream->readShort(1, true);
+        $this->assertEquals($expected, $data);
     }
 
     public function getIntArrayData()
@@ -48,7 +50,8 @@ class TarsInputStreamShortTest extends TarsTestCase
             ['19000300010c007f', [1, 0, 0x7f]],
             ['19000400010c007f010080', [1, 0, 0x7f, 0x80]],
             ['19000400010c007f017fff', [1, 0, 0x7f, 0x7fff]],
-            ['19000400010c007f018000', [1, 0, 0x7f, 0x8000]],
+            ['19000400010c007f018000', [1, 0, 0x7f, -0x8000]],
+            ['19000400010c007f018001', [1, 0, 0x7f, -0x7fff]],
         ];
     }
 
@@ -57,11 +60,11 @@ class TarsInputStreamShortTest extends TarsTestCase
      * @param $expected
      * @param $byteArray
      */
-    public function testWriteShortArray($expected, $byteArray)
+    public function testWriteShortArray($data, $expected)
     {
-        $stream = new TarsInputStream();
-        $stream->writeShortArray($byteArray, 1);
-        $this->assertEquals(hex2bin($expected), $stream->getByteBuffer());
+        $stream = TarsInputStream::fromHexString($data);
+        $data   = $stream->readShortArray(1, true);
+        $this->assertEquals($expected, $data);
     }
 
 

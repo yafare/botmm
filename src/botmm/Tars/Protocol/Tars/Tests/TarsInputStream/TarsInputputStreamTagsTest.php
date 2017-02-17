@@ -10,15 +10,18 @@ use botmm\Tars\Protocol\Tars\Tests\TarsTestCase;
 class TarsInputStreamTagsTest extends TarsTestCase
 {
 
-    public function testWriteTags()
+    public function testReadTags()
     {
-        $stream = new TarsInputStream();
-        $stream->writeByte(0, 1);
-        $stream->writeByte(0, 2);
-        $stream->writeByte(0, 3);
-        $stream->writeByte(0, 4);
+        $stream = TarsInputStream::fromHexString("1c2c3c4c");
+        $data1  = $stream->readByte(1, true);
+        $this->assertEquals(0, $data1);
+        $data2 = $stream->readByte(2, true);
+        $this->assertEquals(0, $data2);
+        $data3 = $stream->readByte(3, true);
+        $this->assertEquals(0, $data3);
+        $data4 = $stream->readByte(4, true);
+        $this->assertEquals(0, $data4);
 
-        $this->assertEquals(hex2bin('1c2c3c4c'), $stream->getByteBuffer());
     }
 
 }

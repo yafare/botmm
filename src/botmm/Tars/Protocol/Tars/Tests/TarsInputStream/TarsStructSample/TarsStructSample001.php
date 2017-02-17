@@ -25,8 +25,8 @@ class TarsStructSample001 extends TarsStructBase
 
     public function readFrom(TarsInputStream $is)
     {
-        $this->data1 = $is->readInt(null, 1, true);
-        $this->data2 = $is->readInt(null, 2, true);
+        $this->data1 = $is->readInt(1, true);
+        $this->data2 = $is->readInt(2, true);
     }
 
 

@@ -31,12 +31,14 @@ class TarsInputStreamStructTest extends TarsTestCase
     /**
      * @dataProvider getStructData
      */
-    public function testWriteStruct($expected, $data) {
-        $stream = new TarsInputStream();
+    public function testWriteStruct($data, $expected) {
+        $stream = TarsInputStream::fromHexString($data);
 
-        $stream->writeTarsStruct($data, 1);
+        $struct = new TarsStructSample001();
+        $stream->readTarsStruct($struct, 1, true);
 
-        $this->assertEquals(hex2bin($expected), $stream->getByteBuffer());
+        $this->assertEquals($expected->data1, $struct->data1);
+        $this->assertEquals($expected->data2, $struct->data2);
 
     }
 
