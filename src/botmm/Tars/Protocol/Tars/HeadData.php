@@ -16,4 +16,9 @@ class HeadData {
         $this->type = 0;
         $this->tag = 0;
     }
+
+    public function __toString()
+    {
+        return "[type]: `{$this->type}` [tag]: `{$this->tag}`";
+    }
 }
