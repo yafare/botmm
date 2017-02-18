@@ -12,6 +12,6 @@ class TokenType
     public const String     = 4;
     public const Operator   = 5;
     public const Number     = 6;
-    public const Erro       = 7;
+    public const Error       = 7;
 
 }

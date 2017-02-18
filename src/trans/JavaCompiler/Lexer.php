@@ -9,14 +9,10 @@ class Lexer
 
 }
 
-
-import * as chars from '../chars';
-import {NumberWrapper} from '../facade/lang';
-import {CompilerInjectable} from '../injectable';
 const KEYWORDS = ['var', 'let', 'null', 'undefined', 'true', 'false', 'if', 'else', 'this'];
+const EOF = new Token(-1, TokenType.Character, 0, '');
 
-@CompilerInjectable()
-export class Lexer {
+class Lexer {
 tokenize(text: string): Token[] {
     const scanner = new _Scanner(text);
     const tokens: Token[] = [];
@@ -29,55 +25,27 @@ tokenize(text: string): Token[] {
   }
 }
 
-export class Token {
 
-function newCharacterToken(index: number, code: number): Token {
-    return new Token(index, TokenType.Character, code, String.fromCharCode(code));
-}
 
-function newIdentifierToken(index: number, text: string): Token {
-    return new Token(index, TokenType.Identifier, 0, text);
-}
-
-function newKeywordToken(index: number, text: string): Token {
-    return new Token(index, TokenType.Keyword, 0, text);
-}
-
-function newOperatorToken(index: number, text: string): Token {
-    return new Token(index, TokenType.Operator, 0, text);
-}
-
-function newStringToken(index: number, text: string): Token {
-    return new Token(index, TokenType.String, 0, text);
-}
-
-function newNumberToken(index: number, n: number): Token {
-    return new Token(index, TokenType.Number, n, '');
-}
-
-function newErrorToken(index: number, message: string): Token {
-    return new Token(index, TokenType.Error, 0, message);
-}
-
-export const EOF: Token = new Token(-1, TokenType.Character, 0, '');
 
 class _Scanner {
-length: number;
-peek: number = 0;
-index: number = -1;
+    public $length;
+    public $peek = 0;
+    public $index = -1;
 
-constructor(public input: string) {
-this.length = input.length;
-this.advance();
-}
+    public function __construct($input)
+    {
+        $this->length = strlen($input);
+        $this->advance();
+    }
 
-  advance() {
-  this.peek = ++this.index >= this.length ? chars.$EOF : this.input.charCodeAt(this.index);
-  }
+    public function advance() {
+        $this->peek = ++$this->index >= $this->length ? chars::EOF : ord($this->input[$this->index]);
+    }
 
   scanToken(): Token {
-    const input = this.input, length = this.length;
-    let peek = this.peek, index = this.index;
+    const input = $this->input, length = $this->length;
+    let peek = $this->peek, index = $this->index;
 
     // Skip whitespace.
     while (peek <= chars.$SPACE) {
@@ -89,22 +57,22 @@ this.advance();
         }
     }
 
-    this.peek = peek;
-    this.index = index;
+    $this->peek = peek;
+    $this->index = index;
 
     if (index >= length) {
         return null;
     }
 
     // Handle identifiers and numbers.
-    if (isIdentifierStart(peek)) return this.scanIdentifier();
-    if (chars.isDigit(peek)) return this.scanNumber(index);
+    if (isIdentifierStart(peek)) return $this->scanIdentifier();
+    if (chars.isDigit(peek)) return $this->scanNumber(index);
 
     const start: number = index;
     switch (peek) {
         case chars.$PERIOD:
-            this.advance();
-            return chars.isDigit(this.peek) ? this.scanNumber(start) :
+            $this->advance();
+            return chars.isDigit($this->peek) ? $this->scanNumber(start) :
                 newCharacterToken(start, chars.$PERIOD);
         case chars.$LPAREN:
         case chars.$RPAREN:
@@ -115,10 +83,10 @@ this.advance();
         case chars.$COMMA:
         case chars.$COLON:
         case chars.$SEMICOLON:
-            return this.scanCharacter(start, peek);
+            return $this->scanCharacter(start, peek);
         case chars.$SQ:
         case chars.$DQ:
-            return this.scanString();
+            return $this->scanString();
         case chars.$HASH:
         case chars.$PLUS:
         case chars.$MINUS:
@@ -126,37 +94,37 @@ this.advance();
         case chars.$SLASH:
         case chars.$PERCENT:
         case chars.$CARET:
-            return this.scanOperator(start, String.fromCharCode(peek));
+            return $this->scanOperator(start, String.fromCharCode(peek));
         case chars.$QUESTION:
-            return this.scanComplexOperator(start, '?', chars.$PERIOD, '.');
+            return $this->scanComplexOperator(start, '?', chars.$PERIOD, '.');
         case chars.$LT:
         case chars.$GT:
-            return this.scanComplexOperator(start, String.fromCharCode(peek), chars.$EQ, '=');
+            return $this->scanComplexOperator(start, String.fromCharCode(peek), chars.$EQ, '=');
         case chars.$BANG:
         case chars.$EQ:
-            return this.scanComplexOperator(
+            return $this->scanComplexOperator(
                     start, String.fromCharCode(peek), chars.$EQ, '=', chars.$EQ, '=');
         case chars.$AMPERSAND:
-            return this.scanComplexOperator(start, '&', chars.$AMPERSAND, '&');
+            return $this->scanComplexOperator(start, '&', chars.$AMPERSAND, '&');
         case chars.$BAR:
-            return this.scanComplexOperator(start, '|', chars.$BAR, '|');
+            return $this->scanComplexOperator(start, '|', chars.$BAR, '|');
         case chars.$NBSP:
-            while (chars.isWhitespace(this.peek)) this.advance();
-            return this.scanToken();
+            while (chars.isWhitespace($this->peek)) $this->advance();
+            return $this->scanToken();
     }
 
-    this.advance();
-    return this.error(`Unexpected character [${String.fromCharCode(peek)}]`, 0);
+    $this->advance();
+    return $this->error(`Unexpected character [${String.fromCharCode(peek)}]`, 0);
   }
 
   scanCharacter(start: number, code: number): Token {
-    this.advance();
+    $this->advance();
     return newCharacterToken(start, code);
 }
 
 
   scanOperator(start: number, str: string): Token {
-    this.advance();
+    $this->advance();
     return newOperatorToken(start, str);
 }
 
@@ -174,101 +142,101 @@ this.advance();
   scanComplexOperator(
       start: number, one: string, twoCode: number, two: string, threeCode?: number,
       three?: string): Token {
-    this.advance();
+    $this->advance();
     let str: string = one;
-    if (this.peek == twoCode) {
-        this.advance();
+    if ($this->peek == twoCode) {
+        $this->advance();
         str += two;
     }
-    if (threeCode != null && this.peek == threeCode) {
-        this.advance();
+    if (threeCode != null && $this->peek == threeCode) {
+        $this->advance();
         str += three;
     }
     return newOperatorToken(start, str);
   }
 
   scanIdentifier(): Token {
-    const start: number = this.index;
-    this.advance();
-    while (isIdentifierPart(this.peek)) this.advance();
-    const str: string = this.input.substring(start, this.index);
+    const start: number = $this->index;
+    $this->advance();
+    while (isIdentifierPart($this->peek)) $this->advance();
+    const str: string = $this->input.substring(start, $this->index);
     return KEYWORDS.indexOf(str) > -1 ? newKeywordToken(start, str) :
         newIdentifierToken(start, str);
   }
 
   scanNumber(start: number): Token {
-    let simple: boolean = (this.index === start);
-    this.advance();  // Skip initial digit.
+    let simple: boolean = ($this->index === start);
+    $this->advance();  // Skip initial digit.
     while (true) {
-        if (chars.isDigit(this.peek)) {
+        if (chars.isDigit($this->peek)) {
             // Do nothing.
-        } else if (this.peek == chars.$PERIOD) {
+        } else if ($this->peek == chars.$PERIOD) {
             simple = false;
-        } else if (isExponentStart(this.peek)) {
-            this.advance();
-            if (isExponentSign(this.peek)) this.advance();
-            if (!chars.isDigit(this.peek)) return this.error('Invalid exponent', -1);
+        } else if (isExponentStart($this->peek)) {
+            $this->advance();
+            if (isExponentSign($this->peek)) $this->advance();
+            if (!chars.isDigit($this->peek)) return $this->error('Invalid exponent', -1);
             simple = false;
         } else {
             break;
         }
-        this.advance();
+        $this->advance();
     }
-    const str: string = this.input.substring(start, this.index);
+    const str: string = $this->input.substring(start, $this->index);
     const value: number = simple ? NumberWrapper.parseIntAutoRadix(str) : parseFloat(str);
     return newNumberToken(start, value);
   }
 
   scanString(): Token {
-    const start: number = this.index;
-    const quote: number = this.peek;
-    this.advance();  // Skip initial quote.
+    const start: number = $this->index;
+    const quote: number = $this->peek;
+    $this->advance();  // Skip initial quote.
 
     let buffer: string = '';
-    let marker: number = this.index;
-    const input: string = this.input;
+    let marker: number = $this->index;
+    const input: string = $this->input;
 
-    while (this.peek != quote) {
-        if (this.peek == chars.$BACKSLASH) {
-            buffer += input.substring(marker, this.index);
-            this.advance();
+    while ($this->peek != quote) {
+        if ($this->peek == chars.$BACKSLASH) {
+            buffer += input.substring(marker, $this->index);
+            $this->advance();
             let unescapedCode: number;
         // Workaround for TS2.1-introduced type strictness
-        this.peek = this.peek;
-        if (this.peek == chars.$u) {
+        $this->peek = $this->peek;
+        if ($this->peek == chars.$u) {
             // 4 character hex code for unicode character.
-            const hex: string = input.substring(this.index + 1, this.index + 5);
+            const hex: string = input.substring($this->index + 1, $this->index + 5);
           if (/^[0-9a-f]+$/i.test(hex)) {
                 unescapedCode = parseInt(hex, 16);
             } else {
-                return this.error(`Invalid unicode escape [\\u${hex}]`, 0);
+                return $this->error(`Invalid unicode escape [\\u${hex}]`, 0);
             }
           for (let i: number = 0; i < 5; i++) {
-              this.advance();
+              $this->advance();
           }
         } else {
-            unescapedCode = unescape(this.peek);
-            this.advance();
+            unescapedCode = unescape($this->peek);
+            $this->advance();
         }
         buffer += String.fromCharCode(unescapedCode);
-        marker = this.index;
-      } else if (this.peek == chars.$EOF) {
-            return this.error('Unterminated quote', 0);
+        marker = $this->index;
+      } else if ($this->peek == chars.$EOF) {
+            return $this->error('Unterminated quote', 0);
         } else {
-            this.advance();
+            $this->advance();
         }
     }
 
-    const last: string = input.substring(marker, this.index);
-    this.advance();  // Skip terminating quote.
+    const last: string = input.substring(marker, $this->index);
+    $this->advance();  // Skip terminating quote.
 
     return newStringToken(start, buffer + last);
   }
 
   error(message: string, offset: number): Token {
-    const position: number = this.index + offset;
+    const position: number = $this->index + offset;
     return newErrorToken(
-        position, `Lexer Error: ${message} at column ${position} in expression [${this.input}]`);
+        position, `Lexer Error: ${message} at column ${position} in expression [${$this->input}]`);
   }
 }
 
