@@ -66,22 +66,22 @@ class Chars
     public const AT        = 64;
     public const BT        = 96;
 
-    public function isWhitespace($code): bool
+    public static function isWhitespace($code): bool
     {
         return ($code >= self::TAB && $code <= self::SPACE) || ($code == self::NBSP);
     }
 
-    public function isDigit($code): bool
+    public static function isDigit($code): bool
     {
         return self::NUM_0 <= $code && $code <= self::NUM_9;
     }
 
-    public function isAsciiLetter($code): bool
+    public static function isAsciiLetter($code): bool
     {
         return $code >= self::a && $code <= self::z || $code >= self::A && $code <= self::Z;
     }
 
-    public function isAsciiHexDigit($code): bool
+    public static function isAsciiHexDigit($code): bool
     {
         return $code >= self::a && $code <= self::f || $code >= self::A && $code <= self::F || $this->isDigit($code);
     }
