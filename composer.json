@@ -20,18 +20,20 @@
         "symfony/monolog-bundle": "^2.8",
         "symfony/polyfill-apcu": "^1.0",
         "sensio/distribution-bundle": "^5.0",
-        "sensio/framework-extra-bundle": "^3.0.21",
+        "sensio/framework-extra-bundle": "^3.0.22",
         "incenteev/composer-parameter-handler": "^2.0",
         "gabrielelana/byte-units": "^0.4.0",
-        "centraldesktop/protobuf-php": "^1.0",
         "mdanter/ecc": "^0.4.2",
-        "php-ds/php-ds": "^1.1"
+        "php-ds/php-ds": "^1.1",
+        "protobuf-php/protobuf": "^0.1.3",
+        "google/protobuf": "^3.2"
     },
     "require-dev": {
         "phpunit/phpunit": "5.7.13",
         "symfony/debug": "^3.2",
         "sensio/generator-bundle": "^3.0",
-        "symfony/phpunit-bridge": "^3.0"
+        "symfony/phpunit-bridge": "^3.2.4",
+        "protobuf-php/protobuf-plugin": "^0.1.3"
     },
     "scripts": {
         "post-install-cmd": [
