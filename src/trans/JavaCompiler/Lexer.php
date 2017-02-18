@@ -13,17 +13,6 @@ class Lexer
 import * as chars from '../chars';
 import {NumberWrapper} from '../facade/lang';
 import {CompilerInjectable} from '../injectable';
-
-export enum TokenType {
-    Character,
-  Identifier,
-  Keyword,
-  String,
-  Operator,
-  Number,
-  Error
-}
-
 const KEYWORDS = ['var', 'let', 'null', 'undefined', 'true', 'false', 'if', 'else', 'this'];
 
 @CompilerInjectable()
