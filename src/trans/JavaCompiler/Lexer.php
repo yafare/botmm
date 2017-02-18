@@ -24,8 +24,4 @@ tokenize(text: string): Token[] {
     return tokens;
   }
 }
-
-
-
-
 }
