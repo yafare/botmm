@@ -450,10 +450,10 @@ class ParseAST
             return new LiteralPrimitive($this->span(start), literalValue);
 
         } elseif ($this->index >= $this->tokens->length) {
-            $this->error(`Unexpected end of expression: ${$this->input}`);
+            $this->error("Unexpected end of expression: {$this->input}");
             return new EmptyExpr($this->span(start));
         } else {
-            $this->error(`Unexpected token ${$this->getNext()}`);
+            $this->error("Unexpected token {$this->getNext()}");
             return new EmptyExpr($this->span(start));
         }
 
@@ -466,184 +466,187 @@ class ParseAST
             do {
                 $result->push($this->parsePipe());
             } while ($this->optionalCharacter(Chars::COMMA));
-}
+        }
         return $result;
     }
 
-public function parseLiteralMap(): LiteralMap
-{
-    $keys: string[] = [];
-    const values: AST[] = [];
-    const start = $this->inputIndex;
-    $this->expectCharacter(Chars::LBRACE);
-    if (!$this->optionalCharacter(Chars::RBRACE)) {
-        $this->rbracesExpected++;
-        do {
-            const key = $this->expectIdentifierOrKeywordOrString();
-            keys->push(key);
-            $this->expectCharacter(Chars::COLON);
-            values . push($this->parsePipe());
+    public function parseLiteralMap(): LiteralMap
+    {
+        $keys   = [];
+        $values = [];
+        $start  = $this->getInputIndex();
+        $this->expectCharacter(Chars::LBRACE);
+        if (!$this->optionalCharacter(Chars::RBRACE)) {
+            $this->rbracesExpected++;
+            do {
+                $key    = $this->expectIdentifierOrKeywordOrString();
+                $keys[] = $key;
+                $this->expectCharacter(Chars::COLON);
+                $values[] = $this->parsePipe();
+            } while ($this->optionalCharacter(Chars::COMMA));
+            $this->rbracesExpected--;
+            $this->expectCharacter(Chars::RBRACE);
         }
+        return new LiteralMap($this->span(start), $keys, $values);
+    }
 
-while ($this->optionalCharacter(Chars::COMMA)) {
-    ;
-}
-$this->rbracesExpected--;
-$this->expectCharacter(Chars::RBRACE);
-}
-return new LiteralMap($this->span(start), keys, values);
-}
+    public function parseAccessMemberOrMethodCall(AST $receiver, $isSafe = false): AST
+    {
+        $start = $receiver->span->start;
+        $id    = $this->expectIdentifierOrKeyword();
 
-parseAccessMemberOrMethodCall(receiver: AST, isSafe: boolean = false): AST {
-    const start = receiver->span->start;
-    const id = $this->expectIdentifierOrKeyword();
+        if ($this->optionalCharacter(Chars::LPAREN)) {
+            $this->rparensExpected++;
+            $args = $this->parseCallArguments();
+            $this->expectCharacter(Chars::RPAREN);
+            $this->rparensExpected--;
+            $span = $this->span(start);
+            return $isSafe ? new SafeMethodCall($span, $receiver, $id, $args) :
+                new MethodCall($span, $receiver, $id, $args);
 
-    if ($this->optionalCharacter(Chars::LPAREN)) {
-        $this->rparensExpected++;
-        const args = $this->parseCallArguments();
-        $this->expectCharacter(Chars::RPAREN);
-        $this->rparensExpected--;
-        const span = $this->span(start);
-        return isSafe ? new SafeMethodCall(span, receiver, id, args) :
-            new MethodCall(span, receiver, id, args);
-
-    } else {
-        if (isSafe) {
-            if ($this->optionalOperator('=')) {
-                $this->error('The \'?.\' operator cannot be used in the assignment');
-                return new EmptyExpr($this->span(start));
-            } else {
-                return new SafePropertyRead($this->span(start), receiver, id);
-            }
         } else {
-            if ($this->optionalOperator('=')) {
-                if (!$this->parseAction) {
-                    $this->error('Bindings cannot contain assignments');
-                    return new EmptyExpr($this->span(start));
+            if ($isSafe) {
+                if ($this->optionalOperator('=')) {
+                    $this->error('The \'?.\' operator cannot be used in the assignment');
+                    return new EmptyExpr($this->span($start));
+                } else {
+                    return new SafePropertyRead($this->span($start), $receiver, $id);
                 }
-
-                const value = $this->parseConditional();
-                return new PropertyWrite($this->span(start), receiver, id, value);
             } else {
-                return new PropertyRead($this->span(start), receiver, id);
+                if ($this->optionalOperator('=')) {
+                    if (!$this->parseAction) {
+                        $this->error('Bindings cannot contain assignments');
+                        return new EmptyExpr($this->span($start));
+                    }
+
+                    $value = $this->parseConditional();
+                    return new PropertyWrite($this->span($start), $receiver, $id, $value);
+                } else {
+                    return new PropertyRead($this->span($start), $receiver, $id);
+                }
             }
         }
     }
-}
 
-  parseCallArguments(): BindingPipe[] {
-    if ($this->getNext()->isCharacter(Chars::RPAREN)) {
-        return [];
-    }
-    const positionals: AST[] = [];
-    do {
-        positionals . push($this->parsePipe());
-    } while ($this->optionalCharacter(Chars::COMMA));
-    return positionals as BindingPipe[];
-  }
-
-  /**
-   * An identifier, a keyword, a string with an optional `-` inbetween.
-   */
-  expectTemplateBindingKey(): string {
-    let result = '';
-    let operatorFound = false;
-    do {
-        result += $this->expectIdentifierOrKeywordOrString();
-        operatorFound = $this->optionalOperator('-');
-        if (operatorFound) {
-            result += '-';
+    /**
+     * @return BindingPipe[]
+     */
+    public function parseCallArguments()
+    {
+        if ($this->getNext()->isCharacter(Chars::RPAREN)) {
+            return [];
         }
-    } while (operatorFound);
-
-    return result->toString();
-  }
-
-  parseTemplateBindings(): TemplateBindingParseResult {
-    const bindings: TemplateBinding[] = [];
-    let prefix: string = null;
-    const warnings: string[] = [];
-    while ($this->index < $this->tokens->length) {
-        const start = $this->inputIndex;
-        const keyIsVar: boolean = $this->peekKeywordLet();
-      if (keyIsVar) {
-          $this->advance();
-      }
-      let key = $this->expectTemplateBindingKey();
-      if (!keyIsVar) {
-          if (prefix == null) {
-              prefix = key;
-          } else {
-              key = prefix + key[0]->toUpperCase() + key->substring(1);
-          }
-      }
-      $this->optionalCharacter(Chars::COLON);
-      let name: string = null;
-      let expression: ASTWithSource = null;
-      if (keyIsVar) {
-          if ($this->optionalOperator('=')) {
-              name = $this->expectTemplateBindingKey();
-          } else {
-              name = '\$implicit';
-          }
-      } else {
-          if ($this->getNext() !== EOF && !$this->peekKeywordLet()) {
-              const start  = $this->inputIndex;
-              const ast    = $this->parsePipe();
-              const source = $this->input->substring(start - $this->offset, $this->inputIndex - $this->offset);
-              expression = new ASTWithSource(ast, source, $this->location, $this->errors);
-          }
-      }
-      bindings->push(new TemplateBinding($this->span(start), key, keyIsVar, name, expression));
-      if (!$this->optionalCharacter(Chars::SEMICOLON)) {
-          $this->optionalCharacter(chars->$COMMA);
-      }
+        $positionals = [];
+        do {
+            $positionals[] = $this->parsePipe();
+        } while ($this->optionalCharacter(Chars::COMMA));
+        return $positionals;
     }
-    return new TemplateBindingParseResult(bindings, warnings, $this->errors);
-  }
 
-  public function error($message, $index = null)
-{
-    $this->errors->push(new ParserError($message, $this->input, $this->locationText($index), $this->location));
-    $this->skip();
-}
+    /**
+     * An identifier, a keyword, a string with an optional `-` inbetween.
+     */
+    public function expectTemplateBindingKey(): string
+    {
+        $result        = '';
+        $operatorFound = false;
+        do {
+            $result += $this->expectIdentifierOrKeywordOrString();
+            $operatorFound = $this->optionalOperator('-');
+            if ($operatorFound) {
+                $result += '-';
+            }
+        } while ($operatorFound);
 
-  private function locationText($index = null)
-{
-    if (isBlank($index)) {
-        $index = $this->index;
+        return $result->toString();
     }
-    return ($index < $this->tokens->length) ?
-        "at column {$this->tokens[index]->index + 1} in" :
-        "at the end of the expression";
-}
 
-  // Error recovery should skip tokens until it encounters a recovery point. skip() treats
-  // the end of input and a ';' as unconditionally a recovery point. It also treats ')',
-  // '}' and ']' as conditional recovery points if one of calling productions is expecting
-  // one of these symbols. This allows skip() to recover from errors such as '(a.) + 1' allowing
-  // more of the AST to be retained (it doesn't skip any tokens as the ')' is retained because
-  // of the '(' begins an '(' <expr> ')' production). The recovery points of grouping symbols
-  // must be conditional as they must be skipped if none of the calling productions are not
-  // expecting the closing token else we will never make progress in the case of an
-  // extraneous group closing symbol (such as a stray ')'). This is not the case for ';' because
-  // parseChain() is always the root production and it expects a ';'.
+    //parseTemplateBindings(): TemplateBindingParseResult {
+    //  const bindings: TemplateBinding[] = [];
+    //  let prefix: string = null;
+    //  const warnings: string[] = [];
+    //  while ($this->index < $this->tokens->length) {
+    //      const start = $this->inputIndex;
+    //      const keyIsVar: boolean = $this->peekKeywordLet();
+    //    if (keyIsVar) {
+    //        $this->advance();
+    //    }
+    //    let key = $this->expectTemplateBindingKey();
+    //    if (!keyIsVar) {
+    //        if (prefix == null) {
+    //            prefix = key;
+    //        } else {
+    //            key = prefix + key[0]->toUpperCase() + key->substring(1);
+    //        }
+    //    }
+    //    $this->optionalCharacter(Chars::COLON);
+    //    let name: string = null;
+    //    let expression: ASTWithSource = null;
+    //    if (keyIsVar) {
+    //        if ($this->optionalOperator('=')) {
+    //            name = $this->expectTemplateBindingKey();
+    //        } else {
+    //            name = '\$implicit';
+    //        }
+    //    } else {
+    //        if ($this->getNext() !== EOF && !$this->peekKeywordLet()) {
+    //            const start  = $this->inputIndex;
+    //            const ast    = $this->parsePipe();
+    //            const source = $this->input->substring(start - $this->offset, $this->inputIndex - $this->offset);
+    //            expression = new ASTWithSource(ast, source, $this->location, $this->errors);
+    //        }
+    //    }
+    //    bindings->push(new TemplateBinding($this->span(start), key, keyIsVar, name, expression));
+    //    if (!$this->optionalCharacter(Chars::SEMICOLON)) {
+    //        $this->optionalCharacter(chars->$COMMA);
+    //    }
+    //  }
+    //  return new TemplateBindingParseResult(bindings, warnings, $this->errors);
+    //}
 
-  // If a production expects one of these token it increments the corresponding nesting count,
-  // and then decrements it just prior to checking if the token is in the input.
-  private function skip()
-{
-    $n = $this->getNext();
-    while ($this->index < $this->tokens->length && !$n->isCharacter(Chars::SEMICOLON)
-           && ($this->rparensExpected <= 0 || !$n->isCharacter(Chars::RPAREN))
-           && ($this->rbracesExpected <= 0 || !$n->isCharacter(Chars::RBRACE))
-           && ($this->rbracketsExpected <= 0 || !$n->isCharacter(Chars::RBRACKET))) {
-        if ($this->getNext()->isError()) {
-            $this->errors->push(
-                new ParserError($this->getNext()->toString(), $this->input, $this->locationText(), $this->location));
+    public function error($message, $index = null)
+    {
+        $this->errors->push(new ParserError($message, $this->input, $this->locationText($index), $this->location));
+        $this->skip();
+    }
+
+    private function locationText($index = null)
+    {
+        if (isBlank($index)) {
+            $index = $this->index;
         }
-        $this->advance();
+        return ($index < $this->tokens->length) ?
+            "at column " . ($this->tokens[$index]->index + 1) . " in" :
+            "at the end of the expression";
+    }
+
+    // Error recovery should skip tokens until it encounters a recovery point. skip() treats
+    // the end of input and a ';' as unconditionally a recovery point. It also treats ')',
+    // '}' and ']' as conditional recovery points if one of calling productions is expecting
+    // one of these symbols. This allows skip() to recover from errors such as '(a.) + 1' allowing
+    // more of the AST to be retained (it doesn't skip any tokens as the ')' is retained because
+    // of the '(' begins an '(' <expr> ')' production). The recovery points of grouping symbols
+    // must be conditional as they must be skipped if none of the calling productions are not
+    // expecting the closing token else we will never make progress in the case of an
+    // extraneous group closing symbol (such as a stray ')'). This is not the case for ';' because
+    // parseChain() is always the root production and it expects a ';'.
+
+    // If a production expects one of these token it increments the corresponding nesting count,
+    // and then decrements it just prior to checking if the token is in the input.
+    private function skip()
+    {
         $n = $this->getNext();
+        while ($this->index < $this->tokens->length && !$n->isCharacter(Chars::SEMICOLON)
+               && ($this->rparensExpected <= 0 || !$n->isCharacter(Chars::RPAREN))
+               && ($this->rbracesExpected <= 0 || !$n->isCharacter(Chars::RBRACE))
+               && ($this->rbracketsExpected <= 0 || !$n->isCharacter(Chars::RBRACKET))) {
+            if ($this->getNext()->isError()) {
+                $this->errors->push(
+                    new ParserError($this->getNext()->toString(), $this->input, $this->locationText(),
+                                    $this->location));
+            }
+            $this->advance();
+            $n = $this->getNext();
+        }
     }
-}
 }
