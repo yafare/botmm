@@ -4,6 +4,7 @@
 namespace trans\JavaCompiler\Parser;
 
 
+use trans\JavaCompiler\Chars;
 use trans\JavaCompiler\Lexer\Lexer;
 use trans\JavaCompiler\Lexer\Scanner;
 use trans\JavaCompiler\Lexer\Token;
@@ -153,11 +154,11 @@ class ParseAST
             $expr = $this->parsePipe();
             $exprs->push($expr);
 
-            if ($this->optionalCharacter(chars::SEMICOLON)) {
+            if ($this->optionalCharacter(Chars::SEMICOLON)) {
                 if (!$this->parseAction) {
                     $this->error('Binding expression cannot contain chained expression');
                 }
-                while ($this->optionalCharacter(chars::SEMICOLON)) {
+                while ($this->optionalCharacter(Chars::SEMICOLON)) {
                 }  // read all semicolons
             } else {
                 if ($this->index < count($this->tokens)) {
@@ -185,7 +186,7 @@ class ParseAST
             do {
                 $name = $this->expectIdentifierOrKeyword();
                 $args = [];
-                while ($this->optionalCharacter(chars::COLON)) {
+                while ($this->optionalCharacter(Chars::COLON)) {
                     $args[] = $this->parseExpression();
                 }
                 $result = new BindingPipe($this->span($result->span->start), $result, $name, $args);
@@ -208,7 +209,7 @@ class ParseAST
         if ($this->optionalOperator('?')) {
             $yes = $this->parsePipe();
             $no  = null;
-            if (!$this->optionalCharacter(chars::COLON)) {
+            if (!$this->optionalCharacter(Chars::COLON)) {
                 $end        = $this->getInputIndex();
                 $expression = StringWrapper::subString($this->input, $start, $end);
                 $this->error("Conditional expression ${expression} requires all 3 expressions");
@@ -287,269 +288,257 @@ class ParseAST
         return $result;
     }
 
-parseAdditive(): AST
-{
-    // '+', '-'
-let result = this . parseMultiplicative();
-while (this . next . type == TokenType . Operator)
-{
-    const operator = this . next . strValue;
-switch (operator)
-{
-case '+':
-case '-':
-this . advance();
-let right = this . parseMultiplicative();
-result = new Binary(this . span(result . span . start), operator, result, right);
-continue;
-}
+    public function parseAdditive(): AST
+    {
+        // '+', '-'
+        $result = $this->parseMultiplicative();
+        while ($this->getNext()->type == TokenType :: Operator) {
+            $operator = $this->getNext()->strValue;
+            switch ($operator) {
+                case '+':
+                case '-':
+                    $this->advance();
+                    $right  = $this->parseMultiplicative();
+                    $result = new Binary($this->span($result->span->start), $operator, $result, $right);
+                    continue;
+            }
 
-break;
-}
-return result;
-}
-
-parseMultiplicative(): AST {
-    // '*', '%', '/'
-    let result = this . parsePrefix();
-    while (this . next . type == TokenType . Operator) {
-        const operator = this . next . strValue;
-        switch (operator) {
-            case '*':
-            case '%':
-            case '/':
-                this . advance();
-                let right = this . parsePrefix();
-          result          = new Binary(this . span(result . span . start), operator, result, right);
-          continue;
+            break;
         }
-        break;
+        return $result;
     }
-    return result;
-  }
 
-  parsePrefix(): AST {
-    if (this . next . type == TokenType . Operator) {
-        const start    = this . inputIndex;
-        const operator = this . next . strValue;
-        let result: AST;
-      switch (operator) {
-          case '+':
-              this . advance();
-              return this . parsePrefix();
-          case '-':
-              this . advance();
-              result = this . parsePrefix();
-              return new Binary(
-                  this . span(start), operator, new LiteralPrimitive(new ParseSpan(start, start), 0),
-                  result);
-          case '!':
-              this . advance();
-              result = this . parsePrefix();
-              return new PrefixNot(this . span(start), result);
-      }
+    public function parseMultiplicative(): AST
+    {
+        // '*', '%', '/'
+        $result = $this->parsePrefix();
+        while ($this->getNext()->type == TokenType::Operator) {
+            $operator = $this->getNext()->strValue;
+            switch ($operator) {
+                case '*':
+                case '%':
+                case '/':
+                    $this->advance();
+                    $right  = $this->parsePrefix();
+                    $result = new Binary($this->span($result->span->start), $operator, $result, $right);
+                    continue;
+            }
+
+            break;
+        }
+        return $result;
     }
-    return this . parseCallChain();
-}
 
-  parseCallChain(): AST {
-    let result = this . parsePrimary();
-    while (true) {
-        if (this . optionalCharacter(chars . $PERIOD)) {
-            result = this . parseAccessMemberOrMethodCall(result, false);
-
-        } else {
-            if (this . optionalOperator('?.')) {
-                result = this . parseAccessMemberOrMethodCall(result, true);
-
-            } else {
-                if (this . optionalCharacter(chars . $LBRACKET)) {
-                    this . rbracketsExpected++;
-                    const key = this . parsePipe();
-                    this . rbracketsExpected--;
-                    this . expectCharacter(chars . $RBRACKET);
-                    if (this . optionalOperator('=')) {
-                        const value = this . parseConditional();
-                        result = new KeyedWrite(this . span(result . span . start), result, key, value);
-                    } else {
-                        result = new KeyedRead(this . span(result . span . start), result, key);
-                    }
-
-                } else {
-                    if (this . optionalCharacter(chars . $LPAREN)) {
-                        this . rparensExpected++;
-                        const args = this . parseCallArguments();
-                        this . rparensExpected--;
-                        this . expectCharacter(chars . $RPAREN);
-                        result = new FunctionCall(this . span(result . span . start), result, args);
-
-                    } else {
-                        return result;
-                    }
-                }
+    public function parsePrefix(): AST
+    {
+        if ($this->getNext()->type == TokenType :: Operator) {
+            $start    = $this->getInputIndex();
+            $operator = $this->getNext()->strValue;
+            $result   = null;
+            switch ($operator) {
+                case '+':
+                    $this->advance();
+                    return $this->parsePrefix();
+                case '-':
+                    $this->advance();
+                    $result = $this->parsePrefix();
+                    return new Binary(
+                        $this->span($start), $operator, new LiteralPrimitive(new ParseSpan($start, $start), 0),
+                        $result);
+                case '!':
+                    $this->advance();
+                    $result = $this->parsePrefix();
+                    return new PrefixNot($this->span($start), $result);
             }
         }
+        return $this->parseCallChain();
     }
-  }
 
-  parsePrimary(): AST {
-    const start = this . inputIndex;
-    if (this . optionalCharacter(chars . $LPAREN)) {
-        this . rparensExpected++;
-        const result = this . parsePipe();
-        this . rparensExpected--;
-        this . expectCharacter(chars . $RPAREN);
-        return result;
+    public function parseCallChain(): AST
+    {
+        $result = $this->parsePrimary();
+        while (true) {
+            if ($this->optionalCharacter(chars ::PERIOD)) {
+                $result = $this->parseAccessMemberOrMethodCall($result, false);
 
-    } else {
-        if (this . next . isKeywordNull()) {
-            this . advance();
-            return new LiteralPrimitive(this . span(start), null);
-
-        } else {
-            if (this . next . isKeywordUndefined()) {
-                this . advance();
-                return new LiteralPrimitive(this . span(start), void 0);
-
-    } else {
-                if (this . next . isKeywordTrue()) {
-                    this . advance();
-                    return new LiteralPrimitive(this . span(start), true);
+            } else {
+                if ($this->optionalOperator('?.')) {
+                    $result = $this->parseAccessMemberOrMethodCall($result, true);
 
                 } else {
-                    if (this . next . isKeywordFalse()) {
-                        this . advance();
-                        return new LiteralPrimitive(this . span(start), false);
+                    if ($this->optionalCharacter(Chars::LBRACKET)) {
+                        $this->rbracketsExpected++;
+                        $key = $this->parsePipe();
+                        $this->rbracketsExpected--;
+                        $this->expectCharacter(Chars::RBRACKET);
+                        if ($this->optionalOperator('=')) {
+                            $value  = $this->parseConditional();
+                            $result = new KeyedWrite($this->span($result->span->start), $result, $key, $value);
+                        } else {
+                            $result = new KeyedRead($this->span($result->span->start), $result, $key);
+                        }
 
                     } else {
-                        if (this . next . isKeywordThis()) {
-                            this . advance();
-                            return new ImplicitReceiver(this . span(start));
+                        if ($this->optionalCharacter(Chars::LPAREN)) {
+                            $this->rparensExpected++;
+                            $args = $this->parseCallArguments();
+                            $this->rparensExpected--;
+                            $this->expectCharacter(Chars::RPAREN);
+                            $result = new FunctionCall($this->span($result->span->start), $result, $args);
 
                         } else {
-                            if (this . optionalCharacter(chars . $LBRACKET)) {
-                                this . rbracketsExpected++;
-                                const elements = this . parseExpressionList(chars . $RBRACKET);
-                                this . rbracketsExpected--;
-                                this . expectCharacter(chars . $RBRACKET);
-                                return new LiteralArray(this . span(start), elements);
-
-                            } else {
-                                if (this . next . isCharacter(chars . $LBRACE)) {
-                                    return this . parseLiteralMap();
-
-                                } else {
-                                    if (this . next . isIdentifier()) {
-                                        return this . parseAccessMemberOrMethodCall(new ImplicitReceiver(this . span(start)),
-                                                                                    false);
-
-                                    } else {
-                                        if (this . next . isNumber()) {
-                                            const value = this . next . toNumber();
-                                            this . advance();
-                                            return new LiteralPrimitive(this . span(start), value);
-
-                                        } else {
-                                            if (this . next . isString()) {
-                                                const literalValue = this . next . toString();
-                                                this . advance();
-                                                return new LiteralPrimitive(this . span(start), literalValue);
-
-                                            } else {
-                                                if (this . index >= this . tokens . length) {
-                                                    this . error(`Unexpected end of expression: ${this . input}`);
-                                                    return new EmptyExpr(this . span(start));
-                                                } else {
-                                                    this . error(`Unexpected token ${this . next}`);
-                                                    return new EmptyExpr(this . span(start));
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            return $result;
                         }
                     }
                 }
             }
         }
     }
+
+    public function parsePrimary(): AST
+    {
+        $start = $this->inputIndex;
+        if ($this->optionalCharacter(Chars::LPAREN)) {
+            $this->rparensExpected++;
+            $result = $this->parsePipe();
+            $this->rparensExpected--;
+            $this->expectCharacter(Chars::RPAREN);
+            return $result;
+
+        } elseif ($this->getNext()->isKeywordNull()) {
+            $this->advance();
+            return new LiteralPrimitive($this->span(start), null);
+
+        } elseif ($this->getNext()->isKeywordUndefined()) {
+            $this->advance();
+            return new LiteralPrimitive($this->span(start), 'undefined');
+
+        } elseif ($this->getNext()->isKeywordTrue()) {
+            $this->advance();
+            return new LiteralPrimitive($this->span(start), true);
+
+        } elseif ($this->getNext()->isKeywordFalse()) {
+            $this->advance();
+            return new LiteralPrimitive($this->span(start), false);
+
+        } elseif ($this->getNext()->isKeywordThis()) {
+            $this->advance();
+            return new ImplicitReceiver($this->span(start));
+
+        } elseif ($this->optionalCharacter(Chars::LBRACKET)) {
+            $this->rbracketsExpected++;
+            $elements = $this->parseExpressionList(Chars::RBRACKET);
+            $this->rbracketsExpected--;
+            $this->expectCharacter(Chars::RBRACKET);
+            return new LiteralArray($this->span(start), elements);
+
+        } elseif ($this->getNext()->isCharacter(Chars::LBRACE)) {
+            return $this->parseLiteralMap();
+
+        } elseif ($this->getNext()->isIdentifier()) {
+            return $this->parseAccessMemberOrMethodCall(new ImplicitReceiver($this->span(start)),
+                                                        false);
+
+        } elseif ($this->getNext()->isNumber()) {
+            $value = $this->getNext()->toNumber();
+            $this->advance();
+            return new LiteralPrimitive($this->span(start), value);
+
+        } elseif ($this->getNext()->isString()) {
+            $literalValue = $this->getNext()->toString();
+            $this->advance();
+            return new LiteralPrimitive($this->span(start), literalValue);
+
+        } elseif ($this->index >= $this->tokens->length) {
+            $this->error(`Unexpected end of expression: ${$this->input}`);
+            return new EmptyExpr($this->span(start));
+        } else {
+            $this->error(`Unexpected token ${$this->getNext()}`);
+            return new EmptyExpr($this->span(start));
+        }
+
+    }
+
+    public function parseExpressionList($terminator)
+    {
+        $result = [];
+        if (!$this->getNext()->isCharacter($terminator)) {
+            do {
+                $result->push($this->parsePipe());
+            } while ($this->optionalCharacter(Chars::COMMA));
+}
+        return $result;
+    }
+
+public function parseLiteralMap(): LiteralMap
+{
+    $keys: string[] = [];
+    const values: AST[] = [];
+    const start = $this->inputIndex;
+    $this->expectCharacter(Chars::LBRACE);
+    if (!$this->optionalCharacter(Chars::RBRACE)) {
+        $this->rbracesExpected++;
+        do {
+            const key = $this->expectIdentifierOrKeywordOrString();
+            keys->push(key);
+            $this->expectCharacter(Chars::COLON);
+            values . push($this->parsePipe());
+        }
+
+while ($this->optionalCharacter(Chars::COMMA)) {
+    ;
+}
+$this->rbracesExpected--;
+$this->expectCharacter(Chars::RBRACE);
+}
+return new LiteralMap($this->span(start), keys, values);
 }
 
-  parseExpressionList(terminator: number): AST[] {
-    const result: AST[] = [];
-    if (!this . next . isCharacter(terminator)) {
-        do {
-            result . push(this . parsePipe());
-        } while (this . optionalCharacter(chars . $COMMA));
-    }
-    return result;
-  }
+parseAccessMemberOrMethodCall(receiver: AST, isSafe: boolean = false): AST {
+    const start = receiver->span->start;
+    const id = $this->expectIdentifierOrKeyword();
 
-  parseLiteralMap(): LiteralMap {
-    const keys: string[] = [];
-    const values: AST[] = [];
-    const start = this . inputIndex;
-    this . expectCharacter(chars . $LBRACE);
-    if (!this . optionalCharacter(chars . $RBRACE)) {
-        this . rbracesExpected++;
-        do {
-            const key = this . expectIdentifierOrKeywordOrString();
-            keys . push(key);
-            this . expectCharacter(chars . $COLON);
-            values . push(this . parsePipe());
-        } while (this . optionalCharacter(chars . $COMMA));
-        this . rbracesExpected--;
-        this . expectCharacter(chars . $RBRACE);
-    }
-    return new LiteralMap(this . span(start), keys, values);
-  }
-
-  parseAccessMemberOrMethodCall(receiver: AST, isSafe: boolean = false): AST {
-    const start = receiver . span . start;
-    const id    = this . expectIdentifierOrKeyword();
-
-    if (this . optionalCharacter(chars . $LPAREN)) {
-        this . rparensExpected++;
-        const args = this . parseCallArguments();
-        this . expectCharacter(chars . $RPAREN);
-        this . rparensExpected--;
-        const span = this . span(start);
+    if ($this->optionalCharacter(Chars::LPAREN)) {
+        $this->rparensExpected++;
+        const args = $this->parseCallArguments();
+        $this->expectCharacter(Chars::RPAREN);
+        $this->rparensExpected--;
+        const span = $this->span(start);
         return isSafe ? new SafeMethodCall(span, receiver, id, args) :
             new MethodCall(span, receiver, id, args);
 
     } else {
         if (isSafe) {
-            if (this . optionalOperator('=')) {
-                this . error('The \'?.\' operator cannot be used in the assignment');
-                return new EmptyExpr(this . span(start));
+            if ($this->optionalOperator('=')) {
+                $this->error('The \'?.\' operator cannot be used in the assignment');
+                return new EmptyExpr($this->span(start));
             } else {
-                return new SafePropertyRead(this . span(start), receiver, id);
+                return new SafePropertyRead($this->span(start), receiver, id);
             }
         } else {
-            if (this . optionalOperator('=')) {
-                if (!this . parseAction) {
-                    this . error('Bindings cannot contain assignments');
-                    return new EmptyExpr(this . span(start));
+            if ($this->optionalOperator('=')) {
+                if (!$this->parseAction) {
+                    $this->error('Bindings cannot contain assignments');
+                    return new EmptyExpr($this->span(start));
                 }
 
-                const value = this . parseConditional();
-                return new PropertyWrite(this . span(start), receiver, id, value);
+                const value = $this->parseConditional();
+                return new PropertyWrite($this->span(start), receiver, id, value);
             } else {
-                return new PropertyRead(this . span(start), receiver, id);
+                return new PropertyRead($this->span(start), receiver, id);
             }
         }
     }
 }
 
   parseCallArguments(): BindingPipe[] {
-    if (this . next . isCharacter(chars . $RPAREN)) {
+    if ($this->getNext()->isCharacter(Chars::RPAREN)) {
         return [];
     }
     const positionals: AST[] = [];
     do {
-        positionals . push(this . parsePipe());
-    } while (this . optionalCharacter(chars . $COMMA));
+        positionals . push($this->parsePipe());
+    } while ($this->optionalCharacter(Chars::COMMA));
     return positionals as BindingPipe[];
   }
 
@@ -560,71 +549,73 @@ parseMultiplicative(): AST {
     let result = '';
     let operatorFound = false;
     do {
-        result += this . expectIdentifierOrKeywordOrString();
-        operatorFound = this . optionalOperator('-');
+        result += $this->expectIdentifierOrKeywordOrString();
+        operatorFound = $this->optionalOperator('-');
         if (operatorFound) {
             result += '-';
         }
     } while (operatorFound);
 
-    return result . toString();
+    return result->toString();
   }
 
   parseTemplateBindings(): TemplateBindingParseResult {
     const bindings: TemplateBinding[] = [];
     let prefix: string = null;
     const warnings: string[] = [];
-    while (this . index < this . tokens . length) {
-        const start = this . inputIndex;
-        const keyIsVar: boolean = this . peekKeywordLet();
+    while ($this->index < $this->tokens->length) {
+        const start = $this->inputIndex;
+        const keyIsVar: boolean = $this->peekKeywordLet();
       if (keyIsVar) {
-          this . advance();
+          $this->advance();
       }
-      let key = this . expectTemplateBindingKey();
+      let key = $this->expectTemplateBindingKey();
       if (!keyIsVar) {
           if (prefix == null) {
               prefix = key;
           } else {
-              key = prefix + key[0] . toUpperCase() + key . substring(1);
+              key = prefix + key[0]->toUpperCase() + key->substring(1);
           }
       }
-      this . optionalCharacter(chars . $COLON);
+      $this->optionalCharacter(Chars::COLON);
       let name: string = null;
       let expression: ASTWithSource = null;
       if (keyIsVar) {
-          if (this . optionalOperator('=')) {
-              name = this . expectTemplateBindingKey();
+          if ($this->optionalOperator('=')) {
+              name = $this->expectTemplateBindingKey();
           } else {
               name = '\$implicit';
           }
       } else {
-          if (this . next !== EOF && !this . peekKeywordLet()) {
-              const start  = this . inputIndex;
-              const ast    = this . parsePipe();
-              const source = this . input . substring(start - this . offset, this . inputIndex - this . offset);
-              expression = new ASTWithSource(ast, source, this . location, this . errors);
+          if ($this->getNext() !== EOF && !$this->peekKeywordLet()) {
+              const start  = $this->inputIndex;
+              const ast    = $this->parsePipe();
+              const source = $this->input->substring(start - $this->offset, $this->inputIndex - $this->offset);
+              expression = new ASTWithSource(ast, source, $this->location, $this->errors);
           }
       }
-      bindings . push(new TemplateBinding(this . span(start), key, keyIsVar, name, expression));
-      if (!this . optionalCharacter(chars . $SEMICOLON)) {
-          this . optionalCharacter(chars . $COMMA);
+      bindings->push(new TemplateBinding($this->span(start), key, keyIsVar, name, expression));
+      if (!$this->optionalCharacter(Chars::SEMICOLON)) {
+          $this->optionalCharacter(chars->$COMMA);
       }
     }
-    return new TemplateBindingParseResult(bindings, warnings, this . errors);
+    return new TemplateBindingParseResult(bindings, warnings, $this->errors);
   }
 
-  error(message: string, index: number = null) {
-    this . errors . push(new ParserError(message, this . input, this . locationText(index), this . location));
-    this . skip();
+  public function error($message, $index = null)
+{
+    $this->errors->push(new ParserError($message, $this->input, $this->locationText($index), $this->location));
+    $this->skip();
 }
 
-  private locationText(index: number = null) {
-    if (isBlank(index)) {
-        index = this . index;
+  private function locationText($index = null)
+{
+    if (isBlank($index)) {
+        $index = $this->index;
     }
-    return (index < this . tokens . length) ?
-        `at column ${this . tokens[index] . index + 1} in` :
-        `at the end of the expression`;
+    return ($index < $this->tokens->length) ?
+        "at column {$this->tokens[index]->index + 1} in" :
+        "at the end of the expression";
 }
 
   // Error recovery should skip tokens until it encounters a recovery point. skip() treats
@@ -642,17 +633,17 @@ parseMultiplicative(): AST {
   // and then decrements it just prior to checking if the token is in the input.
   private function skip()
 {
-    let n = this . next;
-    while (this . index < this . tokens . length && !n . isCharacter(chars . $SEMICOLON)
-           && (this . rparensExpected <= 0 || !n . isCharacter(chars . $RPAREN))
-           && (this . rbracesExpected <= 0 || !n . isCharacter(chars . $RBRACE))
-           && (this . rbracketsExpected <= 0 || !n . isCharacter(chars . $RBRACKET))) {
-        if (this . next . isError()) {
-            this . errors . push(
-                new ParserError(this . next . toString(), this . input, this . locationText(), this . location));
+    $n = $this->getNext();
+    while ($this->index < $this->tokens->length && !$n->isCharacter(Chars::SEMICOLON)
+           && ($this->rparensExpected <= 0 || !$n->isCharacter(Chars::RPAREN))
+           && ($this->rbracesExpected <= 0 || !$n->isCharacter(Chars::RBRACE))
+           && ($this->rbracketsExpected <= 0 || !$n->isCharacter(Chars::RBRACKET))) {
+        if ($this->getNext()->isError()) {
+            $this->errors->push(
+                new ParserError($this->getNext()->toString(), $this->input, $this->locationText(), $this->location));
         }
-        this . advance();
-        n = this . next;
+        $this->advance();
+        $n = $this->getNext();
     }
-  }
+}
 }
