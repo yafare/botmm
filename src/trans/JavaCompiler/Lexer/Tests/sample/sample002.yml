@@ -1,0 +1,193 @@
+file: "sample002.java"
+
+tokens:
+ -
+  index: "0"
+  type: "Identifier"
+  numValue: "0"
+  strValue: "public"
+ -
+  index: "7"
+  type: "Identifier"
+  numValue: "0"
+  strValue: "class"
+ -
+  index: "13"
+  type: "Identifier"
+  numValue: "0"
+  strValue: "sample002"
+ -
+  index: "23"
+  type: "Character"
+  numValue: "123"
+  strValue: "{"
+ -
+  index: "29"
+  type: "Identifier"
+  numValue: "0"
+  strValue: "public"
+ -
+  index: "36"
+  type: "Identifier"
+  numValue: "0"
+  strValue: "sample002"
+ -
+  index: "45"
+  type: "Character"
+  numValue: "40"
+  strValue: "("
+ -
+  index: "46"
+  type: "Character"
+  numValue: "41"
+  strValue: ")"
+ -
+  index: "48"
+  type: "Character"
+  numValue: "123"
+  strValue: "{"
+ -
+  index: "55"
+  type: "Character"
+  numValue: "125"
+  strValue: "}"
+ -
+  index: "62"
+  type: "Identifier"
+  numValue: "0"
+  strValue: "public"
+ -
+  index: "69"
+  type: "Identifier"
+  numValue: "0"
+  strValue: "abc"
+ -
+  index: "72"
+  type: "Character"
+  numValue: "40"
+  strValue: "("
+ -
+  index: "73"
+  type: "Identifier"
+  numValue: "0"
+  strValue: "byte"
+ -
+  index: "78"
+  type: "Identifier"
+  numValue: "0"
+  strValue: "arg1"
+ -
+  index: "82"
+  type: "Character"
+  numValue: "44"
+  strValue: ","
+ -
+  index: "84"
+  type: "Identifier"
+  numValue: "0"
+  strValue: "byte"
+ -
+  index: "89"
+  type: "Identifier"
+  numValue: "0"
+  strValue: "arg2"
+ -
+  index: "93"
+  type: "Character"
+  numValue: "41"
+  strValue: ")"
+ -
+  index: "95"
+  type: "Character"
+  numValue: "123"
+  strValue: "{"
+ -
+  index: "105"
+  type: "Identifier"
+  numValue: "0"
+  strValue: "return"
+ -
+  index: "112"
+  type: "Identifier"
+  numValue: "0"
+  strValue: "arg1"
+ -
+  index: "117"
+  type: "Operator"
+  numValue: "0"
+  strValue: "&&"
+ -
+  index: "120"
+  type: "Identifier"
+  numValue: "0"
+  strValue: "arg2"
+ -
+  index: "125"
+  type: "Operator"
+  numValue: "0"
+  strValue: "||"
+ -
+  index: "128"
+  type: "Identifier"
+  numValue: "0"
+  strValue: "arg1"
+ -
+  index: "133"
+  type: "Operator"
+  numValue: "0"
+  strValue: "<"
+ -
+  index: "134"
+  type: "Operator"
+  numValue: "0"
+  strValue: "<"
+ -
+  index: "135"
+  type: "Operator"
+  numValue: "0"
+  strValue: "<"
+ -
+  index: "137"
+  type: "Number"
+  numValue: "2"
+  strValue: ""
+ -
+  index: "139"
+  type: "Operator"
+  numValue: "0"
+  strValue: "||"
+ -
+  index: "142"
+  type: "Identifier"
+  numValue: "0"
+  strValue: "arg2"
+ -
+  index: "147"
+  type: "Operator"
+  numValue: "0"
+  strValue: ">"
+ -
+  index: "148"
+  type: "Operator"
+  numValue: "0"
+  strValue: ">"
+ -
+  index: "149"
+  type: "Operator"
+  numValue: "0"
+  strValue: ">"
+ -
+  index: "150"
+  type: "Number"
+  numValue: "3"
+  strValue: ""
+ -
+  index: "156"
+  type: "Character"
+  numValue: "125"
+  strValue: "}"
+ -
+  index: "158"
+  type: "Character"
+  numValue: "125"
+  strValue: "}"
