@@ -6,7 +6,7 @@
  * Time: 14:35
  */
 
-namespace trans\JavaCompiler;
+namespace trans\JavaCompiler\Ast;
 
 
 interface AstVisitor

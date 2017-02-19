@@ -1,7 +1,7 @@
 <?php
 
 
-namespace trans\JavaCompiler;
+namespace trans\JavaCompiler\Ast;
 
 
 class AstTransformer implements AstVisitor
@@ -103,19 +103,13 @@ class AstTransformer implements AstVisitor
         return $res;
     }
 
-    public
-    function visitChain(
-        Chain $ast,
-        $context
-    ): AST {
+    public function visitChain(Chain $ast, $context): AST
+    {
         return new Chain($ast->span, $this->visitAll($ast->expressions));
     }
 
-    public
-    function visitQuote(
-        Quote $ast,
-        $context
-    ): AST {
+    public function visitQuote(Quote $ast, $context): AST
+    {
         return new Quote($ast->span, $ast->prefix, $ast->uninterpretedExpression, $ast->location);
     }
 }
