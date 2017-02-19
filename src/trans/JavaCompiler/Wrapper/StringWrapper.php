@@ -17,6 +17,11 @@ class StringWrapper
         return ord($input[$index]);
     }
 
+    public static function subStr($input, $start, $length)
+    {
+        return substr($input, $start, $length);
+    }
+
     public static function subString($input, $start, $end)
     {
         if ($end < $start) {
