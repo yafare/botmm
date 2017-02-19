@@ -16,4 +16,11 @@ class StringWrapper
         return ord($input[$index]);
     }
 
+    public static function subString($input, $start, $length) {
+        return substr($input, $start, $length);
+    }
+
+    public static function IndexOf($input, $string) {
+        return strpos($input, $string);
+    }
 }

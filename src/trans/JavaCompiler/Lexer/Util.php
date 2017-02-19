@@ -1,8 +1,10 @@
 <?php
 
 
-namespace src\trans\JavaCompiler;
+namespace src\trans\JavaCompiler\Lexer;
 
+
+use src\trans\JavaCompiler\StringWrapper;
 
 class Util
 {
@@ -106,3 +108,4 @@ class Util
         }
 
     }
+}

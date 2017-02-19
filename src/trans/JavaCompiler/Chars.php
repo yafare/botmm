@@ -83,6 +83,6 @@ class Chars
 
     public static function isAsciiHexDigit($code): bool
     {
-        return $code >= self::a && $code <= self::f || $code >= self::A && $code <= self::F || $this->isDigit($code);
+        return $code >= self::a && $code <= self::f || $code >= self::A && $code <= self::F || self::isDigit($code);
     }
 }
