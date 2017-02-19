@@ -54,44 +54,44 @@ class AstTransformer implements AstVisitor
 
     public function visitLiteralArray(LiteralArray $ast, $context): AST
     {
-        return new LiteralArray($ast->span, $this ->visitAll(ast . expressions));
+        return new LiteralArray($ast->span, $this->visitAll($ast->expressions));
     }
 
     public function visitLiteralMap(LiteralMap $ast, $context): AST
     {
-        return new LiteralMap($ast->span, ast . keys, this . visitAll(ast . values));
+        return new LiteralMap($ast->span, $ast->keys, $this->visitAll($ast->values));
     }
 
     public function visitBinary(Binary $ast, $context): AST
     {
-        return new Binary($ast->span, ast . operation, ast . left . visit($this), ast . right . visit($this));
+        return new Binary($ast->span, $ast->operation, $ast->left->visit($this), $ast->right->visit($this));
     }
 
     public function visitPrefixNot(PrefixNot $ast, $context): AST
     {
-        return new PrefixNot($ast->span, ast . expression . visit($this));
+        return new PrefixNot($ast->span, $ast->expression->visit($this));
     }
 
     public function visitConditional(Conditional $ast, $context): AST
     {
         return new Conditional(
-            $ast->span, ast . condition . visit($this), ast . trueExp . visit($this), ast . falseExp . visit($this));
+            $ast->span, $ast->condition->visit($this), $ast->trueExp->visit($this), $ast->falseExp->visit($this));
     }
 
     public function visitPipe(BindingPipe $ast, $context): AST
     {
-        return new BindingPipe($ast->span, ast . exp . visit($this), ast . name, this . visitAll(ast . args));
+        return new BindingPipe($ast->span, $ast->exp->visit($this), $ast->name, $this->visitAll($ast->args));
     }
 
     public function visitKeyedRead(KeyedRead $ast, $context): AST
     {
-        return new KeyedRead($ast->span, ast . obj . visit($this), ast . key . visit($this));
+        return new KeyedRead($ast->span, $ast->obj->visit($this), $ast->key->visit($this));
     }
 
     public function visitKeyedWrite(KeyedWrite $ast, $context): AST
     {
         return new KeyedWrite(
-            $ast->span, ast . obj . visit($this), ast . key . visit($this), ast . value . visit($this));
+            $ast->span, $ast->obj->visit($this), $ast->key->visit($this), $ast->value->visit($this));
     }
 
     public function visitAll($asts)
@@ -108,7 +108,7 @@ class AstTransformer implements AstVisitor
         Chain $ast,
         $context
     ): AST {
-        return new Chain($ast->span, this . visitAll(ast . expressions));
+        return new Chain($ast->span, $this->visitAll($ast->expressions));
     }
 
     public
@@ -116,6 +116,6 @@ class AstTransformer implements AstVisitor
         Quote $ast,
         $context
     ): AST {
-        return new Quote($ast->span, ast . prefix, ast . uninterpretedExpression, ast . location);
+        return new Quote($ast->span, $ast->prefix, $ast->uninterpretedExpression, $ast->location);
     }
 }
