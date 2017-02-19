@@ -6,22 +6,27 @@ namespace src\trans\JavaCompiler;
 
 import {isBlank} from '../facade/lang';
 
-export class ParserError {
-public message: string;
-constructor(
-message: string, public input: string, public errLocation: string, public ctxLocation?: any) {
-this.message = `Parser Error: ${message} ${errLocation} [${input}] in ${ctxLocation}`;
-  }
-}
 
-export class ParseSpan {
-constructor(public start: number, public end: number) {}
-}
 
-export class AST {
-constructor(public span: ParseSpan) {}
-  visit(visitor: AstVisitor, context: any = null): any { return null; }
-  toString(): string { return 'AST'; }
+class AST
+{
+    public $span;
+
+    public function __constructor(ParseSpan $span)
+    {
+        $this->span = $span;
+
+    }
+
+    public function visit(AstVisitor $visitor, $context = null)
+    {
+        return null;
+    }
+
+    public function toString(): string
+    {
+        return 'AST';
+    }
 }
 
 /**
