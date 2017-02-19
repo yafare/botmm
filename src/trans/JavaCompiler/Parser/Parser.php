@@ -152,7 +152,7 @@ class ParseAST
         $start = $this->getInputIndex();
         while ($this->index < count($this->tokens)) {
             $expr = $this->parsePipe();
-            $exprs->push($expr);
+            $exprs[] = $expr;
 
             if ($this->optionalCharacter(Chars::SEMICOLON)) {
                 if (!$this->parseAction) {
@@ -397,7 +397,7 @@ class ParseAST
 
     public function parsePrimary(): AST
     {
-        $start = $this->inputIndex;
+        $start = $this->getInputIndex();
         if ($this->optionalCharacter(Chars::LPAREN)) {
             $this->rparensExpected++;
             $result = $this->parsePipe();
@@ -407,54 +407,54 @@ class ParseAST
 
         } elseif ($this->getNext()->isKeywordNull()) {
             $this->advance();
-            return new LiteralPrimitive($this->span(start), null);
+            return new LiteralPrimitive($this->span($start), null);
 
         } elseif ($this->getNext()->isKeywordUndefined()) {
             $this->advance();
-            return new LiteralPrimitive($this->span(start), 'undefined');
+            return new LiteralPrimitive($this->span($start), 'undefined');
 
         } elseif ($this->getNext()->isKeywordTrue()) {
             $this->advance();
-            return new LiteralPrimitive($this->span(start), true);
+            return new LiteralPrimitive($this->span($start), true);
 
         } elseif ($this->getNext()->isKeywordFalse()) {
             $this->advance();
-            return new LiteralPrimitive($this->span(start), false);
+            return new LiteralPrimitive($this->span($start), false);
 
         } elseif ($this->getNext()->isKeywordThis()) {
             $this->advance();
-            return new ImplicitReceiver($this->span(start));
+            return new ImplicitReceiver($this->span($start));
 
         } elseif ($this->optionalCharacter(Chars::LBRACKET)) {
             $this->rbracketsExpected++;
             $elements = $this->parseExpressionList(Chars::RBRACKET);
             $this->rbracketsExpected--;
             $this->expectCharacter(Chars::RBRACKET);
-            return new LiteralArray($this->span(start), elements);
+            return new LiteralArray($this->span($start), $elements);
 
         } elseif ($this->getNext()->isCharacter(Chars::LBRACE)) {
             return $this->parseLiteralMap();
 
         } elseif ($this->getNext()->isIdentifier()) {
-            return $this->parseAccessMemberOrMethodCall(new ImplicitReceiver($this->span(start)),
+            return $this->parseAccessMemberOrMethodCall(new ImplicitReceiver($this->span($start)),
                                                         false);
 
         } elseif ($this->getNext()->isNumber()) {
             $value = $this->getNext()->toNumber();
             $this->advance();
-            return new LiteralPrimitive($this->span(start), value);
+            return new LiteralPrimitive($this->span($start), $value);
 
         } elseif ($this->getNext()->isString()) {
             $literalValue = $this->getNext()->toString();
             $this->advance();
-            return new LiteralPrimitive($this->span(start), literalValue);
+            return new LiteralPrimitive($this->span($start), $literalValue);
 
         } elseif ($this->index >= $this->tokens->length) {
             $this->error("Unexpected end of expression: {$this->input}");
-            return new EmptyExpr($this->span(start));
+            return new EmptyExpr($this->span($start));
         } else {
             $this->error("Unexpected token {$this->getNext()}");
-            return new EmptyExpr($this->span(start));
+            return new EmptyExpr($this->span($start));
         }
 
     }
@@ -464,7 +464,7 @@ class ParseAST
         $result = [];
         if (!$this->getNext()->isCharacter($terminator)) {
             do {
-                $result->push($this->parsePipe());
+                $result[] = $this->parsePipe();
             } while ($this->optionalCharacter(Chars::COMMA));
         }
         return $result;
@@ -487,7 +487,7 @@ class ParseAST
             $this->rbracesExpected--;
             $this->expectCharacter(Chars::RBRACE);
         }
-        return new LiteralMap($this->span(start), $keys, $values);
+        return new LiteralMap($this->span($start), $keys, $values);
     }
 
     public function parseAccessMemberOrMethodCall(AST $receiver, $isSafe = false): AST
@@ -500,7 +500,7 @@ class ParseAST
             $args = $this->parseCallArguments();
             $this->expectCharacter(Chars::RPAREN);
             $this->rparensExpected--;
-            $span = $this->span(start);
+            $span = $this->span($start);
             return $isSafe ? new SafeMethodCall($span, $receiver, $id, $args) :
                 new MethodCall($span, $receiver, $id, $args);
 
@@ -551,14 +551,14 @@ class ParseAST
         $result        = '';
         $operatorFound = false;
         do {
-            $result += $this->expectIdentifierOrKeywordOrString();
+            $result .= $this->expectIdentifierOrKeywordOrString();
             $operatorFound = $this->optionalOperator('-');
             if ($operatorFound) {
-                $result += '-';
+                $result .= '-';
             }
         } while ($operatorFound);
 
-        return $result->toString();
+        return $result;
     }
 
     //parseTemplateBindings(): TemplateBindingParseResult {
@@ -606,16 +606,16 @@ class ParseAST
 
     public function error($message, $index = null)
     {
-        $this->errors->push(new ParserError($message, $this->input, $this->locationText($index), $this->location));
+        $this->errors[] = new ParserError($message, $this->input, $this->locationText($index), $this->location);
         $this->skip();
     }
 
     private function locationText($index = null)
     {
-        if (isBlank($index)) {
+        if ($index == null) {
             $index = $this->index;
         }
-        return ($index < $this->tokens->length) ?
+        return ($index < count($this->tokens)) ?
             "at column " . ($this->tokens[$index]->index + 1) . " in" :
             "at the end of the expression";
     }
@@ -641,9 +641,9 @@ class ParseAST
                && ($this->rbracesExpected <= 0 || !$n->isCharacter(Chars::RBRACE))
                && ($this->rbracketsExpected <= 0 || !$n->isCharacter(Chars::RBRACKET))) {
             if ($this->getNext()->isError()) {
-                $this->errors->push(
+                $this->errors[] =
                     new ParserError($this->getNext()->toString(), $this->input, $this->locationText(),
-                                    $this->location));
+                                    $this->location);
             }
             $this->advance();
             $n = $this->getNext();

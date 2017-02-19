@@ -1,10 +1,9 @@
 <?php
 
 
-namespace src\trans\JavaCompiler;
+namespace trans\JavaCompiler;
 
 
-import {isBlank} from '../facade/lang';
 
 
 
