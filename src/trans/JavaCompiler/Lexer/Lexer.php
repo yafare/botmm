@@ -1,7 +1,7 @@
 <?php
 
 
-namespace src\trans\JavaCompiler\Lexer;
+namespace trans\JavaCompiler\Lexer;
 
 
 class Lexer

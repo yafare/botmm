@@ -1,0 +1,13 @@
+file: "./sample001.java"
+
+tokens:
+  -
+    index: 0,
+    type: keyword,
+    numValue: 0,
+    strValuepublic:
+  -
+    index: 0,
+    type: keyword,
+    numValue: 0,
+    strValuepublic:

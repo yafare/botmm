@@ -1,11 +1,12 @@
 <?php
 
 
-namespace src\trans\JavaCompiler\Lexer;
+namespace trans\JavaCompiler\Lexer;
 
 
-use src\trans\JavaCompiler\Chars;
-use src\trans\JavaCompiler\StringWrapper;
+use trans\JavaCompiler\Chars;
+use trans\JavaCompiler\Wrapper\ArrayWrapper;
+use trans\JavaCompiler\Wrapper\StringWrapper;
 
 class Scanner
 {
@@ -29,11 +30,14 @@ class Scanner
 
     public function advance()
     {
-        $this->peek = ++$this->index >= $this->length ? chars::EOF : StringWrapper::fromCharCodeAt($this->input,
+        $this->peek = ++$this->index >= $this->length ? Chars::EOF : StringWrapper::fromCharCodeAt($this->input,
                                                                                                    $this->index);
     }
 
-    public function scanToken(): Token
+    /**
+     * @return Token|null
+     */
+    public function scanToken()
     {
         $input  = $this->input;
         $length = $this->length;
@@ -41,9 +45,9 @@ class Scanner
         $index  = $this->index;
 
         // Skip whitespace.
-        while ($peek <= chars::SPACE) {
+        while ($peek <= Chars::SPACE) {
             if (++$index >= $length) {
-                $peek = chars::EOF;
+                $peek = Chars::EOF;
                 break;
             } else {
                 $peek = StringWrapper::fromCharCodeAt($input, $index);
@@ -61,52 +65,52 @@ class Scanner
         if (Util::isIdentifierStart($peek)) {
             return $this->scanIdentifier();
         }
-        if (chars::isDigit($peek)) {
+        if (Chars::isDigit($peek)) {
             return $this->scanNumber($index);
         }
 
         $start = $index;
         switch ($peek) {
-            case chars::PERIOD:
+            case Chars::PERIOD:
                 $this->advance();
-                return chars::isDigit($this->peek) ? $this->scanNumber($start) :
-                    Util::newCharacterToken($start, chars::PERIOD);
-            case chars::LPAREN:
-            case chars::RPAREN:
-            case chars::LBRACE:
-            case chars::RBRACE:
-            case chars::LBRACKET:
-            case chars::RBRACKET:
-            case chars::COMMA:
-            case chars::COLON:
-            case chars::SEMICOLON:
+                return Chars::isDigit($this->peek) ? $this->scanNumber($start) :
+                    Util::newCharacterToken($start, Chars::PERIOD);
+            case Chars::LPAREN:
+            case Chars::RPAREN:
+            case Chars::LBRACE:
+            case Chars::RBRACE:
+            case Chars::LBRACKET:
+            case Chars::RBRACKET:
+            case Chars::COMMA:
+            case Chars::COLON:
+            case Chars::SEMICOLON:
                 return $this->scanCharacter($start, $peek);
-            case chars::SQ:
-            case chars::DQ:
+            case Chars::SQ:
+            case Chars::DQ:
                 return $this->scanString();
-            case chars::HASH:
-            case chars::PLUS:
-            case chars::MINUS:
-            case chars::STAR:
-            case chars::SLASH:
-            case chars::PERCENT:
-            case chars::CARET:
+            case Chars::HASH:
+            case Chars::PLUS:
+            case Chars::MINUS:
+            case Chars::STAR:
+            case Chars::SLASH:
+            case Chars::PERCENT:
+            case Chars::CARET:
                 return $this->scanOperator($start, StringWrapper::fromCharCode($peek));
-            case chars::QUESTION:
-                return $this->scanComplexOperator($start, '?', chars::PERIOD, '.');
-            case chars::LT:
-            case chars::GT:
-                return $this->scanComplexOperator($start, StringWrapper::fromCharCode($peek), chars::EQ, '=');
-            case chars::BANG:
-            case chars::EQ:
+            case Chars::QUESTION:
+                return $this->scanComplexOperator($start, '?', Chars::PERIOD, '.');
+            case Chars::LT:
+            case Chars::GT:
+                return $this->scanComplexOperator($start, StringWrapper::fromCharCode($peek), Chars::EQ, '=');
+            case Chars::BANG:
+            case Chars::EQ:
                 return $this->scanComplexOperator(
-                    $start, StringWrapper::fromCharCode($peek), chars::EQ, '=', chars::EQ, '=');
-            case chars::AMPERSAND:
-                return $this->scanComplexOperator($start, '&', chars::AMPERSAND, '&');
-            case chars::BAR:
-                return $this->scanComplexOperator($start, '|', chars::BAR, '|');
-            case chars::NBSP:
-                while (chars::isWhitespace($this->peek)) {
+                    $start, StringWrapper::fromCharCode($peek), Chars::EQ, '=', Chars::EQ, '=');
+            case Chars::AMPERSAND:
+                return $this->scanComplexOperator($start, '&', Chars::AMPERSAND, '&');
+            case Chars::BAR:
+                return $this->scanComplexOperator($start, '|', Chars::BAR, '|');
+            case Chars::NBSP:
+                while (Chars::isWhitespace($this->peek)) {
                     $this->advance();
                 }
                 return $this->scanToken();
@@ -170,7 +174,7 @@ class Scanner
             $this->advance();
         }
         $str = StringWrapper::subString($this->input, $start, $this->index);
-        return StringWrapper::IndexOf(self::$KEYWORDS, $str) > -1 ? Util::newKeywordToken($start, $str) :
+        return ArrayWrapper::indexOf(self::$KEYWORDS, $str) > -1 ? Util::newKeywordToken($start, $str) :
             Util::newIdentifierToken($start, $str);
     }
 
@@ -179,10 +183,10 @@ class Scanner
         $simple = ($this->index === $start);
         $this->advance();  // Skip initial digit.
         while (true) {
-            if (chars:: isDigit($this->peek)) {
+            if (Chars::isDigit($this->peek)) {
                 // Do nothing.
             } else {
-                if ($this->peek == chars :: PERIOD) {
+                if ($this->peek == Chars::PERIOD) {
                     $simple = false;
                 } else {
                     if (Util::isExponentStart($this->peek)) {
@@ -190,7 +194,7 @@ class Scanner
                         if (Util::isExponentSign($this->peek)) {
                             $this->advance();
                         }
-                        if (!chars::isDigit($this->peek)) {
+                        if (!Chars::isDigit($this->peek)) {
                             return $this->error('Invalid exponent', -1);
                         }
                         $simple = false;
@@ -217,11 +221,11 @@ class Scanner
         $input  = $this->input;
 
         while ($this->peek != $quote) {
-            if ($this->peek == chars::BACKSLASH) {
+            if ($this->peek == Chars::BACKSLASH) {
                 $buffer += StringWrapper::subString($input, $marker, $this->index);
                 $this->advance();
                 $unescapedCode = null;
-                if ($this->peek == chars::u) {
+                if ($this->peek == Chars::u) {
                     // 4 character hex code for unicode character.
                     $hex = StringWrapper::subString($input, $this->index + 1, $this->index + 5);
                     if (preg_match('/^[0 - 9a - f]+$/i', $hex)) {
@@ -239,7 +243,7 @@ class Scanner
                 $buffer += StringWrapper::fromCharCode($unescapedCode);
                 $marker = $this->index;
             } else {
-                if ($this->peek == chars::EOF) {
+                if ($this->peek == Chars::EOF) {
                     return $this->error('Unterminated quote', 0);
                 } else {
                     $this->advance();

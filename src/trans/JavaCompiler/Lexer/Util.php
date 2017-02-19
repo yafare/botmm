@@ -1,10 +1,11 @@
 <?php
 
 
-namespace src\trans\JavaCompiler\Lexer;
+namespace trans\JavaCompiler\Lexer;
 
 
-use src\trans\JavaCompiler\StringWrapper;
+use trans\JavaCompiler\Chars;
+use trans\JavaCompiler\Wrapper\StringWrapper;
 
 class Util
 {
@@ -45,9 +46,9 @@ class Util
 
     public static function isIdentifierStart($code): bool
     {
-        return (chars::a <= $code && $code <= chars::z) || (chars::A <= $code && $code <= chars::Z)
-               || ($code == chars::_)
-               || ($code == chars::DOLAR);
+        return (Chars::a <= $code && $code <= Chars::z) || (Chars::A <= $code && $code <= Chars::Z)
+               || ($code == Chars::_)
+               || ($code == Chars::DOLAR);
     }
 
     public static function isIdentifier($input): bool
@@ -55,12 +56,12 @@ class Util
         if (strlen($input) == 0) {
             return false;
         }
-        $scanner = new _Scanner($input);
+        $scanner = new Scanner($input);
         if (!Util::isIdentifierStart($scanner->peek)) {
             return false;
         }
         $scanner->advance();
-        while ($scanner->peek !== chars::EOF) {
+        while ($scanner->peek !== Chars::EOF) {
             if (!Util::isIdentifierPart($scanner->peek)) {
                 return false;
             }
@@ -71,38 +72,38 @@ class Util
 
     public static function isIdentifierPart($code): bool
     {
-        return chars::isAsciiLetter($code) || chars::isDigit($code) || ($code == chars::_)
-               || ($code == chars::DOLAR);
+        return Chars::isAsciiLetter($code) || Chars::isDigit($code) || ($code == Chars::_)
+               || ($code == Chars::DOLAR);
     }
 
     public static function isExponentStart($code): bool
     {
-        return $code == chars::e || $code == chars::E;
+        return $code == Chars::e || $code == Chars::E;
     }
 
     public static function isExponentSign($code): bool
     {
-        return $code == chars::MINUS || $code == chars::PLUS;
+        return $code == Chars::MINUS || $code == Chars::PLUS;
     }
 
     public static function isQuote($code): bool
     {
-        return $code === chars::SQ || $code === chars::DQ || $code === chars::BT;
+        return $code === Chars::SQ || $code === Chars::DQ || $code === Chars::BT;
     }
 
     public static function unescape($code): number
     {
         switch ($code) {
-            case chars::n:
-                return chars::LF;
-            case chars::f:
-                return chars::FF;
-            case chars::r:
-                return chars::CR;
-            case chars::t:
-                return chars::TAB;
-            case chars::v:
-                return chars::VTAB;
+            case Chars::n:
+                return Chars::LF;
+            case Chars::f:
+                return Chars::FF;
+            case Chars::r:
+                return Chars::CR;
+            case Chars::t:
+                return Chars::TAB;
+            case Chars::v:
+                return Chars::VTAB;
             default:
                 return $code;
         }

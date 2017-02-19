@@ -6,7 +6,7 @@
  * Time: 21:59
  */
 
-namespace src\trans\JavaCompiler\Lexer;
+namespace trans\JavaCompiler\Lexer;
 
 
 class Token

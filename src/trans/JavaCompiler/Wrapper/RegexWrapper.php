@@ -1,7 +1,7 @@
 <?php
 
 
-namespace src\trans\JavaCompiler;
+namespace trans\JavaCompiler\Wrapper;
 
 
 class RegexWrapper
