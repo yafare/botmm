@@ -423,11 +423,6 @@ class ASTWithSource extends AST
     }
 }
 
-class TemplateBinding {
-    public function __construct(
-public ParseSpan $span, public key: string, public keyIsVar: boolean, public name: string,
-public expression: ASTWithSource) {}
-}
 
 interface AstVisitor {
 visitBinary(ast: Binary, $context: any): any;

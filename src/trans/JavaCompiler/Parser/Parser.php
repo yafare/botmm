@@ -4,8 +4,12 @@
 namespace trans\JavaCompiler\Parser;
 
 
+use trans\JavaCompiler\Lexer\Lexer;
+use trans\JavaCompiler\Lexer\Scanner;
 use trans\JavaCompiler\Lexer\Token;
+use trans\JavaCompiler\Lexer\TokenType;
 use trans\JavaCompiler\Wrapper\StringWrapper;
+
 
 class ParseAST
 {
@@ -45,7 +49,7 @@ class ParseAST
     public function peek($offset): Token
     {
         $i = $this->index + $offset;
-        return $i < count($this->tokens) ? $this->tokens[$i] : EOF;
+        return $i < count($this->tokens) ? $this->tokens[$i] : Lexer::$EOF;
     }
 
     /**
@@ -58,14 +62,14 @@ class ParseAST
 
     public function getInputIndex(): number
     {
-        return ($this->index < count($this->tokens) ?
+        return $this->index < count($this->tokens) ?
             $this->getNext()->index + $this->offset :
             $this->inputLength + $this->offset;
     }
 
     public function span($start)
     {
-        return new ParseSpan($start, $this->inputIndex);
+        return new ParseSpan($start, $this->getInputIndex());
     }
 
     public function advance()
@@ -110,188 +114,202 @@ class ParseAST
         }
     }
 
-    public function expectOperator(operator: string)
+    public function expectOperator($operator)
     {
-        if (this . optionalOperator(operator))
-        {
+        if ($this->optionalOperator($operator)) {
             return;
         }
 
-    $this->error(`Missing expected operator ${operator}`);
-}
-
-expectIdentifierOrKeyword(): string {
-    const n = this . next;
-    if (!n . isIdentifier() && !n . isKeyword()) {
-        this . error(`Unexpected token ${n}, expected identifier or keyword`);
-        return '';
+        $this->error("Missing expected operator {$operator}");
     }
-    this . advance();
-    return n . toString();
-}
 
-  expectIdentifierOrKeywordOrString(): string {
-    const n = this . next;
-    if (!n . isIdentifier() && !n . isKeyword() && !n . isString()) {
-        this . error(`Unexpected token ${n}, expected identifier, keyword, or string`);
-        return '';
+    public function expectIdentifierOrKeyword(): string
+    {
+        $n = $this->getNext();
+        if (!$n->isIdentifier() && !$n->isKeyword()) {
+            $this->error("Unexpected token {$n}, expected identifier or keyword");
+            return '';
+        }
+        $this->advance();
+        return $n->toString();
     }
-    this . advance();
-    return n . toString();
-}
 
-  parseChain(): AST {
-    const exprs: AST[] = [];
-    const start = this . inputIndex;
-    while (this . index < this . tokens . length) {
-        const expr = this . parsePipe();
-        exprs . push(expr);
+    public function expectIdentifierOrKeywordOrString(): string
+    {
+        $n = $this->getNext();
+        if (!$n->isIdentifier() && !$n->isKeyword() && !$n->isString()) {
+            $this->error("Unexpected token $n, expected identifier, keyword, or string");
+            return '';
+        }
+        $this->advance();
+        return $n->toString();
+    }
 
-        if (this . optionalCharacter(chars . $SEMICOLON)) {
-            if (!this . parseAction) {
-                this . error('Binding expression cannot contain chained expression');
+    public function parseChain(): AST
+    {
+        $exprs = [];
+        $start = $this->getInputIndex();
+        while ($this->index < count($this->tokens)) {
+            $expr = $this->parsePipe();
+            $exprs->push($expr);
+
+            if ($this->optionalCharacter(chars::SEMICOLON)) {
+                if (!$this->parseAction) {
+                    $this->error('Binding expression cannot contain chained expression');
+                }
+                while ($this->optionalCharacter(chars::SEMICOLON)) {
+                }  // read all semicolons
+            } else {
+                if ($this->index < count($this->tokens)) {
+                    $this->error("Unexpected token '{$this->getNext()}'");
+                }
             }
-            while (this . optionalCharacter(chars . $SEMICOLON)) {
-            }  // read all semicolons
+        }
+        if (count($exprs) == 0) {
+            return new EmptyExpr($this->span($start));
+        }
+        if (count($exprs) == 1) {
+            return $exprs[0];
+        }
+        return new Chain($this->span($start), $exprs);
+    }
+
+    public function parsePipe(): AST
+    {
+        $result = $this->parseExpression();
+        if ($this->optionalOperator('|')) {
+            if ($this->parseAction) {
+                $this->error('Cannot have a pipe in an action expression');
+            }
+
+            do {
+                $name = $this->expectIdentifierOrKeyword();
+                $args = [];
+                while ($this->optionalCharacter(chars::COLON)) {
+                    $args[] = $this->parseExpression();
+                }
+                $result = new BindingPipe($this->span($result->span->start), $result, $name, $args);
+            } while ($this->optionalOperator('|'));
+        }
+
+        return $result;
+    }
+
+    public function parseExpression(): AST
+    {
+        return $this->parseConditional();
+    }
+
+    public function parseConditional(): AST
+    {
+        $start  = $this->getInputIndex();
+        $result = $this->parseLogicalOr();
+
+        if ($this->optionalOperator('?')) {
+            $yes = $this->parsePipe();
+            $no  = null;
+            if (!$this->optionalCharacter(chars::COLON)) {
+                $end        = $this->getInputIndex();
+                $expression = StringWrapper::subString($this->input, $start, $end);
+                $this->error("Conditional expression ${expression} requires all 3 expressions");
+                $no = new EmptyExpr($this->span($start));
+            } else {
+                $no = $this->parsePipe();
+            }
+            return new Conditional($this->span($start), $result, $yes, $no);
         } else {
-            if (this . index < this . tokens . length) {
-                this . error(`Unexpected token '${this . next}'`);
+            return $result;
+        }
+    }
+
+    public function parseLogicalOr(): AST
+    {
+        // '||'
+        $result = $this->parseLogicalAnd();
+        while ($this->optionalOperator('||')) {
+            $right  = $this->parseLogicalAnd();
+            $result = new Binary($this->span($result->span->start), '||', $result, $right);
+        }
+        return $result;
+    }
+
+    public function parseLogicalAnd(): AST
+    {
+        // '&&'
+        $result = $this->parseEquality();
+        while ($this->optionalOperator('&&')) {
+            $right  = $this->parseEquality();
+            $result = new Binary($this->span($result->span->start), '&&', $result, $right);
+        }
+        return $result;
+    }
+
+    public function parseEquality(): AST
+    {
+        // '==','!=','===','!=='
+        $result = $this->parseRelational();
+        while ($this->getNext()->type == TokenType :: Operator) {
+            $operator = $this->getNext()->strValue;
+            switch ($operator) {
+                case '==':
+                case '===':
+                case '!=':
+                case '!==':
+                    $this->advance();
+                    $right  = $this->parseRelational();
+                    $result = new Binary($this->span($result->span->start), $operator, $result, $right);
+                    continue;
             }
+            break;
         }
+        return $result;
     }
-    if (exprs . length == 0) {
-        return new EmptyExpr(this . span(start));
-    }
-    if (exprs . length == 1) {
-        return exprs[0];
-    }
-    return new Chain(this . span(start), exprs);
-  }
 
-  parsePipe(): AST {
-    let result = this . parseExpression();
-    if (this . optionalOperator('|')) {
-        if (this . parseAction) {
-            this . error('Cannot have a pipe in an action expression');
+    public function parseRelational(): AST
+    {
+        // '<', '>', '<=', '>='
+        $result = $this->parseAdditive();
+        while ($this->getNext()->type == TokenType :: Operator) {
+            $operator = $this->getNext()->strValue;
+            switch ($operator) {
+                case '<':
+                case '>':
+                case '<=':
+                case '>=':
+                    $this->advance();
+                    $right  = $this->parseAdditive();
+                    $result = new Binary($this->span($result->span->start), $operator, $result, $right);
+                    continue;
+            }
+
+            break;
         }
-
-        do {
-            const name = this . expectIdentifierOrKeyword();
-            const args: AST[] = [];
-        while (this . optionalCharacter(chars . $COLON)) {
-            args . push(this . parseExpression());
-        }
-        result = new BindingPipe(this . span(result . span . start), result, name, args);
-      } while (this . optionalOperator('|'));
+        return $result;
     }
 
-    return result;
-  }
-
-  parseExpression(): AST {
-    return this . parseConditional();
-}
-
-  parseConditional(): AST {
-    const start  = this . inputIndex;
-    const result = this . parseLogicalOr();
-
-    if (this . optionalOperator('?')) {
-        const yes = this . parsePipe();
-        let no: AST;
-      if (!this . optionalCharacter(chars . $COLON)) {
-          const end        = this . inputIndex;
-          const expression = this . input . substring(start, end);
-          this . error(`Conditional expression ${expression} requires all 3 expressions`);
-          no = new EmptyExpr(this . span(start));
-      } else {
-          no = this . parsePipe();
-      }
-      return new Conditional(this . span(start), result, yes, no);
-    } else {
-        return result;
-    }
-}
-
-  parseLogicalOr(): AST {
-    // '||'
-    let result = this . parseLogicalAnd();
-    while (this . optionalOperator('||')) {
-        const right = this . parseLogicalAnd();
-        result = new Binary(this . span(result . span . start), '||', result, right);
-    }
-    return result;
-  }
-
-  parseLogicalAnd(): AST {
-    // '&&'
-    let result = this . parseEquality();
-    while (this . optionalOperator('&&')) {
-        const right = this . parseEquality();
-        result = new Binary(this . span(result . span . start), '&&', result, right);
-    }
-    return result;
-  }
-
-  parseEquality(): AST {
-    // '==','!=','===','!=='
-    let result = this . parseRelational();
-    while (this . next . type == TokenType . Operator) {
-        const operator = this . next . strValue;
-        switch (operator) {
-            case '==':
-            case '===':
-            case '!=':
-            case '!==':
-                this . advance();
-                const right = this . parseRelational();
-                result = new Binary(this . span(result . span . start), operator, result, right);
-                continue;
-        }
-        break;
-    }
-    return result;
-  }
-
-  parseRelational(): AST {
-    // '<', '>', '<=', '>='
-    let result = this . parseAdditive();
-    while (this . next . type == TokenType . Operator) {
-        const operator = this . next . strValue;
-        switch (operator) {
-            case '<':
-            case '>':
-            case '<=':
-            case '>=':
-                this . advance();
-                const right = this . parseAdditive();
-                result = new Binary(this . span(result . span . start), operator, result, right);
-                continue;
-        }
-        break;
-    }
-    return result;
-  }
-
-  parseAdditive(): AST {
+parseAdditive(): AST
+{
     // '+', '-'
-    let result = this . parseMultiplicative();
-    while (this . next . type == TokenType . Operator) {
-        const operator = this . next . strValue;
-        switch (operator) {
-            case '+':
-            case '-':
-                this . advance();
-                let right = this . parseMultiplicative();
-          result          = new Binary(this . span(result . span . start), operator, result, right);
-          continue;
-        }
-        break;
-    }
-    return result;
-  }
+let result = this . parseMultiplicative();
+while (this . next . type == TokenType . Operator)
+{
+    const operator = this . next . strValue;
+switch (operator)
+{
+case '+':
+case '-':
+this . advance();
+let right = this . parseMultiplicative();
+result = new Binary(this . span(result . span . start), operator, result, right);
+continue;
+}
 
-  parseMultiplicative(): AST {
+break;
+}
+return result;
+}
+
+parseMultiplicative(): AST {
     // '*', '%', '/'
     let result = this . parsePrefix();
     while (this . next . type == TokenType . Operator) {
@@ -622,8 +640,9 @@ expectIdentifierOrKeyword(): string {
 
   // If a production expects one of these token it increments the corresponding nesting count,
   // and then decrements it just prior to checking if the token is in the input.
-  private skip(){
-          let n = this . next;
+  private function skip()
+{
+    let n = this . next;
     while (this . index < this . tokens . length && !n . isCharacter(chars . $SEMICOLON)
            && (this . rparensExpected <= 0 || !n . isCharacter(chars . $RPAREN))
            && (this . rbracesExpected <= 0 || !n . isCharacter(chars . $RBRACE))

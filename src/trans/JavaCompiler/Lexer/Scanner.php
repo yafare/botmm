@@ -10,8 +10,6 @@ use trans\JavaCompiler\Wrapper\StringWrapper;
 
 class Scanner
 {
-    private static $KEYWORDS;
-    private static $EOF;
 
     public  $length;
     public  $peek  = 0;
@@ -20,9 +18,6 @@ class Scanner
 
     public function __construct($input)
     {
-        self::$KEYWORDS = ['var', 'let', 'null', 'undefined', 'true', 'false', 'if', 'else', 'this'];
-        self::$EOF      = new Token(-1, TokenType::Character, 0, '');
-
         $this->input  = $input;
         $this->length = strlen($input);
         $this->advance();
@@ -174,7 +169,7 @@ class Scanner
             $this->advance();
         }
         $str = StringWrapper::subString($this->input, $start, $this->index);
-        return ArrayWrapper::indexOf(self::$KEYWORDS, $str) > -1 ? Util::newKeywordToken($start, $str) :
+        return ArrayWrapper::indexOf(Lexer::$KEYWORDS, $str) > -1 ? Util::newKeywordToken($start, $str) :
             Util::newIdentifierToken($start, $str);
     }
 
