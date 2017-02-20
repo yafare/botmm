@@ -1,7 +1,7 @@
 <?php
 
 
-namespace trans\JavaCompiler\Ast;
+namespace trans\JavaCompiler\Ast\Expr;
 
 
 
