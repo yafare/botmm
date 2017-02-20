@@ -5,8 +5,7 @@ namespace trans\JavaCompiler\Ast\Expr;
 
 
 use trans\JavaCompiler\Ast\AST;
-
-
+use trans\JavaCompiler\Ast\AstVisitor;
 
 
 class ImplicitReceiver extends AST

@@ -4,6 +4,26 @@
 namespace trans\JavaCompiler\Ast;
 
 
+use trans\JavaCompiler\Ast\Expr\Binary;
+use trans\JavaCompiler\Ast\Expr\BindingPipe;
+use trans\JavaCompiler\Ast\Expr\Chain;
+use trans\JavaCompiler\Ast\Expr\Conditional;
+use trans\JavaCompiler\Ast\Expr\FunctionCall;
+use trans\JavaCompiler\Ast\Expr\ImplicitReceiver;
+use trans\JavaCompiler\Ast\Expr\Interpolation;
+use trans\JavaCompiler\Ast\Expr\KeyedRead;
+use trans\JavaCompiler\Ast\Expr\KeyedWrite;
+use trans\JavaCompiler\Ast\Expr\LiteralArray;
+use trans\JavaCompiler\Ast\Expr\LiteralMap;
+use trans\JavaCompiler\Ast\Expr\LiteralPrimitive;
+use trans\JavaCompiler\Ast\Expr\MethodCall;
+use trans\JavaCompiler\Ast\Expr\PrefixNot;
+use trans\JavaCompiler\Ast\Expr\PropertyRead;
+use trans\JavaCompiler\Ast\Expr\PropertyWrite;
+use trans\JavaCompiler\Ast\Expr\Quote;
+use trans\JavaCompiler\Ast\Expr\SafeMethodCall;
+use trans\JavaCompiler\Ast\Expr\SafePropertyRead;
+
 class AstTransformer implements AstVisitor
 {
     public function visitImplicitReceiver(ImplicitReceiver $ast, $context): AST

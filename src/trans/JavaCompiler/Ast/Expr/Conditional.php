@@ -5,6 +5,7 @@ namespace trans\JavaCompiler\Ast\Expr;
 
 use trans\JavaCompiler\Ast\AST;
 use trans\JavaCompiler\Ast\AstVisitor;
+use trans\JavaCompiler\Ast\ParseSpan;
 
 
 class Conditional extends AST
