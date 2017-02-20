@@ -302,7 +302,7 @@ import {ParseSourceSpan} from '../parse_util';
  class BuiltinVar
  {
      public const   This = "this";
-     public const Super = "super";
+     public const Super = "parent::__construct";
      public const CatchError = "catchError";
      public const CatchStack = "catchStack";
  }
@@ -437,199 +437,330 @@ import {ParseSourceSpan} from '../parse_util';
  }
 
 
- class InvokeFunctionExpr extends Expression {
-public function __construct(
-public fn: Expression, public args: Expression[], Type $type = null,
-ParseSourceSpan $sourceSpan) {
-parent::__construct($type, sourceSpan);
-}
-  public function visitExpression(ExpressionVisitor $visitor, $context) {
-    return $visitor->visitInvokeFunctionExpr($this, $context);
-}
-}
+ class InvokeFunctionExpr extends Expression
+ {
+     public $fn;
+     public $args;
+
+     public function __construct(
+         Expression $fn, array $args, Type $type = null,
+         ParseSourceSpan $sourceSpan)
+     {
+         parent::__construct($type, $sourceSpan);
+         $this->fn=$fn;
+         $this->args=$args;
+     }
+
+     public function visitExpression(ExpressionVisitor $visitor, $context)
+     {
+         return $visitor->visitInvokeFunctionExpr($this, $context);
+     }
+ }
 
 
- class InstantiateExpr extends Expression {
-public function __construct(
-public classExpr: Expression, public args: Expression[], type?: Type,
-ParseSourceSpan $sourceSpan) {
-parent::__construct($type, sourceSpan);
-}
-  public function visitExpression(ExpressionVisitor $visitor, $context) {
-    return $visitor->visitInstantiateExpr($this, $context);
-}
-}
+ class InstantiateExpr extends Expression
+ {
+     public $classExpr;
+     public $args;
+
+     public function __construct(
+         Expression $classExpr, array $args, Type $type,
+         ParseSourceSpan $sourceSpan)
+     {
+         parent::__construct($type, $sourceSpan);
+         $this->classExpr=$classExpr;
+         $this->args=$args;
+     }
+
+     public function visitExpression(ExpressionVisitor $visitor, $context)
+     {
+         return $visitor->visitInstantiateExpr($this, $context);
+     }
+ }
 
 
- class LiteralExpr extends Expression {
-public function __construct(public value, Type $type = null, ParseSourceSpan $sourceSpan) {
-parent::__construct($type, sourceSpan);
-}
-  public function visitExpression(ExpressionVisitor $visitor, $context) {
-    return $visitor->visitLiteralExpr($this, $context);
-}
-}
+ class LiteralExpr extends Expression
+ {
+     public $value;
+
+     public function __construct($value, Type $type = null, ParseSourceSpan $sourceSpan)
+     {
+         parent::__construct($type, $sourceSpan);
+         $this->value=$value;
+     }
+
+     public function visitExpression(ExpressionVisitor $visitor, $context)
+     {
+         return $visitor->visitLiteralExpr($this, $context);
+     }
+ }
 
 
- class ExternalExpr extends Expression {
-public function __construct(
-public value: CompileIdentifierMetadata, Type $type = null, public typeParams: Type[] = null,
-ParseSourceSpan $sourceSpan) {
-parent::__construct($type, sourceSpan);
-}
-  public function visitExpression(ExpressionVisitor $visitor, $context) {
-    return $visitor->visitExternalExpr($this, $context);
-}
-}
+ class ExternalExpr extends Expression
+ {
+     public $value;
+     public $typeParams;
+
+     public function __construct(
+         CompileIdentifierMetadata $value, Type $type = null, array $typeParams = null,
+         ParseSourceSpan $sourceSpan)
+     {
+         parent::__construct($type, $sourceSpan);
+         $this->value=$value;
+         $this->typeParams=$typeParams;
+     }
+
+     public function visitExpression(ExpressionVisitor $visitor, $context)
+     {
+         return $visitor->visitExternalExpr($this, $context);
+     }
+ }
 
 
- class ConditionalExpr extends Expression {
-public Expression $trueCase;
-public function __construct(
-public condition: Expression, Expression $trueCase, public Expression $falseCase = null,
-Type $type = null, ParseSourceSpan $sourceSpan) {
-parent::__construct($type || trueCase.type, sourceSpan);
-$this->trueCase = trueCase;
-}
-  public function visitExpression(ExpressionVisitor $visitor, $context) {
-    return $visitor->visitConditionalExpr($this, $context);
-}
-}
+ class ConditionalExpr extends Expression
+ {
+     public $trueCase;
+     public $condition;
+     public $falseCase;
+
+     public function __construct(
+         Expression $condition, Expression $trueCase, Expression $falseCase = null,
+         Type $type = null, ParseSourceSpan $sourceSpan)
+     {
+         parent::__construct(isset($type) ? $type : $trueCase->type, $sourceSpan);
+         $this->trueCase = $trueCase;
+         $this->condition=$condition;
+         $this->falseCase=$falseCase;
+     }
+
+     public function visitExpression(ExpressionVisitor $visitor, $context)
+     {
+         return $visitor->visitConditionalExpr($this, $context);
+     }
+ }
 
 
- class NotExpr extends Expression {
-public function __construct(public condition: Expression, ParseSourceSpan $sourceSpan) {
-super(BOOL_TYPE, sourceSpan);
-}
-  public function visitExpression(ExpressionVisitor $visitor, $context) {
-    return $visitor->visitNotExpr($this, $context);
-}
-}
+ class NotExpr extends Expression
+ {
+     public $condition;
 
- class CastExpr extends Expression {
-public function __construct(public Expression $value, Type $type, ParseSourceSpan $sourceSpan) {
-parent::__construct($type, sourceSpan);
-}
-  public function visitExpression(ExpressionVisitor $visitor, $context) {
-    return $visitor->visitCastExpr($this, $context);
-}
-}
+     public function __construct(Expression $condition, ParseSourceSpan $sourceSpan)
+     {
+         parent::__construct(BOOL_TYPE, $sourceSpan);
+         $this->condition=$condition;
+     }
 
+     public function visitExpression(ExpressionVisitor $visitor, $context)
+     {
+         return $visitor->visitNotExpr($this, $context);
+     }
+ }
 
- class FnParam {
-public function __construct(public string $name , public Type $type = null) {}
-}
+ class CastExpr extends Expression
+ {
+     public $value;
 
+     public function __construct(Expression $value, Type $type, ParseSourceSpan $sourceSpan)
+     {
+         parent::__construct($type, $sourceSpan);
+         $this->value=$value;
+     }
 
- class FunctionExpr extends Expression {
-public function __construct(
-public params: FnParam[], public statements: Statement[], Type $type = null,
-ParseSourceSpan $sourceSpan) {
-parent::__construct($type, sourceSpan);
-}
-  public function visitExpression(ExpressionVisitor $visitor, $context) {
-    return $visitor->visitFunctionExpr($this, $context);
-}
-
-  public function toDeclStmt(string $name , array $modifiers= null): DeclareFunctionStmt {
-    return new DeclareFunctionStmt(
-        name, $this->params, $this->statements, $this->type, modifiers, $this->sourceSpan);
-}
-}
+     public function visitExpression(ExpressionVisitor $visitor, $context)
+     {
+         return $visitor->visitCastExpr($this, $context);
+     }
+ }
 
 
- class BinaryOperatorExpr extends Expression {
-public lhs: Expression;
-public function __construct(
-public operator: BinaryOperator, lhs: Expression, public Expression $rhs, Type $type = null,
-ParseSourceSpan $sourceSpan) {
-parent::__construct($type || lhs.type, sourceSpan);
-$this->lhs = lhs;
-}
-  public function visitExpression(ExpressionVisitor $visitor, $context) {
-    return $visitor->visitBinaryOperatorExpr($this, $context);
-}
-}
+ class FnParam
+ {
+     public $name;
+     public $type;
+
+     public function __construct(string $name, Type $type = null)
+     {
+         $this->name=$name;
+         $this->type=$type;
+     }
+ }
 
 
- class ReadPropExpr extends Expression {
-public function __construct(
-public receiver: Expression, public string $name , Type $type = null,
-ParseSourceSpan $sourceSpan) {
-parent::__construct($type, sourceSpan);
-}
-  public function visitExpression(ExpressionVisitor $visitor, $context) {
-    return $visitor->visitReadPropExpr($this, $context);
-}
-  set(Expression $value): WritePropExpr {
-    return new WritePropExpr($this->receiver, $this->name, value, null, $this->sourceSpan);
-}
-}
+ class FunctionExpr extends Expression
+ {
+     public $params;
+     public $statements;
+
+     public function __construct(
+         array $params, array $statements, Type $type = null,
+         ParseSourceSpan $sourceSpan)
+     {
+         parent::__construct($type, $sourceSpan);
+         $this->params=$params;
+         $this->statements=$statements;
+     }
+
+     public function visitExpression(ExpressionVisitor $visitor, $context)
+     {
+         return $visitor->visitFunctionExpr($this, $context);
+     }
+
+     public function toDeclStmt(string $name, array $modifiers = null): DeclareFunctionStmt
+     {
+         return new DeclareFunctionStmt(
+             $name, $this->params, $this->statements, $this->type, $modifiers, $this->sourceSpan);
+     }
+ }
 
 
- class ReadKeyExpr extends Expression {
-public function __construct(
-public receiver: Expression, public Expression $index, Type $type = null,
-ParseSourceSpan $sourceSpan) {
-parent::__construct($type, sourceSpan);
-}
-  public function visitExpression(ExpressionVisitor $visitor, $context) {
-    return $visitor->visitReadKeyExpr($this, $context);
-}
-  set(Expression $value): WriteKeyExpr {
-    return new WriteKeyExpr($this->receiver, $this->index, value, null, $this->sourceSpan);
-}
-}
+ class BinaryOperatorExpr extends Expression
+ {
+     public $lhs;
+     public $operator;
+     public $rhs;
+
+     public function __construct(
+         BinaryOperator $operator, Expression $lhs, Expression $rhs, Type $type = null,
+         ParseSourceSpan $sourceSpan)
+     {
+         parent::__construct(isset($type) ? $type : $lhs->type, $sourceSpan);
+         $this->lhs = $lhs;
+         $this->operator=$operator;
+         $this->rhs=$rhs;
+     }
+
+     public function visitExpression(ExpressionVisitor $visitor, $context)
+     {
+         return $visitor->visitBinaryOperatorExpr($this, $context);
+     }
+ }
 
 
- class LiteralArrayExpr extends Expression {
-public entries: Expression[];
-public function __construct(entries: Expression[], Type $type = null, ParseSourceSpan $sourceSpan) {
-parent::__construct($type, sourceSpan);
-$this->entries = entries;
-}
-  public function visitExpression(ExpressionVisitor $visitor, $context) {
-    return $visitor->visitLiteralArrayExpr($this, $context);
-}
-}
+ class ReadPropExpr extends Expression
+ {
+     public $receiver;
+     public $name;
 
- class LiteralMapEntry {
-public function __construct(public key: string, public Expression $value, public quoted: boolean = false) {}
-}
+     public function __construct(
+         Expression $receiver, string $name, Type $type = null,
+         ParseSourceSpan $sourceSpan)
+     {
+         parent::__construct($type, $sourceSpan);
+         $this->receiver=$receiver;
+         $this->name=$name;
+     }
 
- class LiteralMapExpr extends Expression {
-public valueType $type = null;
-public function __construct(
-public entries: LiteralMapEntry[], type: MapType = null, ParseSourceSpan $sourceSpan) {
-parent::__construct($type, sourceSpan);
-if (type) {
-$this->valueType = type.valueType;
-}
-  }
-  public function visitExpression(ExpressionVisitor $visitor, $context) {
-    return $visitor->visitLiteralMapExpr($this, $context);
-}
-}
+     public function visitExpression(ExpressionVisitor $visitor, $context)
+     {
+         return $visitor->visitReadPropExpr($this, $context);
+     }
+
+     public function set(Expression $value): WritePropExpr
+     {
+         return new WritePropExpr($this->receiver, $this->name, $value, null, $this->sourceSpan);
+     }
+ }
+
+
+ class ReadKeyExpr extends Expression
+ {
+     public $receiver;
+     public $index;
+
+     public function __construct(
+         Expression $receiver, Expression $index, Type $type = null,
+         ParseSourceSpan $sourceSpan)
+     {
+         parent::__construct($type, $sourceSpan);
+         $this->receiver=$receiver;
+         $this->index=$index;
+     }
+
+     public function visitExpression(ExpressionVisitor $visitor, $context)
+     {
+         return $visitor->visitReadKeyExpr($this, $context);
+     }
+
+     public function set(Expression $value): WriteKeyExpr
+     {
+         return new WriteKeyExpr($this->receiver, $this->index, $value, null, $this->sourceSpan);
+     }
+ }
+
+
+ class LiteralArrayExpr extends Expression
+ {
+     public $entries;
+
+     public function __construct(array $entries, Type $type = null, ParseSourceSpan $sourceSpan)
+     {
+         parent::__construct($type, $sourceSpan);
+         $this->entries = $entries;
+     }
+
+     public function visitExpression(ExpressionVisitor $visitor, $context)
+     {
+         return $visitor->visitLiteralArrayExpr($this, $context);
+     }
+ }
+
+ class LiteralMapEntry
+ {
+     public $key;
+     public $value;
+     public $quoted;
+
+     public function __construct(string $key, Expression $value, boolean $quoted = false)
+     {
+         $this->key = $key;
+         $this->value = $value;
+         $this->quoted = $quoted;
+     }
+ }
+
+ class LiteralMapExpr extends Expression
+ {
+     public $type = null;
+     public $entries;
+     private $valueType;
+
+     public function __construct(
+         array $entries, MapType $type = null, ParseSourceSpan $sourceSpan)
+     {
+         parent::__construct($type, $sourceSpan);
+         if (isset($type)) {
+             $this->valueType = $type->valueType;
+         }
+         $this->type = $type;
+         $this->entries = $entries;
+
+     }
+
+     public function visitExpression(ExpressionVisitor $visitor, $context)
+     {
+         return $visitor->visitLiteralMapExpr($this, $context);
+     }
+ }
 
  interface ExpressionVisitor {
-visitReadVarExpr(ast: ReadVarExpr, $context);
-visitWriteVarExpr(expr: WriteVarExpr, $context);
-visitWriteKeyExpr(expr: WriteKeyExpr, $context);
-visitWritePropExpr(expr: WritePropExpr, $context);
-visitInvokeMethodExpr(ast: InvokeMethodExpr, $context);
-visitInvokeFunctionExpr(ast: InvokeFunctionExpr, $context);
-visitInstantiateExpr(ast: InstantiateExpr, $context);
-visitLiteralExpr(ast: LiteralExpr, $context);
-visitExternalExpr(ast: ExternalExpr, $context);
-visitConditionalExpr(ast: ConditionalExpr, $context);
-visitNotExpr(ast: NotExpr, $context);
-visitCastExpr(ast: CastExpr, $context);
-visitFunctionExpr(ast: FunctionExpr, $context);
-visitBinaryOperatorExpr(ast: BinaryOperatorExpr, $context);
-visitReadPropExpr(ast: ReadPropExpr, $context);
-visitReadKeyExpr(ast: ReadKeyExpr, $context);
-visitLiteralArrayExpr(ast: LiteralArrayExpr, $context);
-visitLiteralMapExpr(ast: LiteralMapExpr, $context);
+public function visitReadVarExpr(ReadVarExpr $ast, $context);
+public function visitWriteVarExpr(WriteVarExpr $expr, $context);
+public function visitWriteKeyExpr(WriteKeyExpr $expr, $context);
+public function visitWritePropExpr(WritePropExpr $expr, $context);
+public function visitInvokeMethodExpr( InvokeMethodExpr $ast, $context);
+public function visitInvokeFunctionExpr( InvokeFunctionExpr $ast, $context);
+public function visitInstantiateExpr( InstantiateExpr $ast, $context);
+public function visitLiteralExpr( LiteralExpr $ast, $context);
+public function visitExternalExpr( ExternalExpr $ast, $context);
+public function visitConditionalExpr( ConditionalExpr $ast, $context);
+public function visitNotExpr( NotExpr $ast, $context);
+public function visitCastExpr( CastExpr $ast, $context);
+public function visitFunctionExpr( FunctionExpr $ast, $context);
+public function visitBinaryOperatorExpr( BinaryOperatorExpr $ast, $context);
+public function visitReadPropExpr( ReadPropExpr $ast, $context);
+public function visitReadKeyExpr( ReadKeyExpr $ast, $context);
+public function visitLiteralArrayExpr( LiteralArrayExpr $ast, $context);
+public function visitLiteralMapExpr( LiteralMapExpr $ast, $context);
 }
 
  const THIS_EXPR = new ReadVarExpr(BuiltinVar.This);
@@ -640,422 +771,470 @@ visitLiteralMapExpr(ast: LiteralMapExpr, $context);
  const TYPED_NULL_EXPR = new LiteralExpr(null, NULL_TYPE);
 
 //// Statements
- enum StmtModifier {
-    Final,
-    Private
-}
+ class StmtModifier
+ {
+     public const Final = "final";
+     public const Private = "private";
+ }
 
 
 
- class DeclareVarStmt extends Statement {
-public Type $type;
-public function __construct(
-public string $name , public Expression $value, Type $type = null,
-array $modifiers= null, ParseSourceSpan $sourceSpan) {
-super(modifiers, sourceSpan);
-$this->type = type || value.type;
-}
-
-  visitStatement(visitor: StatementVisitor, $context) {
-    return $visitor->visitDeclareVarStmt($this, $context);
-}
-}
-
- class DeclareFunctionStmt extends Statement {
-public function __construct(
-public string $name , public params: FnParam[], public statements: Statement[],
-public Type $type = null, array $modifiers= null, ParseSourceSpan $sourceSpan) {
-super(modifiers, sourceSpan);
-}
-
-  visitStatement(visitor: StatementVisitor, $context) {
-    return $visitor->visitDeclareFunctionStmt($this, $context);
-}
-}
-
- class ExpressionStatement extends Statement {
-public function __construct(public expr: Expression, ParseSourceSpan $sourceSpan) { super(null, sourceSpan); }
-
-  visitStatement(visitor: StatementVisitor, $context) {
-    return $visitor->visitExpressionStmt($this, $context);
-}
-}
 
 
- class ReturnStatement extends Statement {
-public function __construct(public Expression $value, ParseSourceSpan $sourceSpan) { super(null, sourceSpan); }
-  visitStatement(visitor: StatementVisitor, $context) {
-    return $visitor->visitReturnStmt($this, $context);
-}
-}
+ class AbstractClassPart
+ {
+     public $type;
+     public $modifiers;
 
- class AbstractClassPart {
-public function __construct(public Type $type = null, public modifiers: StmtModifier[]) {
-if (!modifiers) {
-$this->modifiers = [];
-}
-  }
-  hasModifier(modifier: StmtModifier): boolean { return $this->modifiers.indexOf(modifier) !== -1; }
-}
+     public function __construct(Type $type = null, array $modifiers)
+     {
+         if (!$modifiers) {
+             $this->modifiers = [];
+         }
+         $this->type=$type;
+         $this->modifiers=$modifiers;
+     }
 
- class ClassField extends AbstractClassPart {
-public function __construct(public string $name , Type $type = null, array $modifiers= null) {
-parent::__construct($type, modifiers);
-}
-}
+     public function hasModifier(StmtModifier $modifier): boolean
+     {
+         return $this->modifiers . indexOf($modifier) !== -1;
+     }
+ }
 
+ class ClassField extends AbstractClassPart
+ {
+     public $name;
 
- class ClassMethod extends AbstractClassPart {
-public function __construct(
-public string $name , public params: FnParam[], public body: Statement[], Type $type = null,
-array $modifiers= null) {
-parent::__construct($type, modifiers);
-}
-}
-
-
- class ClassGetter extends AbstractClassPart {
-public function __construct(
-public string $name , public body: Statement[], Type $type = null,
-array $modifiers= null) {
-parent::__construct($type, modifiers);
-}
-}
+     public function __construct(string $name, Type $type = null, array $modifiers = null)
+     {
+         parent::__construct($type, $modifiers);
+         $this->name=$name;
+     }
+ }
 
 
- class ClassStmt extends Statement {
-public function __construct(
-public string $name , public parent: Expression, public fields: ClassField[],
-public getters: ClassGetter[], public public function __constructMethod: ClassMethod,
-public methods: ClassMethod[], array $modifiers= null,
-ParseSourceSpan $sourceSpan) {
-super(modifiers, sourceSpan);
-}
-  visitStatement(visitor: StatementVisitor, $context) {
-    return $visitor->visitDeclareClassStmt($this, $context);
-}
-}
+ class ClassMethod extends AbstractClassPart
+ {
+     public $name;
+     public $params;
+     public $body;
+
+     public function __construct(
+         string $name, array $params, array $body, Type $type = null,
+         array $modifiers = null)
+     {
+         parent::__construct($type, $modifiers);
+         $this->name=$name;
+         $this->params=$params;
+         $this->body=$body;
+     }
+ }
 
 
- class IfStmt extends Statement {
-public function __construct(
-public condition: Expression, public trueCase: Statement[],
-public falseCase: Statement[] = [], ParseSourceSpan $sourceSpan) {
-super(null, sourceSpan);
-}
-  visitStatement(visitor: StatementVisitor, $context) {
-    return $visitor->visitIfStmt($this, $context);
-}
+ class ClassGetter extends AbstractClassPart
+ {
+     public $name;
+     public $body;
+
+     public function __construct(
+         string $name, array $body, Type $type = null,
+         array $modifiers = null)
+     {
+         parent::__construct($type, $modifiers);
+         $this->name=$name;
+         $this->body=$body;
+     }
+ }
+
+
+class ClassStmt extends Statement
+{
+    public $name;
+    public $parent;
+    public $fields;
+    public $getters;
+    public $constructorMethod;
+    public $methods;
+
+    public function __construct(
+        string $name, Expression $parent, array $fields,
+        array $getters, ClassMethod $constructorMethod,
+        array $methods, $modifiers = null,
+        ParseSourceSpan $sourceSpan)
+    {
+        parent::__construct($modifiers, $sourceSpan);
+        $this->name = $name;
+        $this->parent = $parent;
+        $this->fields = $fields;
+        $this->getters = $getters;
+        $this->constructorMethod = $constructorMethod;
+        $this->methods = $methods;
+    }
+
+    public function visitStatement(StatementVisitor $visitor, $context)
+    {
+        return $visitor->visitDeclareClassStmt($this, $context);
+    }
 }
 
 
- class CommentStmt extends Statement {
-public function __construct(public comment: string, ParseSourceSpan $sourceSpan) { super(null, sourceSpan); }
-  visitStatement(visitor: StatementVisitor, $context) {
-    return $visitor->visitCommentStmt($this, $context);
-}
-}
+ class IfStmt extends Statement
+ {
+     public $condition;
+     public $trueCase;
+     public $falseCase;
+
+     public function __construct(
+         Expression $condition, array $trueCase,
+         array $falseCase = [], ParseSourceSpan $sourceSpan)
+     {
+         parent::__construct(null, $sourceSpan);
+         $this->condition = $condition;
+         $this->trueCase = $trueCase;
+         $this->falseCase = $falseCase;
+     }
+
+     public function visitStatement(StatementVisitor $visitor, $context)
+     {
+         return $visitor->visitIfStmt($this, $context);
+     }
+ }
 
 
- class TryCatchStmt extends Statement {
-public function __construct(
-public bodyStmts: Statement[], public catchStmts: Statement[], ParseSourceSpan $sourceSpan) {
-super(null, sourceSpan);
-}
-  visitStatement(visitor: StatementVisitor, $context) {
-    return $visitor->visitTryCatchStmt($this, $context);
-}
-}
+ class CommentStmt extends Statement
+ {
+     public $comment;
+
+     public function __construct(string $comment, ParseSourceSpan $sourceSpan)
+     {
+         parent::__construct(null, $sourceSpan);
+         $this->comment=$comment;
+     }
+
+     public function visitStatement(StatementVisitor $visitor, $context)
+     {
+         return $visitor->visitCommentStmt($this, $context);
+     }
+ }
 
 
- class ThrowStmt extends Statement {
-public function __construct(public error: Expression, ParseSourceSpan $sourceSpan) { super(null, sourceSpan); }
-  visitStatement(visitor: StatementVisitor, $context) {
-    return $visitor->visitThrowStmt($this, $context);
-}
-}
+ class TryCatchStmt extends Statement
+ {
+     public $bodyStmts;
+     public $catchStmts;
+
+     public function __construct(
+         array $bodyStmts, array $catchStmts, ParseSourceSpan $sourceSpan)
+     {
+         parent::__construct(null, $sourceSpan);
+         $this->bodyStmts = $bodyStmts;
+         $this->catchStmts = $catchStmts;
+     }
+
+     public function visitStatement(StatementVisitor $visitor, $context)
+     {
+         return $visitor->visitTryCatchStmt($this, $context);
+     }
+ }
+
+
+ class ThrowStmt extends Statement
+ {
+     public $error;
+
+     public function __construct(Expression $error, ParseSourceSpan $sourceSpan)
+     {
+         parent::__construct(null, $sourceSpan);
+         $this->error=$error;
+     }
+
+     public function visitStatement(StatementVisitor $visitor, $context)
+     {
+         return $visitor->visitThrowStmt($this, $context);
+     }
+ }
 
  interface StatementVisitor {
-visitDeclareVarStmt(stmt: DeclareVarStmt, $context);
-visitDeclareFunctionStmt(stmt: DeclareFunctionStmt, $context);
-visitExpressionStmt(stmt: ExpressionStatement, $context);
-visitReturnStmt(stmt: ReturnStatement, $context);
-visitDeclareClassStmt(stmt: ClassStmt, $context);
-visitIfStmt(stmt: IfStmt, $context);
-visitTryCatchStmt(stmt: TryCatchStmt, $context);
-visitThrowStmt(stmt: ThrowStmt, $context);
-visitCommentStmt(stmt: CommentStmt, $context);
+public function visitDeclareVarStmt(DeclareVarStmt $stmt, $context);
+public function visitDeclareFunctionStmt(DeclareFunctionStmt $stmt, $context);
+public function visitExpressionStmt(ExpressionStatement $stmt, $context);
+public function visitReturnStmt(ReturnStatement $stmt, $context);
+public function visitDeclareClassStmt(ClassStmt $stmt, $context);
+public function visitIfStmt(IfStmt $stmt, $context);
+public function visitTryCatchStmt(TryCatchStmt $stmt, $context);
+public function visitThrowStmt(ThrowStmt $stmt, $context);
+public function visitCommentStmt(CommentStmt $stmt, $context);
 }
 
  class ExpressionTransformer implements StatementVisitor, ExpressionVisitor {
-visitReadVarExpr(ast: ReadVarExpr, $context) { return ast; }
+     public function visitReadVarExpr(ReadVarExpr $ast, $context) { return $ast; }
 
-  visitWriteVarExpr(expr: WriteVarExpr, $context) {
+  public function visitWriteVarExpr(WriteVarExpr $expr, $context) {
     return new WriteVarExpr(
-        expr.name, expr.value.visitExpression($this, $context), expr.type, expr.sourceSpan);
+        $expr->name, $expr->value->visitExpression($this, $context), $expr->type, $expr->sourceSpan);
 }
 
-  visitWriteKeyExpr(expr: WriteKeyExpr, $context) {
+  public function visitWriteKeyExpr(WriteKeyExpr $expr, $context) {
     return new WriteKeyExpr(
-        expr.receiver.visitExpression($this, $context), expr.index.visitExpression($this, $context),
-        expr.value.visitExpression($this, $context), expr.type, expr.sourceSpan);
+        $expr->receiver->visitExpression($this, $context), $expr->index->visitExpression($this, $context),
+        $expr->value->visitExpression($this, $context), $expr->type, $expr->sourceSpan);
 }
 
-  visitWritePropExpr(expr: WritePropExpr, $context) {
+  public function visitWritePropExpr(WritePropExpr $expr, $context) {
     return new WritePropExpr(
-        expr.receiver.visitExpression($this, $context), expr.name,
-        expr.value.visitExpression($this, $context), expr.type, expr.sourceSpan);
+        $expr->receiver->visitExpression($this, $context), $expr->name,
+        $expr->value->visitExpression($this, $context), $expr->type, $expr->sourceSpan);
 }
 
-  visitInvokeMethodExpr(ast: InvokeMethodExpr, $context) {
-    const method = ast.builtin || ast.name;
+  public function visitInvokeMethodExpr(InvokeMethodExpr $ast, $context) {
+    const method = $ast->builtin || $ast->name;
     return new InvokeMethodExpr(
-        ast.receiver.visitExpression($this, $context), method,
-        $this->visitAllExpressions(ast.args, context), ast.type, ast.sourceSpan);
+        $ast->receiver->visitExpression($this, $context), method,
+        $this->visitAllExpressions($ast->args, $context), $ast->type, $ast->sourceSpan);
 }
 
-  visitInvokeFunctionExpr(ast: InvokeFunctionExpr, $context) {
+  public function visitInvokeFunctionExpr(ast: InvokeFunctionExpr, $context) {
     return new InvokeFunctionExpr(
-        ast.fn.visitExpression($this, $context), $this->visitAllExpressions(ast.args, context),
-        ast.type, ast.sourceSpan);
+        $ast->fn->visitExpression($this, $context), $this->visitAllExpressions($ast->args, context),
+        $ast->type, $ast->sourceSpan);
 }
 
-  visitInstantiateExpr(ast: InstantiateExpr, $context) {
+  public function visitInstantiateExpr(ast: InstantiateExpr, $context) {
     return new InstantiateExpr(
-        ast.classExpr.visitExpression($this, $context), $this->visitAllExpressions(ast.args, context),
-        ast.type, ast.sourceSpan);
+        $ast->classExpr->visitExpression($this, $context), $this->visitAllExpressions($ast->args, context),
+        $ast->type, $ast->sourceSpan);
 }
 
-  visitLiteralExpr(ast: LiteralExpr, $context) { return ast; }
+  public function visitLiteralExpr(ast: LiteralExpr, $context) { return ast; }
 
-  visitExternalExpr(ast: ExternalExpr, $context) { return ast; }
+  public function visitExternalExpr(ast: ExternalExpr, $context) { return ast; }
 
-  visitConditionalExpr(ast: ConditionalExpr, $context) {
+  public function visitConditionalExpr(ast: ConditionalExpr, $context) {
     return new ConditionalExpr(
-        ast.condition.visitExpression($this, $context), ast.trueCase.visitExpression($this, $context),
-        ast.falseCase.visitExpression($this, $context), ast.type, ast.sourceSpan);
+        $ast->condition->visitExpression($this, $context), $ast->trueCase->visitExpression($this, $context),
+        $ast->falseCase->visitExpression($this, $context), $ast->type, $ast->sourceSpan);
 }
 
-  visitNotExpr(ast: NotExpr, $context) {
-    return new NotExpr(ast.condition.visitExpression($this, $context), ast.sourceSpan);
+  public function visitNotExpr(ast: NotExpr, $context) {
+    return new NotExpr($ast->condition->visitExpression($this, $context), $ast->sourceSpan);
 }
 
-  visitCastExpr(ast: CastExpr, $context) {
-    return new CastExpr(ast.value.visitExpression($this, $context), context, ast.sourceSpan);
+  public function visitCastExpr(ast: CastExpr, $context) {
+    return new CastExpr($ast->value->visitExpression($this, $context), context, $ast->sourceSpan);
 }
 
-  visitFunctionExpr(ast: FunctionExpr, $context) {
+  public function visitFunctionExpr(ast: FunctionExpr, $context) {
     // Don't descend into nested functions
     return ast;
 }
 
-  visitBinaryOperatorExpr(ast: BinaryOperatorExpr, $context) {
+  public function visitBinaryOperatorExpr(ast: BinaryOperatorExpr, $context) {
     return new BinaryOperatorExpr(
-        ast.operator, ast.lhs.visitExpression($this, $context),
-        ast.rhs.visitExpression($this, $context), ast.type, ast.sourceSpan);
+        $ast->operator, $ast->lhs->visitExpression($this, $context),
+        $ast->rhs->visitExpression($this, $context), $ast->type, $ast->sourceSpan);
 }
 
-  visitReadPropExpr(ast: ReadPropExpr, $context) {
+  public function visitReadPropExpr(ast: ReadPropExpr, $context) {
     return new ReadPropExpr(
-        ast.receiver.visitExpression($this, $context), ast.name, ast.type, ast.sourceSpan);
+        $ast->receiver->visitExpression($this, $context), $ast->name, $ast->type, $ast->sourceSpan);
 }
 
-  visitReadKeyExpr(ast: ReadKeyExpr, $context) {
+  public function visitReadKeyExpr(ast: ReadKeyExpr, $context) {
     return new ReadKeyExpr(
-        ast.receiver.visitExpression($this, $context), ast.index.visitExpression($this, $context),
-        ast.type, ast.sourceSpan);
+        $ast->receiver->visitExpression($this, $context), $ast->index->visitExpression($this, $context),
+        $ast->type, $ast->sourceSpan);
 }
 
-  visitLiteralArrayExpr(ast: LiteralArrayExpr, $context) {
+  public function visitLiteralArrayExpr(ast: LiteralArrayExpr, $context) {
     return new LiteralArrayExpr(
-        $this->visitAllExpressions(ast.entries, context), ast.type, ast.sourceSpan);
+        $this->visitAllExpressions($ast->entries, context), $ast->type, $ast->sourceSpan);
 }
 
-  visitLiteralMapExpr(ast: LiteralMapExpr, $context) {
-    const entries = ast.entries.map(
+  public function visitLiteralMapExpr(ast: LiteralMapExpr, $context) {
+    const entries = $ast->entries.map(
             (entry): LiteralMapEntry => new LiteralMapEntry(
-        entry.key, entry.value.visitExpression($this, $context), entry.quoted, ));
-    const mapType = new MapType(ast.valueType);
-    return new LiteralMapExpr(entries, mapType, ast.sourceSpan);
+        entry.key, entry.value->visitExpression($this, $context), entry.quoted, ));
+    const mapType = new MapType($ast->valueType);
+    return new LiteralMapExpr(entries, mapType, $ast->sourceSpan);
   }
-  visitAllExpressions(exprs: Expression[], $context): Expression[] {
-    return exprs.map(expr => expr.visitExpression($this, $context));
+  public function visitAllExpressions(array $exprs, $context): Expression[] {
+    return $exprs->map($expr => $expr->visitExpression($this, $context));
   }
 
-  visitDeclareVarStmt(stmt: DeclareVarStmt, $context) {
+  public function visitDeclareVarStmt(stmt: DeclareVarStmt, $context) {
     return new DeclareVarStmt(
-        stmt.name, stmt.value.visitExpression($this, $context), stmt.type, stmt.modifiers,
-        stmt.sourceSpan);
+        $stmt->name, $stmt->value->visitExpression($this, $context), $stmt->type, $stmt->modifiers,
+        $stmt->sourceSpan);
 }
-  visitDeclareFunctionStmt(stmt: DeclareFunctionStmt, $context) {
+  public function visitDeclareFunctionStmt(DeclareFunctionStmt $stmt, $context) {
     // Don't descend into nested functions
-    return stmt;
+    return $stmt;
 }
 
-  visitExpressionStmt(stmt: ExpressionStatement, $context) {
-    return new ExpressionStatement(stmt.expr.visitExpression($this, $context), stmt.sourceSpan);
+  public function visitExpressionStmt(ExpressionStatement $stmt, $context) {
+    return new ExpressionStatement($stmt->expr->visitExpression($this, $context), $stmt->sourceSpan);
 }
 
-  visitReturnStmt(stmt: ReturnStatement, $context) {
-    return new ReturnStatement(stmt.value.visitExpression($this, $context), stmt.sourceSpan);
+  public function visitReturnStmt(ReturnStatement $stmt, $context) {
+    return new ReturnStatement($stmt->value->visitExpression($this, $context), $stmt->sourceSpan);
 }
 
-  visitDeclareClassStmt(stmt: ClassStmt, $context) {
+  public function visitDeclareClassStmt(stmt: ClassStmt, $context) {
     // Don't descend into nested functions
-    return stmt;
+    return $stmt;
 }
 
-  visitIfStmt(stmt: IfStmt, $context) {
+  public function visitIfStmt(stmt: IfStmt, $context) {
     return new IfStmt(
-        stmt.condition.visitExpression($this, $context),
-        $this->visitAllStatements(stmt.trueCase, context),
-        $this->visitAllStatements(stmt.falseCase, context), stmt.sourceSpan);
+        $stmt->condition->visitExpression($this, $context),
+        $this->visitAllStatements($stmt->trueCase, context),
+        $this->visitAllStatements($stmt->falseCase, context), $stmt->sourceSpan);
 }
 
-  visitTryCatchStmt(stmt: TryCatchStmt, $context) {
+  public function visitTryCatchStmt(stmt: TryCatchStmt, $context) {
     return new TryCatchStmt(
-        $this->visitAllStatements(stmt.bodyStmts, context),
-        $this->visitAllStatements(stmt.catchStmts, context), stmt.sourceSpan);
+        $this->visitAllStatements($stmt->bodyStmts, context),
+        $this->visitAllStatements($stmt->catchStmts, context), $stmt->sourceSpan);
 }
 
-  visitThrowStmt(stmt: ThrowStmt, $context) {
-    return new ThrowStmt(stmt.error.visitExpression($this, $context), stmt.sourceSpan);
+  public function visitThrowStmt(stmt: ThrowStmt, $context) {
+    return new ThrowStmt($stmt->error->visitExpression($this, $context), $stmt->sourceSpan);
 }
 
-  visitCommentStmt(stmt: CommentStmt, $context) { return stmt; }
+  public function visitCommentStmt(stmt: CommentStmt, $context) { return stmt; }
 
-  visitAllStatements(stmts: Statement[], $context): Statement[] {
-    return stmts.map(stmt => stmt.visitStatement($this, $context));
+  public function visitAllStatements(stmts: Statement[], $context): Statement[] {
+    return stmts.map(stmt => $stmt->visitStatement($this, $context));
   }
 }
 
 
  class RecursiveExpressionVisitor implements StatementVisitor, ExpressionVisitor {
 visitReadVarExpr(ast: ReadVarExpr, $context) { return ast; }
-  visitWriteVarExpr(expr: WriteVarExpr, $context) {
-    expr.value.visitExpression($this, $context);
+  public function visitWriteVarExpr(expr: WriteVarExpr, $context) {
+    $expr->value->visitExpression($this, $context);
     return expr;
 }
-  visitWriteKeyExpr(expr: WriteKeyExpr, $context) {
-    expr.receiver.visitExpression($this, $context);
-    expr.index.visitExpression($this, $context);
-    expr.value.visitExpression($this, $context);
+  public function visitWriteKeyExpr(expr: WriteKeyExpr, $context) {
+    $expr->receiver->visitExpression($this, $context);
+    $expr->index->visitExpression($this, $context);
+    $expr->value->visitExpression($this, $context);
     return expr;
 }
-  visitWritePropExpr(expr: WritePropExpr, $context) {
-    expr.receiver.visitExpression($this, $context);
-    expr.value.visitExpression($this, $context);
+  public function visitWritePropExpr(expr: WritePropExpr, $context) {
+    $expr->receiver->visitExpression($this, $context);
+    $expr->value->visitExpression($this, $context);
     return expr;
 }
-  visitInvokeMethodExpr(ast: InvokeMethodExpr, $context) {
-    ast.receiver.visitExpression($this, $context);
-    $this->visitAllExpressions(ast.args, context);
+  public function visitInvokeMethodExpr(ast: InvokeMethodExpr, $context) {
+    $ast->receiver->visitExpression($this, $context);
+    $this->visitAllExpressions($ast->args, context);
     return ast;
 }
-  visitInvokeFunctionExpr(ast: InvokeFunctionExpr, $context) {
-    ast.fn.visitExpression($this, $context);
-    $this->visitAllExpressions(ast.args, context);
+  public function visitInvokeFunctionExpr(ast: InvokeFunctionExpr, $context) {
+    $ast->fn->visitExpression($this, $context);
+    $this->visitAllExpressions($ast->args, context);
     return ast;
 }
-  visitInstantiateExpr(ast: InstantiateExpr, $context) {
-    ast.classExpr.visitExpression($this, $context);
-    $this->visitAllExpressions(ast.args, context);
+  public function visitInstantiateExpr(ast: InstantiateExpr, $context) {
+    $ast->classExpr->visitExpression($this, $context);
+    $this->visitAllExpressions($ast->args, context);
     return ast;
 }
-  visitLiteralExpr(ast: LiteralExpr, $context) { return ast; }
-  visitExternalExpr(ast: ExternalExpr, $context) { return ast; }
-  visitConditionalExpr(ast: ConditionalExpr, $context) {
-    ast.condition.visitExpression($this, $context);
-    ast.trueCase.visitExpression($this, $context);
-    ast.falseCase.visitExpression($this, $context);
+  public function visitLiteralExpr(ast: LiteralExpr, $context) { return ast; }
+  public function visitExternalExpr(ast: ExternalExpr, $context) { return ast; }
+  public function visitConditionalExpr(ast: ConditionalExpr, $context) {
+    $ast->condition->visitExpression($this, $context);
+    $ast->trueCase->visitExpression($this, $context);
+    $ast->falseCase->visitExpression($this, $context);
     return ast;
 }
-  visitNotExpr(ast: NotExpr, $context) {
-    ast.condition.visitExpression($this, $context);
+  public function visitNotExpr(ast: NotExpr, $context) {
+    $ast->condition->visitExpression($this, $context);
     return ast;
 }
-  visitCastExpr(ast: CastExpr, $context) {
-    ast.value.visitExpression($this, $context);
+  public function visitCastExpr(ast: CastExpr, $context) {
+    $ast->value->visitExpression($this, $context);
     return ast;
 }
-  visitFunctionExpr(ast: FunctionExpr, $context) { return ast; }
-  visitBinaryOperatorExpr(ast: BinaryOperatorExpr, $context) {
-    ast.lhs.visitExpression($this, $context);
-    ast.rhs.visitExpression($this, $context);
+  public function visitFunctionExpr(ast: FunctionExpr, $context) { return ast; }
+  public function visitBinaryOperatorExpr(ast: BinaryOperatorExpr, $context) {
+    $ast->lhs->visitExpression($this, $context);
+    $ast->rhs->visitExpression($this, $context);
     return ast;
 }
-  visitReadPropExpr(ast: ReadPropExpr, $context) {
-    ast.receiver.visitExpression($this, $context);
+  public function visitReadPropExpr(ast: ReadPropExpr, $context) {
+    $ast->receiver->visitExpression($this, $context);
     return ast;
 }
-  visitReadKeyExpr(ast: ReadKeyExpr, $context) {
-    ast.receiver.visitExpression($this, $context);
-    ast.index.visitExpression($this, $context);
+  public function visitReadKeyExpr(ast: ReadKeyExpr, $context) {
+    $ast->receiver->visitExpression($this, $context);
+    $ast->index->visitExpression($this, $context);
     return ast;
 }
-  visitLiteralArrayExpr(ast: LiteralArrayExpr, $context) {
-    $this->visitAllExpressions(ast.entries, context);
+  public function visitLiteralArrayExpr(ast: LiteralArrayExpr, $context) {
+    $this->visitAllExpressions($ast->entries, context);
     return ast;
 }
-  visitLiteralMapExpr(ast: LiteralMapExpr, $context) {
-    ast.entries.forEach((entry) => entry.value.visitExpression($this, $context));
+  public function visitLiteralMapExpr(ast: LiteralMapExpr, $context) {
+    $ast->entries.forEach((entry) => entry.value->visitExpression($this, $context));
     return ast;
   }
-  visitAllExpressions(exprs: Expression[], $context): void {
-    exprs.forEach(expr => expr.visitExpression($this, $context));
+  public function visitAllExpressions(exprs: Expression[], $context): void {
+    $exprs->forEach(expr => expr->visitExpression($this, $context));
   }
 
-  visitDeclareVarStmt(stmt: DeclareVarStmt, $context) {
-    stmt.value.visitExpression($this, $context);
+  public function visitDeclareVarStmt(stmt: DeclareVarStmt, $context) {
+    $stmt->value->visitExpression($this, $context);
     return stmt;
 }
-  visitDeclareFunctionStmt(stmt: DeclareFunctionStmt, $context) {
+  public function visitDeclareFunctionStmt(stmt: DeclareFunctionStmt, $context) {
     // Don't descend into nested functions
     return stmt;
 }
-  visitExpressionStmt(stmt: ExpressionStatement, $context) {
-    stmt.expr.visitExpression($this, $context);
+  public function visitExpressionStmt(stmt: ExpressionStatement, $context) {
+    $stmt->expr->visitExpression($this, $context);
     return stmt;
 }
-  visitReturnStmt(stmt: ReturnStatement, $context) {
-    stmt.value.visitExpression($this, $context);
+  public function visitReturnStmt(stmt: ReturnStatement, $context) {
+    $stmt->value->visitExpression($this, $context);
     return stmt;
 }
-  visitDeclareClassStmt(stmt: ClassStmt, $context) {
+  public function visitDeclareClassStmt(stmt: ClassStmt, $context) {
     // Don't descend into nested functions
     return stmt;
 }
-  visitIfStmt(stmt: IfStmt, $context) {
-    stmt.condition.visitExpression($this, $context);
-    $this->visitAllStatements(stmt.trueCase, context);
-    $this->visitAllStatements(stmt.falseCase, context);
+  public function visitIfStmt(stmt: IfStmt, $context) {
+    $stmt->condition->visitExpression($this, $context);
+    $this->visitAllStatements($stmt->trueCase, context);
+    $this->visitAllStatements($stmt->falseCase, context);
     return stmt;
 }
-  visitTryCatchStmt(stmt: TryCatchStmt, $context) {
-    $this->visitAllStatements(stmt.bodyStmts, context);
-    $this->visitAllStatements(stmt.catchStmts, context);
+  public function visitTryCatchStmt(stmt: TryCatchStmt, $context) {
+    $this->visitAllStatements($stmt->bodyStmts, context);
+    $this->visitAllStatements($stmt->catchStmts, context);
     return stmt;
 }
-  visitThrowStmt(stmt: ThrowStmt, $context) {
-    stmt.error.visitExpression($this, $context);
+  public function visitThrowStmt(stmt: ThrowStmt, $context) {
+    $stmt->error->visitExpression($this, $context);
     return stmt;
 }
-  visitCommentStmt(stmt: CommentStmt, $context) { return stmt; }
-  visitAllStatements(stmts: Statement[], $context): void {
-    stmts.forEach(stmt => stmt.visitStatement($this, $context));
+  public function visitCommentStmt(stmt: CommentStmt, $context) { return stmt; }
+  public function visitAllStatements(stmts: Statement[], $context): void {
+    stmts.forEach(stmt => $stmt->visitStatement($this, $context));
   }
 }
 
  function replaceVarInExpression(
     varstring $name , newExpression $value, expression: Expression): Expression {
     const transformer = new _ReplaceVariableTransformer(varName, newValue);
-    return expression.visitExpression(transformer, null);
+    return expression->visitExpression(transformer, null);
 }
 
 class _ReplaceVariableTransformer extends ExpressionTransformer {
-public function __construct(private _varstring $name , private _newExpression $value) { super(); }
-  visitReadVarExpr(ast: ReadVarExpr, $context) {
-    return ast.name == $this->_varName ? $this->_newValue : ast;
+public function __construct(private _varstring $name , private _newExpression $value) { parent::__construct(); }
+  public function visitReadVarExpr(ast: ReadVarExpr, $context) {
+    return $ast->name == $this->_varName ? $this->_newValue : ast;
 }
 }
 
@@ -1068,54 +1247,54 @@ public function __construct(private _varstring $name , private _newExpression $v
 class _VariableFinder extends RecursiveExpressionVisitor {
 varNames = new Set<string>();
 visitReadVarExpr(ast: ReadVarExpr, $context) {
-$this->varNames.add(ast.name);
+$this->varNames.add($ast->name);
 return null;
 }
 }
 
- function variable(
+public function variable(
     string $name , Type $type = null, ParseSourceSpan $sourceSpan): ReadVarExpr {
     return new ReadVarExpr(name, type, sourceSpan);
 }
 
- function importExpr(
+public function importExpr(
     id: CompileIdentifierMetadata, typeParams: Type[] = null,
     ParseSourceSpan $sourceSpan): ExternalExpr {
     return new ExternalExpr(id, null, typeParams, sourceSpan);
 }
 
- function importType(
+public function importType(
     id: CompileIdentifierMetadata, typeParams: Type[] = null,
     type array $modifiers = null): ExpressionType {
     return isPresent(id) ? expressionType(importExpr(id, typeParams), typeModifiers) : null;
 }
 
- function expressionType(
+public function expressionType(
     expr: Expression, type array $modifiers = null): ExpressionType {
     return isPresent(expr) ? new ExpressionType(expr, typeModifiers) : null;
 }
 
- function literalArr(
+public function literalArr(
     values: Expression[], Type $type = null, ParseSourceSpan $sourceSpan): LiteralArrayExpr {
     return new LiteralArrayExpr(values, type, sourceSpan);
 }
 
- function literalMap(
+public function literalMap(
     values: [string, Expression][], type: MapType = null, quoted: boolean = false): LiteralMapExpr {
     return new LiteralMapExpr(
         values.map(entry => new LiteralMapEntry(entry[0], entry[1], quoted)), type);
 }
 
- function not(expr: Expression, ParseSourceSpan $sourceSpan): NotExpr {
+public function not(expr: Expression, ParseSourceSpan $sourceSpan): NotExpr {
     return new NotExpr(expr, sourceSpan);
 }
 
- function fn(
+public function fn(
     params: FnParam[], body: Statement[], Type $type = null,
     ParseSourceSpan $sourceSpan): FunctionExpr {
     return new FunctionExpr(params, body, type, sourceSpan);
 }
 
- function literal(value, Type $type = null, ParseSourceSpan $sourceSpan): LiteralExpr {
+public function literal(value, Type $type = null, ParseSourceSpan $sourceSpan): LiteralExpr {
     return new LiteralExpr(value, type, sourceSpan);
 }
