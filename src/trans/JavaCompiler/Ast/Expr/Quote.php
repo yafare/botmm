@@ -24,6 +24,9 @@ use trans\JavaCompiler\Ast\ParseSpan;
  */
 class Quote extends AST
 {
+    /**
+     * @var string
+     */
     public $prefix;
     public $uninterpretedExpression;
     public $location;

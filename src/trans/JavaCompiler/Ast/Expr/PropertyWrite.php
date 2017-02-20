@@ -11,8 +11,17 @@ use trans\JavaCompiler\Ast\ParseSpan;
 
 class PropertyWrite extends AST
 {
+    /**
+     * @var AST
+     */
     public $receiver;
+    /**
+     * @var string
+     */
     public $name;
+    /**
+     * @var AST
+     */
     public $value;
 
     public function __construct(ParseSpan $span, $receiver, $name, $value)

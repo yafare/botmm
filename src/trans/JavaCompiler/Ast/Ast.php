@@ -6,6 +6,9 @@ namespace trans\JavaCompiler\Ast;
 
 class AST
 {
+    /**
+     * @var ParseSpan
+     */
     public $span;
 
     public function __construct(ParseSpan $span)

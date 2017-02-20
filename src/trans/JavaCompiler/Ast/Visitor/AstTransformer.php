@@ -114,6 +114,10 @@ class AstTransformer implements AstVisitor
             $ast->span, $ast->obj->visit($this), $ast->key->visit($this), $ast->value->visit($this));
     }
 
+    /**
+     * @param AST[] $asts
+     * @return array
+     */
     public function visitAll($asts)
     {
         $res = [];

@@ -11,7 +11,13 @@ use trans\JavaCompiler\Ast\ParseSpan;
 
 class PropertyRead extends AST
 {
+    /**
+     * @var AST
+     */
     public $receiver;
+    /**
+     * @var string
+     */
     public $name;
 
     public function __construct(ParseSpan $span, AST $receiver, string $name)

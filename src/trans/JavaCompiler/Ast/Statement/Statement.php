@@ -4,6 +4,7 @@
 namespace trans\JavaCompiler\Ast\Statement;
 
 
+use trans\JavaCompiler\Output\StatementVisitor;
 use trans\JavaCompiler\Wrapper\ArrayWrapper;
 
 abstract class Statement
