@@ -12,6 +12,7 @@ namespace trans\JavaCompiler\Output;
  * found in the LICENSE file at https://angular.io/license
  */
 
+//现在Statement翻译到 ../Ast/Satement
 
 import {CompileIdentifierMetadata} from '../compile_metadata';
 import {isPresent} from '../facade/lang';
@@ -507,17 +508,6 @@ export enum StmtModifier {
     Private
 }
 
-export abstract class Statement {
-constructor(public modifiers: StmtModifier[] = null, public sourceSpan?: ParseSourceSpan) {
-if (!modifiers) {
-this.modifiers = [];
-}
-  }
-
-  abstract visitStatement(visitor: StatementVisitor, context: any): any;
-
-  hasModifier(modifier: StmtModifier): boolean { return this.modifiers.indexOf(modifier) !== -1; }
-}
 
 
 export class DeclareVarStmt extends Statement {

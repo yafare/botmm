@@ -1,23 +1,25 @@
 <?php
 
 
-namespace trans\JavaCompiler\Ast;
+namespace trans\JavaCompiler\Ast\Expr;
 
 
-/**
- * Multiple expressions separated by a semicolon.
- */
-class Chain extends AST
+use trans\JavaCompiler\Ast\AST;
+
+
+
+class LiteralArray extends AST
 {
     public $expressions;
 
     public function __construct(ParseSpan $span, array $expressions)
     {
         parent::__construct($span);
+        $this->expressions = $expressions;
     }
 
     public function visit(AstVisitor $visitor, $context = null)
     {
-        return $visitor->visitChain($this, $context);
+        return $visitor->visitLiteralArray($this, $context);
     }
 }

@@ -1,7 +1,10 @@
 <?php
 
+namespace trans\JavaCompiler\Ast\Expr;
 
-namespace trans\JavaCompiler\Ast;
+
+use trans\JavaCompiler\Ast\AST;
+use trans\JavaCompiler\Ast\AstVisitor;
 
 
 class Conditional extends AST

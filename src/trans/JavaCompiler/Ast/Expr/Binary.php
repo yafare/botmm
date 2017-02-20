@@ -1,8 +1,10 @@
 <?php
 
 
-namespace trans\JavaCompiler\Ast;
+namespace trans\JavaCompiler\Ast\Expr;
 
+
+use trans\JavaCompiler\Ast\AST;
 
 class Binary extends AST
 {

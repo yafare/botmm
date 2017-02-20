@@ -9,6 +9,8 @@
 namespace trans\JavaCompiler\Ast;
 
 
+use trans\JavaCompiler\Ast\Expr\Conditional;
+
 interface AstVisitor
 {
     public function visitBinary(Binary $ast, $context);
