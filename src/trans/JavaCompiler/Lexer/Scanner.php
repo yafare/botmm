@@ -25,8 +25,8 @@ class Scanner
 
     public function advance()
     {
-        $this->peek = ++$this->index >= $this->length ? Chars::EOF : StringWrapper::fromCharCodeAt($this->input,
-                                                                                                   $this->index);
+        $this->peek = ++$this->index >= $this->length ? Chars::EOF : StringWrapper::charCodeAt($this->input,
+                                                                                               $this->index);
     }
 
     /**
@@ -45,7 +45,7 @@ class Scanner
                 $peek = Chars::EOF;
                 break;
             } else {
-                $peek = StringWrapper::fromCharCodeAt($input, $index);
+                $peek = StringWrapper::charCodeAt($input, $index);
             }
         }
 

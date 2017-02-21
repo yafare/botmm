@@ -12,7 +12,7 @@ class StringWrapper
         return chr($code);
     }
 
-    public static function fromCharCodeAt($input, $index)
+    public static function charCodeAt($input, $index)
     {
         return ord($input[$index]);
     }
@@ -33,5 +33,10 @@ class StringWrapper
     public static function IndexOf($input, $string)
     {
         return strpos($input, $string);
+    }
+
+    public static function length($source)
+    {
+        return strlen($source);
     }
 }
