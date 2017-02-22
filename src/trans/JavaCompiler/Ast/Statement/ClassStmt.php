@@ -4,6 +4,11 @@
 namespace trans\JavaCompiler\Ast\Statement;
 
 
+use trans\JavaCompiler\Ast\ParseSourceSpan;
+use trans\JavaCompiler\Output\ClassPart\ClassMethod;
+use trans\JavaCompiler\Output\Expression;
+use trans\JavaCompiler\Output\StatementVisitor;
+
 class ClassStmt extends Statement
 {
     public $name;

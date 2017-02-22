@@ -25,6 +25,8 @@ use trans\JavaCompiler\Ast\Expr\SafeMethodCall;
 use trans\JavaCompiler\Ast\Expr\SafePropertyRead;
 use trans\JavaCompiler\Ast\ParserError;
 use trans\JavaCompiler\Ast\ParseSpan;
+use trans\JavaCompiler\Ast\Statement\ClassStmt;
+use trans\JavaCompiler\Ast\Statement\Modifier;
 use trans\JavaCompiler\Chars;
 use trans\JavaCompiler\Lexer\Lexer;
 use trans\JavaCompiler\Lexer\Token;
@@ -34,19 +36,42 @@ use trans\JavaCompiler\Wrapper\StringWrapper;
 
 class ParseAST
 {
+    use ParseName;
+    use ParseModifier;
+
     private $rparensExpected   = 0;
     private $rbracketsExpected = 0;
     private $rbracesExpected   = 0;
 
     public $index = 0;
 
+    /**
+     * @var string
+     */
     public $input;
+    /**
+     * @var mixed
+     */
     public $location;
+    /**
+     * @var Token[]
+     */
     public $tokens;
+    /**
+     * @var number
+     */
     public $inputLength;
+    /**
+     * @var bool
+     */
     public $parseAction;
-
+    /**
+     * @var ParserError[]
+     */
     private $errors;
+    /**
+     * @var number
+     */
     private $offset;
 
     public function __construct($input, $location, $tokens, $inputLength, $parseAction, $errors, $offset)
@@ -81,7 +106,7 @@ class ParseAST
         return $this->peek(0);
     }
 
-    public function getInputIndex(): number
+    public function getInputIndex(): int
     {
         return $this->index < count($this->tokens) ?
             $this->getNext()->index + $this->offset :
@@ -144,6 +169,17 @@ class ParseAST
         $this->error("Missing expected operator {$operator}");
     }
 
+    public function expectIdentifier():string
+    {
+        $n = $this->getNext();
+        if(!$n->isIdentifier()) {
+            $this->error("Unexpected token {$n}, expected identifier");
+            return '';
+        }
+        $this->advance();
+        return $n->toString();
+    }
+
     public function expectIdentifierOrKeyword(): string
     {
         $n = $this->getNext();
@@ -164,6 +200,63 @@ class ParseAST
         }
         $this->advance();
         return $n->toString();
+    }
+
+    public function parseClass(): AST
+    {
+        $next          = $this->getNext();
+        $classModifier = null;
+
+        $modifier  = null;
+        $clazzName = null;
+        while (true) {
+            if ($next->isKeywordPublic()) {
+                $modifier = Modifier::PUBLIC;
+            } elseif ($next->isKeywordFinal()) {
+                $modifier = Modifier::FINAL;
+            } elseif ($next->isKeywordPrivate()) {
+                $modifier = Modifier::PRIVATE;
+            } elseif ($next->isKeywordClass()) {
+                $this->advance();
+                if ($this->getNext()->isIdentifier()) {
+                    $clazzName = $this->getNext()->strValue;
+                    $this->advance();
+                } else {
+                    $this->error("class name is not defined", $this->index);
+                }
+            } elseif ($next->isKeywordExtends()) {
+                $this->advance();
+                if($this->getNext()->isIdentifier()) {
+                    $clazzParent = $this->getNext()->strValue;
+                }else {
+                    $this->error("extends parent class is not defined", $this->index);
+                }
+            } elseif($next->isKeywordImplements()) {
+                $this->advance();
+                if($this->getNext()->isIdentifier()) {
+                    $clazzInterface = $this->getNext()->strValue;
+                }else {
+                    $this->error("class implement name is not defined", $this->index);
+                }
+            }
+        }
+
+        //begin to parse class body
+        if ($modifier != null && $clazzName == null) {
+            $this->error("have not define class, but class modifiers found");
+        }else{
+            $this->expectCharacter(Chars::LBRACE);
+            while ($this->index < count($this->tokens)) {
+
+            }
+        }
+
+    }
+
+
+
+    public function optionalGeneric(): AST {
+
     }
 
     public function parseChain(): AST
@@ -463,7 +556,7 @@ class ParseAST
             $this->advance();
             return new LiteralPrimitive($this->span($start), $literalValue);
 
-        } elseif ($this->index >= $this->tokens->length) {
+        } elseif ($this->index >= count($this->tokens)) {
             $this->error("Unexpected end of expression: {$this->input}");
             return new EmptyExpr($this->span($start));
         } else {
@@ -607,7 +700,7 @@ class ParseAST
     private function skip()
     {
         $n = $this->getNext();
-        while ($this->index < $this->tokens->length && !$n->isCharacter(Chars::SEMICOLON)
+        while ($this->index < count($this->tokens) && !$n->isCharacter(Chars::SEMICOLON)
                && ($this->rparensExpected <= 0 || !$n->isCharacter(Chars::RPAREN))
                && ($this->rbracesExpected <= 0 || !$n->isCharacter(Chars::RBRACE))
                && ($this->rbracketsExpected <= 0 || !$n->isCharacter(Chars::RBRACKET))) {

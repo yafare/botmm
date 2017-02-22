@@ -9,18 +9,29 @@ use trans\JavaCompiler\Ast\Expr\LiteralPrimitive;
 use trans\JavaCompiler\Ast\ParserError;
 use trans\JavaCompiler\Ast\ParseSpan;
 use trans\JavaCompiler\Chars;
+use trans\JavaCompiler\Lexer\Lexer;
 use trans\JavaCompiler\Lexer\Util;
 use trans\JavaCompiler\Wrapper\StringWrapper;
 
 class Parser
 {
     private $errors/*: ParserError[]*/ = [];
+    /**
+     * @var Lexer
+     */
     private $_lexer;
 
 
     public function __construct($lexer)
     {
         $this->_lexer = $lexer;
+    }
+
+
+    public function parseClass($input, $location){
+        $tokens = $this->_lexer->tokenize($input);
+        $ast    = (new ParseAST($input, $location, $tokens, strlen($input), true, $this->errors, 0))->parseChain();
+        return new ASTWithSource($ast, $input, $location, $this->errors);
     }
 
     /**
@@ -35,12 +46,8 @@ class Parser
         /*$interpolationConfig: InterpolationConfig = DEFAULT_INTERPOLATION_CONFIG*/
     )/*: ASTWithSource*/
     {
-        $sourceToLex = $this->_stripComments($input);
-        $tokens      = $this->_lexer->tokenize($this->_stripComments($input));
-        $ast         = new ParseAST(
-                           $input, $location, $tokens, strlen($sourceToLex), true, $this->errors,
-                           strlen($input) - strlen($sourceToLex))
-                       . parseChain();
+        $tokens = $this->_lexer->tokenize($input);
+        $ast    = (new ParseAST($input, $location, $tokens, strlen($input), true, $this->errors, 0))->parseChain();
         return new ASTWithSource($ast, $input, $location, $this->errors);
     }
 
@@ -203,33 +210,31 @@ class Parser
             $location, $this->errors);
     }
 
-    private function _stripComments($input): string
-    {
-        $i = $this->_commentStart($input);
-        return $i != null ? StringWrapper::subString($input, 0, $i) : $input;
-    }
-
-    private function _commentStart($input): number
-    {
-        $outerQuote = null;
-        for ($i = 0; $i < strlen($input) - 1; $i++) {
-            $char     = StringWrapper::charCodeAt($input, $i);
-            $nextChar = StringWrapper::charCodeAt($input, $i + 1);
-
-            if ($char === Chars::SLASH && $nextChar == Chars::SLASH && $outerQuote != null) {
-                return $i;
-            }
-
-            if ($outerQuote === $char) {
-                $outerQuote = null;
-            } else {
-                if ($outerQuote != null && Util::isQuote($char)) {
-                    $outerQuote = $char;
-                }
-            }
-        }
-        return null;
-    }
+    //private function _stripComments($input): string
+    //{
+    //    $i = $this->_commentStart($input);
+    //    return $i != null ? StringWrapper::subString($input, 0, $i) : $input;
+    //}
+    //
+    //private function _commentStart($input): number
+    //{
+    //    $outerQuote = null;
+    //    for ($i = 0; $i < strlen($input) - 1; $i++) {
+    //        $char     = StringWrapper::charCodeAt($input, $i);
+    //        $nextChar = StringWrapper::charCodeAt($input, $i + 1);
+    //
+    //        if ($char === Chars::SLASH && $nextChar == Chars::SLASH && $outerQuote == null) {
+    //            return $i;
+    //        }
+    //
+    //        if ($outerQuote === $char) {
+    //            $outerQuote = null;
+    //        } elseif ($outerQuote == null && Util::isQuote($char)) {
+    //            $outerQuote = $char;
+    //        }
+    //    }
+    //    return null;
+    //}
 
 //  private function _checkNoInterpolation(
 //    input: string, location: any, interpolationConfig: InterpolationConfig): void {

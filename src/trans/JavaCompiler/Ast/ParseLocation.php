@@ -4,9 +4,11 @@
 namespace trans\JavaCompiler\Ast;
 
 
+use trans\JavaCompiler\Chars;
 use trans\JavaCompiler\Wrapper\StringWrapper;
 
-class ParseLocation {
+class ParseLocation
+{
     /**
      * @var ParseSourceFile
      */
@@ -15,91 +17,95 @@ class ParseLocation {
     public $line;
     public $col;
 
-    public function __construct($file, $offset, $line, $col) {
-        $this->file = $file;
+    public function __construct($file, $offset, $line, $col)
+    {
+        $this->file   = $file;
         $this->offset = $offset;
-        $this->line = $line;
-        $this->col = $col;
+        $this->line   = $line;
+        $this->col    = $col;
     }
 
-    public function toString(): string {
+    public function toString(): string
+    {
         return isPresent($this->offset) ? "{$this->file->url}@{$this->line}:{$this->col}" : $this->file->url;
     }
 
-    public function moveBy($delta): ParseLocation {
+    public function moveBy($delta): ParseLocation
+    {
         $source = $this->file->content;
-        $len = StringWrapper::length($source);
+        $len    = StringWrapper::length($source);
         $offset = $this->offset;
-        $line = $this->line;
-        $col = $this->col;
+        $line   = $this->line;
+        $col    = $this->col;
         while ($offset > 0 && $delta < 0) {
             $offset--;
             $delta++;
             $ch = StringWrapper::charCodeAt($source, $offset);
             if ($ch == Chars::LF) {
-                line--;
-                const priorLine = source.substr(0, offset - 1).lastIndexOf(String.fromCharCode(chars.$LF));
-                col = priorLine > 0 ? offset - priorLine : offset;
+                $line--;
+                $priorLine = source . substr(0, offset - 1) . lastIndexOf(String . fromCharCode(chars . $LF));
+                $col = priorLine > 0 ? offset - priorLine : offset;
             } else {
                 col--;
             }
         }
         while (offset < len && delta > 0) {
-            const ch = source.charCodeAt(offset);
+            const ch = source . charCodeAt(offset);
             offset++;
             delta--;
-            if (ch == chars.$LF) {
+            if (ch == chars . $LF) {
                 line++;
                 col = 0;
             } else {
                 col++;
             }
         }
-        return new ParseLocation(this.file, offset, line, col);
-      }
+        return new ParseLocation(this . file, offset, line, col);
+    }
 
-      // Return the source around the location
-      // Up to `maxChars` or `maxLines` on each side of the location
-      public function getContext(maxChars: number, maxLines: number): {before: string, after: string} {
-        const content = this.file.content;
-        let startOffset = this.offset;
+    // Return the source around the location
+    // Up to `maxChars` or `maxLines` on each side of the location
+    public function getContext($maxChars, $maxLines)/*: {before: string, after: string} */
+    {
+        $content     = $this->file->content;
+        $startOffset = $this->offset;
 
-        if (isPresent(startOffset)) {
-            if (startOffset > content.length - 1) {
-                startOffset = content.length - 1;
+        if ($startOffset) {
+            if ($startOffset > strlen($content) - 1) {
+                $startOffset = strlen($content) - 1;
             }
-            let endOffset = startOffset;
-          let ctxChars = 0;
-          let ctxLines = 0;
+            $endOffset = $startOffset;
+            $ctxChars  = 0;
+            $ctxLines  = 0;
 
-          while (ctxChars < maxChars && startOffset > 0) {
-              startOffset--;
-              ctxChars++;
-              if (content[startOffset] == '\n') {
-                  if (++ctxLines == maxLines) {
-                      break;
-                  }
-              }
-          }
+            while ($ctxChars < $maxChars && $startOffset > 0) {
+                $startOffset--;
+                $ctxChars++;
+                if ($content[$startOffset] == '\n') {
+                    if (++$ctxLines == $maxLines) {
+                        break;
+                    }
+                }
+            }
 
-          ctxChars = 0;
-          ctxLines = 0;
-          while (ctxChars < maxChars && endOffset < content.length - 1) {
-              endOffset++;
-              ctxChars++;
-              if (content[endOffset] == '\n') {
-                  if (++ctxLines == maxLines) {
-                      break;
-                  }
-              }
-          }
+            $ctxChars = 0;
+            $ctxLines = 0;
+            while ($ctxChars < $maxChars && $endOffset < strlen($content) - 1) {
+                $endOffset++;
+                $ctxChars++;
+                if ($content[$endOffset] == '\n') {
+                    if (++$ctxLines == $maxLines) {
+                        break;
+                    }
+                }
+            }
 
-          return {
-                before: content.substring(startOffset, this.offset),
-            after: content.substring(this.offset, endOffset + 1),
-          };
+            return [
+                'before' => StringWrapper::subString($content, $startOffset, $this->offset),
+                'after'  => StringWrapper::subString($content, $this->offset, $endOffset + 1)
+            ];
         }
 
         return null;
-      }
+    }
 }

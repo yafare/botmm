@@ -5,20 +5,21 @@ namespace trans\JavaCompiler\Ast\Statement;
 
 
 use trans\JavaCompiler\Ast\ParseSourceSpan;
+use trans\JavaCompiler\Output\Expression;
 use trans\JavaCompiler\Output\StatementVisitor;
 
-class CommentStmt extends Statement
+class ReturnStatement extends Statement
 {
-    public $comment;
+    public $value;
 
-    public function __construct(string $comment, ParseSourceSpan $sourceSpan)
+    public function __construct(Expression $value, ParseSourceSpan $sourceSpan)
     {
         parent::__construct(null, $sourceSpan);
-        $this->comment = $comment;
+        $this->value=$value;
     }
 
     public function visitStatement(StatementVisitor $visitor, $context)
     {
-        return $visitor->visitCommentStmt($this, $context);
+        return $visitor->visitReturnStmt($this, $context);
     }
 }

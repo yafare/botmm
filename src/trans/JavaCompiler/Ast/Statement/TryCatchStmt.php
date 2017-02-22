@@ -4,6 +4,9 @@
 namespace trans\JavaCompiler\Ast\Statement;
 
 
+use trans\JavaCompiler\Ast\ParseSourceSpan;
+use trans\JavaCompiler\Output\StatementVisitor;
+
 class TryCatchStmt extends Statement
 {
     public $bodyStmts;

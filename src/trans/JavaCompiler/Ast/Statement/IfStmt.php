@@ -4,6 +4,10 @@
 namespace trans\JavaCompiler\Ast\Statement;
 
 
+use trans\JavaCompiler\Ast\ParseSourceSpan;
+use trans\JavaCompiler\Output\Expression;
+use trans\JavaCompiler\Output\StatementVisitor;
+
 class IfStmt extends Statement
 {
     public $condition;

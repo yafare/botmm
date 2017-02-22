@@ -1,7 +1,7 @@
 <?php
 
 
-namespace src\trans\JavaCompiler\Lexer\Tests;
+namespace src\trans\JavaCompiler\Tests\Parser;
 
 
 use PHPUnit\Framework\TestCase;
@@ -15,8 +15,8 @@ class LexerTest extends TestCase
     private function getFiles()
     {
         return [
-            __DIR__ . '/sample/sample001.yml',
-            __DIR__ . '/sample/sample002.yml'
+            __DIR__ . '/spec/sample001.yml',
+            __DIR__ . '/spec/sample002.yml'
         ];
     }
 
@@ -32,7 +32,7 @@ class LexerTest extends TestCase
         foreach ($files as $file) {
             $data           = $yaml->parse(file_get_contents($file));
             $item = [];
-            $item['file']   = file_get_contents(dirname($file) . "/" . $data['file']);
+            $item['file']   = file_get_contents(__DIR__ . "/../sample/" . $data['file']);
 
             foreach ($data['tokens'] as $token) {
                 $item['tokens'][] = new Token($token['index'], $token['type'], $token['numValue'], $token['strValue']);
@@ -46,7 +46,7 @@ class LexerTest extends TestCase
     /**
      * @dataProvider getData()
      */
-    public function testSample($file, $expected)
+    public function testTokenizeSample($file, $expected)
     {
         $lexer  = new Lexer();
         $tokens = $lexer->tokenize($file);
