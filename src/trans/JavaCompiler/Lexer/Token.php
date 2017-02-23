@@ -9,6 +9,8 @@
 namespace trans\JavaCompiler\Lexer;
 
 
+use trans\JavaCompiler\Keywords;
+
 class Token
 {
 
@@ -55,232 +57,232 @@ class Token
         return $this->type == TokenType::Keyword;
     }
 
-    public function isKeywordLet(): bool
-    {
-        return $this->type == TokenType::Keyword && $this->strValue == 'let';
-    }
-
-    public function isKeywordNull(): bool
-    {
-        return $this->type == TokenType::Keyword && $this->strValue == 'null';
-    }
-
-    public function isKeywordUndefined(): bool
-    {
-        return $this->type == TokenType::Keyword && $this->strValue == 'undefined';
-    }
-
-    public function isKeywordTrue(): bool
-    {
-        return $this->type == TokenType::Keyword && $this->strValue == 'true';
-    }
-
-    public function isKeywordFalse(): bool
-    {
-        return $this->type == TokenType::Keyword && $this->strValue == 'false';
-    }
+    //public function isKeywordLet(): bool
+    //{
+    //    return $this->type == TokenType::Keyword && $this->strValue == Keywords::_LET_;
+    //}
+    //
+    //public function isKeywordNull(): bool
+    //{
+    //    return $this->type == TokenType::Keyword && $this->strValue == Keywords::_NULL_;
+    //}
+    //
+    //public function isKeywordUndefined(): bool
+    //{
+    //    return $this->type == TokenType::Keyword && $this->strValue == Keywords::_UNDEFINED_;
+    //}
+    //
+    //public function isKeywordTrue(): bool
+    //{
+    //    return $this->type == TokenType::Keyword && $this->strValue == Keywords::_TRUE_;
+    //}
+    //
+    //public function isKeywordFalse(): bool
+    //{
+    //    return $this->type == TokenType::Keyword && $this->strValue == Keywords::_FALSE_;
+    //}
 
     //region java keyword
 
     public function isKeywordAbstract(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'abstract';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_ABSTRACT_;
     }
     public function isKeywordContinue(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'continue';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_CONTINUE_;
     }
     public function isKeywordFor(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'for';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_FOR_;
     }
     public function isKeywordNew(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'new';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_NEW_;
     }
     public function isKeywordSwitch(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'switch';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_SWITCH_;
     }
     public function isKeywordAssert(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'assert';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_ASSERT_;
     }
     public function isKeywordDefault(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'default';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_DEFAULT_;
     }
     public function isKeywordGoto(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'goto';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_GOTO_;
     }
     public function isKeywordPackage(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'package';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_PACKAGE_;
     }
     public function isKeywordSynchronized(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'synchronized';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_SYNCHRONIZED_;
     }
     public function isKeywordBoolean(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'boolean';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_BOOLEAN_;
     }
     public function isKeywordDo(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'do';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_DO_;
     }
     public function isKeywordIf(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'if';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_IF_;
     }
     public function isKeywordPrivate(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'private';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_PRIVATE_;
     }
     public function isKeywordThis(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'this';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_THIS_;
     }
     public function isKeywordBreak(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'break';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_BREAK_;
     }
     public function isKeywordDouble(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'double';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_DOUBLE_;
     }
     public function isKeywordImplements(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'implements';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_IMPLEMENTS_;
     }
     public function isKeywordProtected(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'protected';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_PROTECTED_;
     }
     public function isKeywordThrow(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'throw';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_THROW_;
     }
     public function isKeywordByte(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'byte';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_BYTE_;
     }
     public function isKeywordElse(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'else';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_ELSE_;
     }
     public function isKeywordImport(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'import';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_IMPORT_;
     }
     public function isKeywordPublic(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'public';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_PUBLIC_;
     }
     public function isKeywordThrows(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'throws';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_THROWS_;
     }
     public function isKeywordCase(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'case';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_CASE_;
     }
     public function isKeywordEnum(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'enum';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_ENUM_;
     }
     public function isKeywordInstanceof(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'instanceof';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_INSTANCEOF_;
     }
     public function isKeywordReturn(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'return';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_RETURN_;
     }
     public function isKeywordTransient(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'transient';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_TRANSIENT_;
     }
     public function isKeywordCatch(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'catch';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_CATCH_;
     }
     public function isKeywordExtends(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'extends';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_EXTENDS_;
     }
     public function isKeywordInt(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'int';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_INT_;
     }
     public function isKeywordShort(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'short';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_SHORT_;
     }
     public function isKeywordTry(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'try';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_TRY_;
     }
     public function isKeywordChar(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'char';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_CHAR_;
     }
     public function isKeywordFinal(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'final';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_FINAL_;
     }
     public function isKeywordInterface(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'interface';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_INTERFACE_;
     }
     public function isKeywordStatic(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'static';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_STATIC_;
     }
     public function isKeywordVoid(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'void';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_VOID_;
     }
     public function isKeywordClass(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'class';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_CLASS_;
     }
     public function isKeywordFinally(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'finally';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_FINALLY_;
     }
     public function isKeywordLong(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'long';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_LONG_;
     }
     public function isKeywordStrictfp(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'strictfp';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_STRICTFP_;
     }
     public function isKeywordVolatile(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'volatile';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_VOLATILE_;
     }
     public function isKeywordConst(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'const';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_CONST_;
     }
     public function isKeywordFloat(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'float';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_FLOAT_;
     }
     public function isKeywordNative(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'native';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_NATIVE_;
     }
     public function isKeywordSuper(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'super';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_SUPER_;
     }
-    public function isKeywordWhil(): bool
+    public function isKeywordWhile(): bool
     {
-        return $this->type == TokenType::Keyword && $this->strValue == 'whil';
+        return $this->type == TokenType::Keyword && $this->strValue == Keywords::_WHILE_;
     }
 
     //endregion

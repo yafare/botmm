@@ -25,7 +25,6 @@ use trans\JavaCompiler\Ast\Expr\SafeMethodCall;
 use trans\JavaCompiler\Ast\Expr\SafePropertyRead;
 use trans\JavaCompiler\Ast\ParserError;
 use trans\JavaCompiler\Ast\ParseSpan;
-use trans\JavaCompiler\Ast\Statement\ClassStmt;
 use trans\JavaCompiler\Ast\Statement\Modifier;
 use trans\JavaCompiler\Chars;
 use trans\JavaCompiler\Lexer\Lexer;
@@ -37,7 +36,7 @@ use trans\JavaCompiler\Wrapper\StringWrapper;
 class ParseAST
 {
     use ParseName;
-    use ParseModifier;
+    use ParseClassOrInterface;
 
     private $rparensExpected   = 0;
     private $rbracketsExpected = 0;
@@ -169,11 +168,25 @@ class ParseAST
         $this->error("Missing expected operator {$operator}");
     }
 
-    public function expectIdentifier():string
+    public function expectIdentifier(): string
     {
         $n = $this->getNext();
-        if(!$n->isIdentifier()) {
+        if (!$n->isIdentifier()) {
             $this->error("Unexpected token {$n}, expected identifier");
+            return '';
+        }
+        $this->advance();
+        return $n->toString();
+    }
+
+    public function expectKeyword($keyword): string
+    {
+        $n = $this->getNext();
+        if (!$n->isKeyword()) {
+            $this->error("Unexpected token {$n}, expected keyword");
+            return '';
+        } elseif ($n->strValue != $keyword) {
+            $this->error("Unexpected token {$n}, expected keyword {$keyword}");
             return '';
         }
         $this->advance();
@@ -226,16 +239,16 @@ class ParseAST
                 }
             } elseif ($next->isKeywordExtends()) {
                 $this->advance();
-                if($this->getNext()->isIdentifier()) {
+                if ($this->getNext()->isIdentifier()) {
                     $clazzParent = $this->getNext()->strValue;
-                }else {
+                } else {
                     $this->error("extends parent class is not defined", $this->index);
                 }
-            } elseif($next->isKeywordImplements()) {
+            } elseif ($next->isKeywordImplements()) {
                 $this->advance();
-                if($this->getNext()->isIdentifier()) {
+                if ($this->getNext()->isIdentifier()) {
                     $clazzInterface = $this->getNext()->strValue;
-                }else {
+                } else {
                     $this->error("class implement name is not defined", $this->index);
                 }
             }
@@ -244,7 +257,7 @@ class ParseAST
         //begin to parse class body
         if ($modifier != null && $clazzName == null) {
             $this->error("have not define class, but class modifiers found");
-        }else{
+        } else {
             $this->expectCharacter(Chars::LBRACE);
             while ($this->index < count($this->tokens)) {
 
@@ -254,8 +267,8 @@ class ParseAST
     }
 
 
-
-    public function optionalGeneric(): AST {
+    public function optionalGeneric(): AST
+    {
 
     }
 

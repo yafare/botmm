@@ -8,19 +8,22 @@ use trans\JavaCompiler\Ast\AST;
 use trans\JavaCompiler\Ast\AstVisitor;
 use trans\JavaCompiler\Ast\ParseSpan;
 
-class Name extends AST
+class MemberValuePair extends AST
 {
+    public $name;
+    public $value;
 
-    public $qualifier;
-    public $identifier;
-
-    public function __construct(ParseSpan $span, Name $qualifier, string $identifier)
+    public function __construct(ParseSpan $span, $name, $value)
     {
         parent::__construct($span);
+        $this->name  = $name;
+        $this->value = $value;
     }
 
     public function visit(AstVisitor $visitor, $context = null)
     {
-        return $visitor->visitName($this, $context);
+        return $visitor->visitMemberValuePair($this, $context);
     }
+
+
 }

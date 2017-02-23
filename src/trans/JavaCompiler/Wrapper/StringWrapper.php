@@ -30,6 +30,11 @@ class StringWrapper
         return substr($input, $start, $end - $start);
     }
 
+    public static function toLowerCase($input)
+    {
+        return strtolower($input);
+    }
+
     public static function IndexOf($input, $string)
     {
         return strpos($input, $string);

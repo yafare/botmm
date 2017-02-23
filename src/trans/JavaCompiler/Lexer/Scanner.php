@@ -168,7 +168,7 @@ class Scanner
         while (Util::isIdentifierPart($this->peek)) {
             $this->advance();
         }
-        $str = StringWrapper::subString($this->input, $start, $this->index);
+        $str = StringWrapper::toLowerCase(StringWrapper::subString($this->input, $start, $this->index));
         return ArrayWrapper::indexOf(Lexer::$KEYWORDS, $str) > -1 ? Util::newKeywordToken($start, $str) :
             Util::newIdentifierToken($start, $str);
     }
