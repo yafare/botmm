@@ -1,22 +1,20 @@
 <?php
 
 
-namespace trans\JavaCompiler\Output\Type;
+namespace trans\JavaCompiler\Ast\Type;
 
 
-
-use trans\JavaCompiler\Output\BuiltinTypeName;
-use trans\JavaCompiler\Output\Type;
-use trans\JavaCompiler\Output\TypeVisitor;
+use trans\JavaCompiler\Ast\Type;
+use trans\JavaCompiler\Ast\TypeVisitor;
 
 class BuiltinType extends Type
 {
     public $name;
 
-    public function __construct(BuiltinTypeName $name, array $modifiers = null)
+    public function __construct(string $name, array $modifiers = null)
     {
         parent::__construct($modifiers);
-        $this->name=$name;
+        $this->name = $name;
     }
 
     public function visitType(TypeVisitor $visitor, $context)

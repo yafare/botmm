@@ -1,21 +1,22 @@
 <?php
 
 
-namespace trans\JavaCompiler\Output;
+namespace trans\JavaCompiler\Ast;
 
 
-use trans\JavaCompiler\Output\Type\BuiltinType;
+use trans\JavaCompiler\Ast\Type\BuiltinType;
+use trans\JavaCompiler\Wrapper\ArrayWrapper;
 
 abstract class Type
 {
 
-    public static $DYNAMIC_TYPE ;
-    public static $BOOL_TYPE     ;
-    public static $INT_TYPE      ;
-    public static $NUMBER_TYPE   ;
-    public static $STRING_TYPE   ;
-    public static $FUNCTION_TYPE ;
-    public static $NULL_TYPE     ;
+    public static $DYNAMIC_TYPE;
+    public static $BOOL_TYPE;
+    public static $INT_TYPE;
+    public static $NUMBER_TYPE;
+    public static $STRING_TYPE;
+    public static $FUNCTION_TYPE;
+    public static $NULL_TYPE;
 
 
     public $modifiers;
@@ -27,20 +28,20 @@ abstract class Type
         self::$INT_TYPE      = new BuiltinType(BuiltinTypeName :: Int);
         self::$NUMBER_TYPE   = new BuiltinType(BuiltinTypeName :: Number);
         self::$STRING_TYPE   = new BuiltinType(BuiltinTypeName :: String);
-        self::$FUNCTION_TYPE = new BuiltinType(BuiltinTypeName ::Function);
+        self::$FUNCTION_TYPE = new BuiltinType(BuiltinTypeName :: Function);
         self::$NULL_TYPE     = new BuiltinType(BuiltinTypeName :: null);
 
 
         if (!$modifiers) {
             $this->$modifiers = [];
         }
-        $this->modifiers=$modifiers;
+        $this->modifiers = $modifiers;
     }
 
     abstract public function visitType(TypeVisitor $visitor, $context);
 
     public function hasModifier(TypeModifier $modifier): boolean
     {
-        return $this->modifiers . indexOf(modifier) !== -1;
+        return ArrayWrapper::indexOf($this->modifiers, $modifier) !== -1;
     }
 }

@@ -1,11 +1,11 @@
 <?php
 
 
-namespace trans\JavaCompiler\Output\Type;
+namespace trans\JavaCompiler\Ast\Type;
 
 
-use trans\JavaCompiler\Output\Type;
-use trans\JavaCompiler\Output\TypeVisitor;
+use trans\JavaCompiler\Ast\Type;
+use trans\JavaCompiler\Ast\TypeVisitor;
 
 class MapType extends Type
 {
@@ -14,7 +14,7 @@ class MapType extends Type
     public function __construct(Type $valueType, array $modifiers = null)
     {
         parent::__construct($modifiers);
-        $this->valueType=$valueType;
+        $this->valueType = $valueType;
     }
 
     public function visitType(TypeVisitor $visitor, $context)

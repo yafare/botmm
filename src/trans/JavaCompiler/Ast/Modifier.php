@@ -1,7 +1,7 @@
 <?php
 
 
-namespace trans\JavaCompiler\Ast\Statement;
+namespace trans\JavaCompiler\Ast;
 
 
 class Modifier

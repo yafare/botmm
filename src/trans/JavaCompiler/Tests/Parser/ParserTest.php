@@ -16,8 +16,10 @@ class ParserTest extends TestCase
     private function getFiles()
     {
         return [
-            __DIR__ . '/spec/sample001.yml',
-            __DIR__ . '/spec/sample002.yml'
+            //__DIR__ . '/spec/sample001.yml',
+            //__DIR__ . '/spec/sample002.yml',
+            //__DIR__ . '/spec/sample_cmd0x7c4.yml',
+            __DIR__ . '/spec/sample_cmd0x7c4$RspBody.yml'
         ];
     }
 
@@ -35,9 +37,9 @@ class ParserTest extends TestCase
             $item = [];
             $item['file']   = file_get_contents(__DIR__ . "/../sample/" . $data['file']);
 
-            foreach ($data['tokens'] as $token) {
-                $item['tokens'][] = new Token($token['index'], $token['type'], $token['numValue'], $token['strValue']);
-            }
+            //foreach ($data['tokens'] as $token) {
+            //    $item['tokens'][] = new Token($token['index'], $token['type'], $token['numValue'], $token['strValue']);
+            //}
             $datasets[]     = $item;
         }
 
@@ -47,13 +49,13 @@ class ParserTest extends TestCase
      * @dataProvider getData
      * @param $input
      */
-    public function testParse($input, $expected) {
+    public function testParse($input) {
 
         $parser = new Parser(new Lexer());
 
 
-        $result = $parser->parseAction($input, null);
+        $result = $parser->parse($input, null);
 
-        print_r($result);
+        var_export($result->ast);
     }
 }

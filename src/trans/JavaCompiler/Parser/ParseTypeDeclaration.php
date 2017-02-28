@@ -23,11 +23,11 @@ trait ParseTypeDeclaration
         $modifier = $this->getModifier();
         $n        = $this->getNext();
         if ($n->isKeywordClass() || $n->isKeywordInterface()) {
-            $this->parseClassOrInterface($modifier);
+            return $this->parseClassOrInterfaceDeclaration($modifier);
         } elseif ($n->isKeywordEnum()) {
-            //$this->parseEnumDeclaration();
+            //return $this->parseEnumDeclaration();
         } elseif ($n->isCharacter(Chars::AT)) {
-            $this->parseAnnotationTypeDeclaration($modifier);
+            return $this->parseAnnotationTypeDeclaration($modifier);
         } else {
             $this->error('can not parse TypeDeclaration');
         }

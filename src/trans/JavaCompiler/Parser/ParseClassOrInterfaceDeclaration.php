@@ -3,14 +3,17 @@
 
 namespace trans\JavaCompiler\Parser;
 
+use trans\JavaCompiler\Ast\Body\ClassOrInterfaceDeclaration;
 use trans\JavaCompiler\Ast\AST;
+use trans\JavaCompiler\Ast\Expr\EmptyExpr;
 use trans\JavaCompiler\Ast\Expr\LiteralArray;
 use trans\JavaCompiler\Ast\Expr\MarkerAnnotationExpr;
 use trans\JavaCompiler\Ast\Expr\MemberValuePair;
 use trans\JavaCompiler\Ast\Expr\NormalAnnotationExpr;
 use trans\JavaCompiler\Ast\Expr\SingleMemberAnnotationExpr;
-use trans\JavaCompiler\Ast\Statement\Modifier;
+use trans\JavaCompiler\Ast\Modifier;
 use trans\JavaCompiler\Chars;
+use trans\JavaCompiler\Keywords;
 use trans\JavaCompiler\Lexer\Token;
 
 /**
@@ -19,13 +22,47 @@ use trans\JavaCompiler\Lexer\Token;
  * @mixin ParseAST
  * @package trans\JavaCompiler\Parser
  */
-trait ParseClassOrInterface
+trait ParseClassOrInterfaceDeclaration
 {
 
-    public function parseClass()
+    public function parseClassOrInterfaceDeclaration($modifier)
     {
-        $next = $this->getNext();
-        //if($next->);
+        $start       = $this->getInputIndex();
+        $n           = $this->getNext();
+        $isInterface = null;
+        $typePair    = [];
+        $impList     = [];
+        $extendList  = [];
+        if ($n->isKeywordClass()) {
+            $this->advance();
+            $isInterface = false;
+        } elseif ($n->isKeywordInterface()) {
+            $this->advance();
+            $isInterface = true;
+        } else {
+            $this->error('not found class or interface');
+        }
+        $name = $this->parseSimpleName();
+        if ($this->optionalCharacter(Chars::LT)) {
+            $typePair = $this->getTypeParamers();
+        }
+        if ($this->getNext()->isKeywordExtends()) {
+            $extendList = $this->getExtendsList($isInterface);
+
+        }
+        if ($this->getNext()->isKeywordImplements()) {
+            $impList = $this->parseImplementsList($isInterface);
+        }
+        $members = $this->getClassOrInterfaceBody($isInterface);
+        return new ClassOrInterfaceDeclaration($this->span($start),
+                                               $modifier['modifier'],
+                                               $modifier['annotations'],
+                                               $isInterface,
+                                               $name,
+                                               $typePair,
+                                               $extendList,
+                                               $impList,
+                                               $members);
 
     }
 
@@ -79,6 +116,20 @@ trait ParseClassOrInterface
         }
 
         return ['modifier' => $modifier, 'annotations' => $annotations];
+    }
+
+    public function parseAnnotations()
+    {
+        $start       = $this->getInputIndex();
+        $annotations = [];
+        while (true) {
+            if ($this->getNext()->isCharacter(Chars::AT)) {
+                $annotations[] = $this->parseAnnotation();
+            } else {
+                break;
+            }
+        }
+        return new LiteralArray($this->span($start), $annotations);
     }
 
     public function parseAnnotation()
@@ -155,6 +206,90 @@ trait ParseClassOrInterface
         }
         $this->expectCharacter(Chars::RBRACE);
         return new LiteralArray($this->span($start), $values);
+
+    }
+
+    public function getClassOrInterfaceBody($isInterface)
+    {
+        $body = [];
+        $this->expectCharacter(Chars::LBRACE);
+        while (true) {
+            $n = $this->getNext();
+            if (
+                $n->isKeywordAbstract()
+                || $n->isKeywordBoolean()
+                || $n->isKeywordByte()
+                || $n->isKeywordChar()
+                || $n->isKeywordClass()
+                || $n->isKeywordDefault()
+                || $n->isKeywordDouble()
+                || $n->isKeywordEnum()
+                || $n->isKeywordFinal()
+                || $n->isKeywordFloat()
+                || $n->isKeywordInt()
+                || $n->isKeywordInterface()
+                || $n->isKeywordLong()
+                || $n->isKeywordNative()
+                || $n->isKeywordPrivate()
+                || $n->isKeywordProtected()
+                || $n->isKeywordPublic()
+                || $n->isKeywordShort()
+                || $n->isKeywordStatic()
+                || $n->isKeywordStrictfp()
+                || $n->isKeywordSynchronized()
+                || $n->isKeywordTransient()
+                || $n->isKeywordVoid()
+                || $n->isKeywordVolatile()
+                || $n->isIdentifier()
+                || $n->isCharacter(Chars::LBRACE)
+                || $n->isCharacter(Chars::SEMICOLON)
+                || $n->isCharacter(Chars::AT)
+                || $n->isCharacter(Chars::LT)
+            ) {
+                $member = $this->parseClassOrInterfaceBodyDeclaration($isInterface);
+                $body[] = $member;
+            } else {
+                break;
+            }
+        }
+        $this->expectCharacter(Chars::RBRACE);
+        return $body;
+    }
+
+    public function parseClassOrInterfaceBodyDeclaration($isInterface): AST
+    {
+        return new EmptyExpr($this->span(0));
+
+    }
+
+    public function getExtendsList($isInterface)
+    {
+        $start              = $this->getInputIndex();
+        $extendList         = [];
+        $extendsMoreThanOne = false;
+        $this->expectKeyword(Keywords::_EXTENDS_);
+        $this->parseAnnotatedClassOrInterfaceType();
+        while (true) {
+            if ($this->optionalCharacter(Chars::COMMA)) {
+                $this->parseAnnotatedClassOrInterfaceType();
+                $extendsMoreThanOne = true;
+            } else {
+                break;
+            }
+        }
+        if ($extendsMoreThanOne && !$isInterface) {
+            $this->error("A class cannot extend more than one other class");
+        }
+        return $extendList;
+    }
+
+    public function parseClassOrInterfaceType()
+    {
+        $start    = $this->getInputIndex();
+        $name     = $this->parseSimpleName();
+        if($this->optionalCharacter(Chars::LT)){
+            $typeArgs = $this->getTypeArguments();
+        }
 
     }
 }

@@ -7,18 +7,16 @@ namespace trans\JavaCompiler\Ast\Type;
 use trans\JavaCompiler\Ast\Type;
 use trans\JavaCompiler\Ast\TypeVisitor;
 
-class ArrayType extends Type
+class PrimitiveType extends Type
 {
-    public $of;
 
-    public function __construct(Type $of, array $modifiers = null)
+    public function __construct(array $modifiers = null)
     {
         parent::__construct($modifiers);
-        $this->of=$of;
     }
 
     public function visitType(TypeVisitor $visitor, $context)
     {
-        return $visitor->visitArrayType($this, $context);
+
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace trans\JavaCompiler\Output;
+namespace trans\JavaCompiler\Ast;
 
 
 //// Types
@@ -16,6 +16,19 @@ use trans\JavaCompiler\Output\Visitor\_VariableFinder;
 class TypeModifier
 {
     public const Const = 'const';
+}
+
+class PrimitiveType
+{
+    public const BOOLEAN = 'Boolean';
+    public const CHAR    = 'Character';
+    public const BYTE    = 'Byte';
+    public const SHORT   = 'Short';
+    public const INT     = 'Integer';
+    public const LONG    = 'Long';
+    public const FLOAT   = 'Float';
+    public const DOUBLE  = 'Double';
+
 }
 
 
@@ -124,89 +137,89 @@ function findReadVarNames(array $stmts)/*: Set<string >*/
 }
 
 
-class OutPutAst
-{
-    public static $THIS_EXPR;
-    public static $SUPER_EXPR;
-    public static $CATCH_ERROR_VAR;
-    public static $CATCH_STACK_VAR;
-    public static $NULL_EXPR;
-    public static $TYPED_NULL_EXPR;
-
-    public function __construct()
-    {
-        self::$THIS_EXPR       = new ReadVarExpr(BuiltinVar::This);
-        self::$SUPER_EXPR      = new ReadVarExpr(BuiltinVar::Super);
-        self::$CATCH_ERROR_VAR = new ReadVarExpr(BuiltinVar::CatchError);
-        self::$CATCH_STACK_VAR = new ReadVarExpr(BuiltinVar::CatchStack);
-        self::$NULL_EXPR       = new LiteralExpr(null, null);
-        self::$TYPED_NULL_EXPR = new LiteralExpr(null, NULL_TYPE);
-    }
-
-    public static function variable(
-        string $name,
-        Type $type = null,
-        ParseSourceSpan $sourceSpan
-    ): ReadVarExpr {
-        return new ReadVarExpr($name, $type, $sourceSpan);
-    }
-
-    public static function importExpr(
-        CompileIdentifierMetadata $id,
-        array $typeParams = null,
-        ParseSourceSpan $sourceSpan
-    ): ExternalExpr {
-        return new ExternalExpr($id, null, $typeParams, $sourceSpan);
-    }
-
-    public static function importType(
-        CompileIdentifierMetadata $id,
-        array $typeParams = null,
-        array $typeModifiers = null
-    ): ExpressionType {
-        return isPresent($id) ? expressionType(importExpr($id, $typeParams), $typeModifiers) : null;
-    }
-
-    public static function expressionType(
-        Expression $expr,
-        array $typeModifiers = null
-    ): ExpressionType {
-        return isPresent($expr) ? new ExpressionType($expr, $typeModifiers) : null;
-    }
-
-    public static function literalArr(
-        array $values,
-        Type $type = null,
-        ParseSourceSpan $sourceSpan
-    ): LiteralArrayExpr {
-        return new LiteralArrayExpr($values, $type, $sourceSpan);
-    }
-
-    public static function literalMap(
-        $values,
-        MapType $type = null,
-        boolean $quoted = false
-    ): LiteralMapExpr {
-        return new LiteralMapExpr(
-            $values->map($entry => new LiteralMapEntry($entry[0], $entry[1], $quoted)), $type);
-}
-
-    public static function not(Expression $expr, ParseSourceSpan $sourceSpan): NotExpr
-    {
-        return new NotExpr($expr, $sourceSpan);
-    }
-
-    public static function fn(
-        array $params,
-        array $body,
-        Type $type = null,
-        ParseSourceSpan $sourceSpan
-    ): FunctionExpr {
-        return new FunctionExpr($params, $body, $type, $sourceSpan);
-    }
-
-    public static function literal($value, Type $type = null, ParseSourceSpan $sourceSpan): LiteralExpr
-    {
-        return new LiteralExpr($value, $type, $sourceSpan);
-    }
-}
+//class OutPutAst
+//{
+//    public static $THIS_EXPR;
+//    public static $SUPER_EXPR;
+//    public static $CATCH_ERROR_VAR;
+//    public static $CATCH_STACK_VAR;
+//    public static $NULL_EXPR;
+//    public static $TYPED_NULL_EXPR;
+//
+//    public function __construct()
+//    {
+//        self::$THIS_EXPR       = new ReadVarExpr(BuiltinVar::This);
+//        self::$SUPER_EXPR      = new ReadVarExpr(BuiltinVar::Super);
+//        self::$CATCH_ERROR_VAR = new ReadVarExpr(BuiltinVar::CatchError);
+//        self::$CATCH_STACK_VAR = new ReadVarExpr(BuiltinVar::CatchStack);
+//        self::$NULL_EXPR       = new LiteralExpr(null, null);
+//        self::$TYPED_NULL_EXPR = new LiteralExpr(null, NULL_TYPE);
+//    }
+//
+//    public static function variable(
+//        string $name,
+//        Type $type = null,
+//        ParseSourceSpan $sourceSpan
+//    ): ReadVarExpr {
+//        return new ReadVarExpr($name, $type, $sourceSpan);
+//    }
+//
+//    public static function importExpr(
+//        CompileIdentifierMetadata $id,
+//        array $typeParams = null,
+//        ParseSourceSpan $sourceSpan
+//    ): ExternalExpr {
+//        return new ExternalExpr($id, null, $typeParams, $sourceSpan);
+//    }
+//
+//    public static function importType(
+//        CompileIdentifierMetadata $id,
+//        array $typeParams = null,
+//        array $typeModifiers = null
+//    ): ExpressionType {
+//        return isPresent($id) ? expressionType(importExpr($id, $typeParams), $typeModifiers) : null;
+//    }
+//
+//    public static function expressionType(
+//        Expression $expr,
+//        array $typeModifiers = null
+//    ): ExpressionType {
+//        return isPresent($expr) ? new ExpressionType($expr, $typeModifiers) : null;
+//    }
+//
+//    public static function literalArr(
+//        array $values,
+//        Type $type = null,
+//        ParseSourceSpan $sourceSpan
+//    ): LiteralArrayExpr {
+//        return new LiteralArrayExpr($values, $type, $sourceSpan);
+//    }
+//
+//    public static function literalMap(
+//        $values,
+//        MapType $type = null,
+//        boolean $quoted = false
+//    ): LiteralMapExpr {
+//        return new LiteralMapExpr(
+//            $values->map($entry => new LiteralMapEntry($entry[0], $entry[1], $quoted)), $type);
+//}
+//
+//    public static function not(Expression $expr, ParseSourceSpan $sourceSpan): NotExpr
+//    {
+//        return new NotExpr($expr, $sourceSpan);
+//    }
+//
+//    public static function fn(
+//        array $params,
+//        array $body,
+//        Type $type = null,
+//        ParseSourceSpan $sourceSpan
+//    ): FunctionExpr {
+//        return new FunctionExpr($params, $body, $type, $sourceSpan);
+//    }
+//
+//    public static function literal($value, Type $type = null, ParseSourceSpan $sourceSpan): LiteralExpr
+//    {
+//        return new LiteralExpr($value, $type, $sourceSpan);
+//    }
+//}

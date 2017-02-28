@@ -1,13 +1,13 @@
 <?php
 
 
-namespace trans\JavaCompiler\Output;
+namespace trans\JavaCompiler\Ast;
 
 
-use trans\JavaCompiler\Output\Type\ArrayType;
-use trans\JavaCompiler\Output\Type\BuiltinType;
-use trans\JavaCompiler\Output\Type\ExpressionType;
-use trans\JavaCompiler\Output\Type\MapType;
+use trans\JavaCompiler\Ast\Type\ArrayType;
+use trans\JavaCompiler\Ast\Type\BuiltinType;
+use trans\JavaCompiler\Ast\Type\ExpressionType;
+use trans\JavaCompiler\Ast\Type\MapType;
 
 interface TypeVisitor
 {

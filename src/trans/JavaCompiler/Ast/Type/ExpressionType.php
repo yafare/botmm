@@ -1,12 +1,11 @@
 <?php
 
 
-namespace trans\JavaCompiler\Output\Type;
+namespace trans\JavaCompiler\Ast\Type;
 
 
-use trans\JavaCompiler\Output\Expression;
-use trans\JavaCompiler\Output\Type;
-use trans\JavaCompiler\Output\TypeVisitor;
+use trans\JavaCompiler\Ast\Type;
+use trans\JavaCompiler\Ast\TypeVisitor;
 
 class ExpressionType extends Type
 {

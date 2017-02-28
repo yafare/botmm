@@ -27,10 +27,20 @@ class Parser
         $this->_lexer = $lexer;
     }
 
+    public function parse($input, $location)
+    {
+        $tokens   = $this->_lexer->tokenize($input);
+        $parseAst = new ParseAST($input, $location, $tokens, strlen($input), true, 0);
+        $ast      = $parseAst->parse();
+        $errors   = $parseAst->getErrors();
+        return new ASTWithSource($ast, $input, $location, $errors);
+    }
 
-    public function parseClass($input, $location){
-        $tokens = $this->_lexer->tokenize($input);
-        $ast    = (new ParseAST($input, $location, $tokens, strlen($input), true, $this->errors, 0))->parseChain();
+    public function parseClass($input, $location)
+    {
+        $tokens   = $this->_lexer->tokenize($input);
+        $parseAst = new ParseAST($input, $location, $tokens, strlen($input), true, 0);
+        $ast      = $parseAst->parseChain();
         return new ASTWithSource($ast, $input, $location, $this->errors);
     }
 
@@ -46,8 +56,9 @@ class Parser
         /*$interpolationConfig: InterpolationConfig = DEFAULT_INTERPOLATION_CONFIG*/
     )/*: ASTWithSource*/
     {
-        $tokens = $this->_lexer->tokenize($input);
-        $ast    = (new ParseAST($input, $location, $tokens, strlen($input), true, $this->errors, 0))->parseChain();
+        $tokens   = $this->_lexer->tokenize($input);
+        $parseAst = new ParseAST($input, $location, $tokens, strlen($input), true, 0);
+        $ast      = $parseAst->parseChain();
         return new ASTWithSource($ast, $input, $location, $this->errors);
     }
 

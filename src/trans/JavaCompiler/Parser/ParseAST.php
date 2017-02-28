@@ -25,18 +25,37 @@ use trans\JavaCompiler\Ast\Expr\SafeMethodCall;
 use trans\JavaCompiler\Ast\Expr\SafePropertyRead;
 use trans\JavaCompiler\Ast\ParserError;
 use trans\JavaCompiler\Ast\ParseSpan;
-use trans\JavaCompiler\Ast\Statement\Modifier;
 use trans\JavaCompiler\Chars;
+use trans\JavaCompiler\Ast\ClassPart\CompilationUnit;
 use trans\JavaCompiler\Lexer\Lexer;
 use trans\JavaCompiler\Lexer\Token;
 use trans\JavaCompiler\Lexer\TokenType;
 use trans\JavaCompiler\Wrapper\StringWrapper;
 
 
+/**
+ * Class ParseAST
+ *
+ * @mixin ParseAnnotationTypeDeclaration
+ * @mixin ParseClassOrInterfaceDeclaration
+ * @mixin ParseFieldDeclaration
+ * @mixin ParseImportDeclaration
+ * @mixin ParseName
+ * @mixin ParsePackageDeclaration
+ * @mixin ParseType
+ * @mixin ParseTypeDeclaration
+ * @package trans\JavaCompiler\Parser
+ */
 class ParseAST
 {
+    use ParseAnnotationTypeDeclaration;
+    use ParseClassOrInterfaceDeclaration;
+    use ParseFieldDeclaration;
+    use ParseImportDeclaration;
     use ParseName;
-    use ParseClassOrInterface;
+    use ParsePackageDeclaration;
+    use ParseType;
+    use ParseTypeDeclaration;
 
     private $rparensExpected   = 0;
     private $rbracketsExpected = 0;
@@ -73,7 +92,7 @@ class ParseAST
      */
     private $offset;
 
-    public function __construct($input, $location, $tokens, $inputLength, $parseAction, $errors, $offset)
+    public function __construct($input, $location, $tokens, $inputLength, $parseAction, $offset)
     {
         /** @var string */
         $this->input = $input;
@@ -86,7 +105,7 @@ class ParseAST
         /**@var boolean */
         $this->parseAction = $parseAction;
         /**@var ParserError[] */
-        $this->errors = $errors;
+        $this->errors = [];
         /**@var number */
         $this->offset = $offset;
     }
@@ -215,56 +234,103 @@ class ParseAST
         return $n->toString();
     }
 
-    public function parseClass(): AST
+    public function parse(): AST
     {
-        $next          = $this->getNext();
-        $classModifier = null;
-
-        $modifier  = null;
-        $clazzName = null;
+        $start = $this->getInputIndex();
+        if ($this->optionalCharacter(Chars::SEMICOLON)) {
+            while ($this->optionalCharacter(Chars::SEMICOLON)) {
+            }
+        }
+        $package = $this->parsePackageDeclaration();
+        $imports = [];
+        $types   = [];
         while (true) {
-            if ($next->isKeywordPublic()) {
-                $modifier = Modifier::PUBLIC;
-            } elseif ($next->isKeywordFinal()) {
-                $modifier = Modifier::FINAL;
-            } elseif ($next->isKeywordPrivate()) {
-                $modifier = Modifier::PRIVATE;
-            } elseif ($next->isKeywordClass()) {
-                $this->advance();
-                if ($this->getNext()->isIdentifier()) {
-                    $clazzName = $this->getNext()->strValue;
-                    $this->advance();
-                } else {
-                    $this->error("class name is not defined", $this->index);
-                }
-            } elseif ($next->isKeywordExtends()) {
-                $this->advance();
-                if ($this->getNext()->isIdentifier()) {
-                    $clazzParent = $this->getNext()->strValue;
-                } else {
-                    $this->error("extends parent class is not defined", $this->index);
-                }
-            } elseif ($next->isKeywordImplements()) {
-                $this->advance();
-                if ($this->getNext()->isIdentifier()) {
-                    $clazzInterface = $this->getNext()->strValue;
-                } else {
-                    $this->error("class implement name is not defined", $this->index);
-                }
+            if ($this->getNext()->isKeywordImport()) {
+                $imports[] = $this->parseImportDeclaration();
+            } elseif (!$this->optionalCharacter(Chars::SEMICOLON)) {
+                break;
             }
         }
-
-        //begin to parse class body
-        if ($modifier != null && $clazzName == null) {
-            $this->error("have not define class, but class modifiers found");
-        } else {
-            $this->expectCharacter(Chars::LBRACE);
-            while ($this->index < count($this->tokens)) {
-
+        while (true) {
+            $n = $this->getNext();
+            if ($n->isKeywordAbstract()
+                || $n->isKeywordClass()
+                || $n->isKeywordEnum()
+                || $n->isKeywordFinal()
+                || $n->isKeywordInterface()
+                || $n->isKeywordNative()
+                || $n->isKeywordPrivate()
+                || $n->isKeywordProtected()
+                || $n->isKeywordPublic()
+                || $n->isKeywordStatic()
+                || $n->isKeywordStrictfp()
+                || $n->isKeywordSynchronized()
+                || $n->isKeywordTransient()
+                || $n->isKeywordVolatile()
+                || $n->isCharacter(Chars::AT)
+            ) {
+                $types[] = $this->parseTypeDeclaration();
+            } elseif (!$this->optionalCharacter(Chars::SEMICOLON)) {
+                break;
             }
+
         }
+        //$this->expectCharacter(Chars::EOF);
+        return new CompilationUnit($this->span($start), $package, $imports, $types);
+
 
     }
+
+    //public function parseClass(): AST
+    //{
+    //    $next          = $this->getNext();
+    //    $classModifier = null;
+    //
+    //    $modifier  = null;
+    //    $clazzName = null;
+    //    while (true) {
+    //        if ($next->isKeywordPublic()) {
+    //            $modifier = Modifier::PUBLIC;
+    //        } elseif ($next->isKeywordFinal()) {
+    //            $modifier = Modifier::FINAL;
+    //        } elseif ($next->isKeywordPrivate()) {
+    //            $modifier = Modifier::PRIVATE;
+    //        } elseif ($next->isKeywordClass()) {
+    //            $this->advance();
+    //            if ($this->getNext()->isIdentifier()) {
+    //                $clazzName = $this->getNext()->strValue;
+    //                $this->advance();
+    //            } else {
+    //                $this->error("class name is not defined", $this->index);
+    //            }
+    //        } elseif ($next->isKeywordExtends()) {
+    //            $this->advance();
+    //            if ($this->getNext()->isIdentifier()) {
+    //                $clazzParent = $this->getNext()->strValue;
+    //            } else {
+    //                $this->error("extends parent class is not defined", $this->index);
+    //            }
+    //        } elseif ($next->isKeywordImplements()) {
+    //            $this->advance();
+    //            if ($this->getNext()->isIdentifier()) {
+    //                $clazzInterface = $this->getNext()->strValue;
+    //            } else {
+    //                $this->error("class implement name is not defined", $this->index);
+    //            }
+    //        }
+    //    }
+    //
+    //    //begin to parse class body
+    //    if ($modifier != null && $clazzName == null) {
+    //        $this->error("have not define class, but class modifiers found");
+    //    } else {
+    //        $this->expectCharacter(Chars::LBRACE);
+    //        while ($this->index < count($this->tokens)) {
+    //
+    //        }
+    //    }
+    //
+    //}
 
 
     public function optionalGeneric(): AST
@@ -725,5 +791,10 @@ class ParseAST
             $this->advance();
             $n = $this->getNext();
         }
+    }
+
+    public function getErrors()
+    {
+        return $this->errors;
     }
 }

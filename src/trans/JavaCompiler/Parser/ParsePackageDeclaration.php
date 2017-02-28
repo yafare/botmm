@@ -18,11 +18,11 @@ trait ParsePackageDeclaration
 {
     public function parsePackageDeclaration()
     {
-        $annotations = $this->parseAnnotation();
-        $this->expectKeyword(Keywords::_PACKAGE_);
         $start = $this->getInputIndex();
+        $annotations = $this->parseAnnotations();
+        $this->expectKeyword(Keywords::_PACKAGE_);
         $name  = $this->parseName();
-        $this->expectCharacter(Chars::COMMA);
+        $this->expectCharacter(Chars::SEMICOLON);
         return new PackageDeclaration($this->span($start), $annotations, $name);
     }
 }

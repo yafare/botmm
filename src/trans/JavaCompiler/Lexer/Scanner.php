@@ -249,7 +249,7 @@ class Scanner
         $last = StringWrapper::subString($input, $marker, $this->index);
         $this->advance();  // Skip terminating quote.
 
-        return Util::newStringToken($start, $buffer + $last);
+        return Util::newStringToken($start, "{$buffer}{$last}");
     }
 
     public function error($message, $offset): Token

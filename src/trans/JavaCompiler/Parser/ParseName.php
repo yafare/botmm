@@ -23,7 +23,7 @@ trait ParseName
 
         $name = new Name($this->span($start), null, $this->expectIdentifier());
         while (true) {
-            if ($this->optionalCharacter(Chars::PERIOD) && $this->peek(1)->isIdentifier()) {
+            if ($this->optionalCharacter(Chars::PERIOD) && $this->getNext()->isIdentifier()) {
                 $subName = $this->expectIdentifier();
                 $name    = new Name($this->span($start), $name, $subName);
             } else {

@@ -9,7 +9,9 @@
 namespace trans\JavaCompiler\Ast;
 
 
+use src\trans\JavaCompiler\Ast\Body\ClassOrInterfaceDeclaration;
 use trans\JavaCompiler\Ast\Body\AnnotationDeclaration;
+use trans\JavaCompiler\Ast\Body\FieldDeclaration;
 use trans\JavaCompiler\Ast\ClassPart\ImportDeclaration;
 use trans\JavaCompiler\Ast\ClassPart\PackageDeclaration;
 use trans\JavaCompiler\Ast\Expr\Binary;
@@ -37,6 +39,7 @@ use trans\JavaCompiler\Ast\Expr\SafeMethodCall;
 use trans\JavaCompiler\Ast\Expr\SafePropertyRead;
 use trans\JavaCompiler\Ast\Expr\SimpleName;
 use trans\JavaCompiler\Ast\Expr\SingleMemberAnnotationExpr;
+use trans\JavaCompiler\Parser\CompilationUnit;
 
 interface AstVisitor
 {
@@ -95,4 +98,10 @@ interface AstVisitor
     public function visitImportDeclaration(ImportDeclaration $ast, $context);
 
     public function visitAnnotationDeclaration(AnnotationDeclaration $ast, $context);
+
+    public function visitFieldDeclaration(FieldDeclaration $ast, $context);
+
+    public function visitCompilationUnit(CompilationUnit $ast, $context);
+
+    public function visitClassOrInterfaceDeclaration(ClassOrInterfaceDeclaration $ast, $context);
 }
