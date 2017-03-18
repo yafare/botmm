@@ -258,9 +258,43 @@ trait ParseClassOrInterfaceDeclaration
 
     public function parseClassOrInterfaceBodyDeclaration($isInterface): AST
     {
-        return new EmptyExpr($this->span(0));
+        /**
+         * `static {}`
+         */
+        if ($this->getNext()->isKeywordStatic()
+            && $this->peek(1) == Chars::LBRACE
+        ) {
+            $ret = $this->parseInitializerDeclaration();
+            if ($isInterface) {
+                $this->error('An interface cannot have initializers');
+            }
+        }
 
     }
+
+    public function parseInitializerDeclaration()
+    {
+        $start    = $this->getInputIndex();
+        $isStatic = false;
+        switch ($this->getNext()) {
+            case Keywords::_STATIC_:
+                $this->advance();
+                $isStatic = true;
+                break;
+            default:
+                break;
+
+        }
+        $body = $this->parseBlock();
+        return new InitializerDeclaration($this->span($start), $isStatic, $body);
+
+    }
+
+    public function parseBlock()
+    {
+
+    }
+
 
     public function getExtendsList($isInterface)
     {
@@ -285,9 +319,9 @@ trait ParseClassOrInterfaceDeclaration
 
     public function parseClassOrInterfaceType()
     {
-        $start    = $this->getInputIndex();
-        $name     = $this->parseSimpleName();
-        if($this->optionalCharacter(Chars::LT)){
+        $start = $this->getInputIndex();
+        $name  = $this->parseSimpleName();
+        if ($this->optionalCharacter(Chars::LT)) {
             $typeArgs = $this->getTypeArguments();
         }
 

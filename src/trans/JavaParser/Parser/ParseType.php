@@ -35,7 +35,6 @@ trait ParseType
             || $n->iskeywordShort()
         ) {
             $type = $this->parsePrimary();
-
         }
     }
 
@@ -141,12 +140,6 @@ trait ParseType
         $ret->setAnnotations($annotations);
         return $ret;
     }
-
-//    public function parseReferenceType()
-//    {
-////        if()
-//
-//    }
 
     public function parseWildcard()
     {
