@@ -1,7 +1,7 @@
 <?php
 
 
-namespace trans\JavaCompiler;
+namespace trans\JavaParser;
 
 
 class Keywords

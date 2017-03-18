@@ -1,27 +1,27 @@
 <?php
 
 
-namespace trans\JavaCompiler\Output\Visitor;
+namespace trans\JavaParser\Output\Visitor;
 
 
-use trans\JavaCompiler\Output\Expression\BinaryOperatorExpr;
-use trans\JavaCompiler\Output\Expression\CastExpr;
-use trans\JavaCompiler\Output\Expression\ConditionalExpr;
-use trans\JavaCompiler\Output\Expression\ExternalExpr;
-use trans\JavaCompiler\Output\Expression\FunctionExpr;
-use trans\JavaCompiler\Output\Expression\InstantiateExpr;
-use trans\JavaCompiler\Output\Expression\InvokeFunctionExpr;
-use trans\JavaCompiler\Output\Expression\InvokeMethodExpr;
-use trans\JavaCompiler\Output\Expression\LiteralArrayExpr;
-use trans\JavaCompiler\Output\Expression\LiteralExpr;
-use trans\JavaCompiler\Output\Expression\NotExpr;
-use trans\JavaCompiler\Output\Expression\ReadKeyExpr;
-use trans\JavaCompiler\Output\Expression\ReadPropExpr;
-use trans\JavaCompiler\Output\Expression\ReadVarExpr;
-use trans\JavaCompiler\Output\Expression\WriteKeyExpr;
-use trans\JavaCompiler\Output\Expression\WritePropExpr;
-use trans\JavaCompiler\Output\Expression\WriteVarExpr;
-use trans\JavaCompiler\Output\StatementVisitor;
+use trans\JavaParser\Output\Expression\BinaryOperatorExpr;
+use trans\JavaParser\Output\Expression\CastExpr;
+use trans\JavaParser\Output\Expression\ConditionalExpr;
+use trans\JavaParser\Output\Expression\ExternalExpr;
+use trans\JavaParser\Output\Expression\FunctionExpr;
+use trans\JavaParser\Output\Expression\InstantiateExpr;
+use trans\JavaParser\Output\Expression\InvokeFunctionExpr;
+use trans\JavaParser\Output\Expression\InvokeMethodExpr;
+use trans\JavaParser\Output\Expression\LiteralArrayExpr;
+use trans\JavaParser\Output\Expression\LiteralExpr;
+use trans\JavaParser\Output\Expression\NotExpr;
+use trans\JavaParser\Output\Expression\ReadKeyExpr;
+use trans\JavaParser\Output\Expression\ReadPropExpr;
+use trans\JavaParser\Output\Expression\ReadVarExpr;
+use trans\JavaParser\Output\Expression\WriteKeyExpr;
+use trans\JavaParser\Output\Expression\WritePropExpr;
+use trans\JavaParser\Output\Expression\WriteVarExpr;
+use trans\JavaParser\Output\StatementVisitor;
 
 class ExpressionTransformer implements StatementVisitor, ExpressionVisitor
 {

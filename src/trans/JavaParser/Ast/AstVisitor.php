@@ -6,40 +6,40 @@
  * Time: 14:35
  */
 
-namespace trans\JavaCompiler\Ast;
+namespace trans\JavaParser\Ast;
 
 
-use src\trans\JavaCompiler\Ast\Body\ClassOrInterfaceDeclaration;
-use trans\JavaCompiler\Ast\Body\AnnotationDeclaration;
-use trans\JavaCompiler\Ast\Body\FieldDeclaration;
-use trans\JavaCompiler\Ast\ClassPart\ImportDeclaration;
-use trans\JavaCompiler\Ast\ClassPart\PackageDeclaration;
-use trans\JavaCompiler\Ast\Expr\Binary;
-use trans\JavaCompiler\Ast\Expr\BindingPipe;
-use trans\JavaCompiler\Ast\Expr\Chain;
-use trans\JavaCompiler\Ast\Expr\Conditional;
-use trans\JavaCompiler\Ast\Expr\FunctionCall;
-use trans\JavaCompiler\Ast\Expr\ImplicitReceiver;
-use trans\JavaCompiler\Ast\Expr\Interpolation;
-use trans\JavaCompiler\Ast\Expr\KeyedRead;
-use trans\JavaCompiler\Ast\Expr\KeyedWrite;
-use trans\JavaCompiler\Ast\Expr\LiteralArray;
-use trans\JavaCompiler\Ast\Expr\LiteralMap;
-use trans\JavaCompiler\Ast\Expr\LiteralPrimitive;
-use trans\JavaCompiler\Ast\Expr\MarkerAnnotationExpr;
-use trans\JavaCompiler\Ast\Expr\MemberValuePair;
-use trans\JavaCompiler\Ast\Expr\MethodCall;
-use trans\JavaCompiler\Ast\Expr\Name;
-use trans\JavaCompiler\Ast\Expr\NormalAnnotationExpr;
-use trans\JavaCompiler\Ast\Expr\PrefixNot;
-use trans\JavaCompiler\Ast\Expr\PropertyRead;
-use trans\JavaCompiler\Ast\Expr\PropertyWrite;
-use trans\JavaCompiler\Ast\Expr\Quote;
-use trans\JavaCompiler\Ast\Expr\SafeMethodCall;
-use trans\JavaCompiler\Ast\Expr\SafePropertyRead;
-use trans\JavaCompiler\Ast\Expr\SimpleName;
-use trans\JavaCompiler\Ast\Expr\SingleMemberAnnotationExpr;
-use trans\JavaCompiler\Parser\CompilationUnit;
+use src\trans\JavaParser\Ast\Body\ClassOrInterfaceDeclaration;
+use trans\JavaParser\Ast\Body\AnnotationDeclaration;
+use trans\JavaParser\Ast\Body\FieldDeclaration;
+use trans\JavaParser\Ast\ClassPart\ImportDeclaration;
+use trans\JavaParser\Ast\ClassPart\PackageDeclaration;
+use trans\JavaParser\Ast\Expr\Binary;
+use trans\JavaParser\Ast\Expr\BindingPipe;
+use trans\JavaParser\Ast\Expr\Chain;
+use trans\JavaParser\Ast\Expr\Conditional;
+use trans\JavaParser\Ast\Expr\FunctionCall;
+use trans\JavaParser\Ast\Expr\ImplicitReceiver;
+use trans\JavaParser\Ast\Expr\Interpolation;
+use trans\JavaParser\Ast\Expr\KeyedRead;
+use trans\JavaParser\Ast\Expr\KeyedWrite;
+use trans\JavaParser\Ast\Expr\LiteralArray;
+use trans\JavaParser\Ast\Expr\LiteralMap;
+use trans\JavaParser\Ast\Expr\LiteralPrimitive;
+use trans\JavaParser\Ast\Expr\MarkerAnnotationExpr;
+use trans\JavaParser\Ast\Expr\MemberValuePair;
+use trans\JavaParser\Ast\Expr\MethodCall;
+use trans\JavaParser\Ast\Expr\Name;
+use trans\JavaParser\Ast\Expr\NormalAnnotationExpr;
+use trans\JavaParser\Ast\Expr\PrefixNot;
+use trans\JavaParser\Ast\Expr\PropertyRead;
+use trans\JavaParser\Ast\Expr\PropertyWrite;
+use trans\JavaParser\Ast\Expr\Quote;
+use trans\JavaParser\Ast\Expr\SafeMethodCall;
+use trans\JavaParser\Ast\Expr\SafePropertyRead;
+use trans\JavaParser\Ast\Expr\SimpleName;
+use trans\JavaParser\Ast\Expr\SingleMemberAnnotationExpr;
+use trans\JavaParser\Parser\CompilationUnit;
 
 interface AstVisitor
 {

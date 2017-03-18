@@ -1,12 +1,12 @@
 <?php
 
 
-namespace trans\JavaCompiler\Lexer;
+namespace trans\JavaParser\Lexer;
 
 
-use trans\JavaCompiler\Chars;
-use trans\JavaCompiler\Wrapper\ArrayWrapper;
-use trans\JavaCompiler\Wrapper\StringWrapper;
+use trans\JavaParser\Chars;
+use trans\JavaParser\Wrapper\ArrayWrapper;
+use trans\JavaParser\Wrapper\StringWrapper;
 
 class Scanner
 {

@@ -1,16 +1,16 @@
 <?php
 
 
-namespace trans\JavaCompiler\Parser;
+namespace trans\JavaParser\Parser;
 
-use trans\JavaCompiler\Chars;
+use trans\JavaParser\Chars;
 
 
 /**
  * Class ParseFieldDeclaration
  *
  * @mixin ParseAST
- * @package trans\JavaCompiler\Parser
+ * @package trans\JavaParser\Parser
  */
 trait ParseFieldDeclaration
 {

@@ -1,18 +1,18 @@
 <?php
 
 
-namespace trans\JavaCompiler\Parser;
+namespace trans\JavaParser\Parser;
 
-use trans\JavaCompiler\Ast\Expr\LiteralPrimitive;
-use trans\JavaCompiler\Ast\PrimitiveType;
-use trans\JavaCompiler\Chars;
+use trans\JavaParser\Ast\Expr\LiteralPrimitive;
+use trans\JavaParser\Ast\PrimitiveType;
+use trans\JavaParser\Chars;
 
 
 /**
  * Class ParseType
  *
  * @mixin ParseAST
- * @package trans\JavaCompiler\Parser
+ * @package trans\JavaParser\Parser
  */
 trait ParseType
 {

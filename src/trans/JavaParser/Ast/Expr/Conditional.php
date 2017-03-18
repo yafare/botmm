@@ -1,11 +1,11 @@
 <?php
 
-namespace trans\JavaCompiler\Ast\Expr;
+namespace trans\JavaParser\Ast\Expr;
 
 
-use trans\JavaCompiler\Ast\AST;
-use trans\JavaCompiler\Ast\AstVisitor;
-use trans\JavaCompiler\Ast\ParseSpan;
+use trans\JavaParser\Ast\AST;
+use trans\JavaParser\Ast\AstVisitor;
+use trans\JavaParser\Ast\ParseSpan;
 
 
 class Conditional extends AST

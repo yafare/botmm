@@ -1,7 +1,7 @@
 <?php
 
 
-namespace trans\JavaCompiler\Lexer;
+namespace trans\JavaParser\Lexer;
 
 
 class TokenType

@@ -1,13 +1,13 @@
 <?php
 
 
-namespace src\trans\JavaCompiler\Tests\Parser;
+namespace src\trans\JavaParser\Tests\Parser;
 
 
 use PHPUnit\Framework\TestCase;
-use trans\JavaCompiler\Lexer\Lexer;
+use trans\JavaParser\Lexer\Lexer;
 use Symfony\Component\Yaml\Yaml;
-use trans\JavaCompiler\Lexer\Token;
+use trans\JavaParser\Lexer\Token;
 
 class LexerTest extends TestCase
 {

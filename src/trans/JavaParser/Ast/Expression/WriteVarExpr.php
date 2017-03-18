@@ -1,14 +1,14 @@
 <?php
 
 
-namespace trans\JavaCompiler\Output\Expression;
+namespace trans\JavaParser\Output\Expression;
 
 
-use trans\JavaCompiler\Ast\ParseSourceSpan;
-use trans\JavaCompiler\Ast\Statement\DeclareVarStmt;
-use trans\JavaCompiler\Output\Expression;
-use trans\JavaCompiler\Output\ExpressionVisitor;
-use trans\JavaCompiler\Output\Type;
+use trans\JavaParser\Ast\ParseSourceSpan;
+use trans\JavaParser\Ast\Statement\DeclareVarStmt;
+use trans\JavaParser\Output\Expression;
+use trans\JavaParser\Output\ExpressionVisitor;
+use trans\JavaParser\Output\Type;
 
 class WriteVarExpr extends Expression
 {

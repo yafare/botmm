@@ -1,18 +1,18 @@
 <?php
 
 
-namespace trans\JavaCompiler\Parser;
+namespace trans\JavaParser\Parser;
 
-use trans\JavaCompiler\Ast\Expr\Name;
-use trans\JavaCompiler\Ast\Expr\SimpleName;
-use trans\JavaCompiler\Chars;
-use trans\JavaCompiler\Lexer\Token;
+use trans\JavaParser\Ast\Expr\Name;
+use trans\JavaParser\Ast\Expr\SimpleName;
+use trans\JavaParser\Chars;
+use trans\JavaParser\Lexer\Token;
 
 /**
  * Class parseName
  *
  * @mixin ParseAST
- * @package trans\JavaCompiler\Parser
+ * @package trans\JavaParser\Parser
  */
 trait ParseName
 {

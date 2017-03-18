@@ -1,12 +1,12 @@
 <?php
 
 
-namespace trans\JavaCompiler\Ast\Statement;
+namespace trans\JavaParser\Ast\Statement;
 
 
-use trans\JavaCompiler\Ast\ParseSourceSpan;
-use trans\JavaCompiler\Output\Expression;
-use trans\JavaCompiler\Output\StatementVisitor;
+use trans\JavaParser\Ast\ParseSourceSpan;
+use trans\JavaParser\Output\Expression;
+use trans\JavaParser\Output\StatementVisitor;
 
 class IfStmt extends Statement
 {

@@ -1,11 +1,11 @@
 <?php
 
 
-namespace trans\JavaCompiler\Output\Visitor;
+namespace trans\JavaParser\Output\Visitor;
 
 
 use Ds\Set;
-use trans\JavaCompiler\Output\Expression\ReadVarExpr;
+use trans\JavaParser\Output\Expression\ReadVarExpr;
 
 class _VariableFinder extends RecursiveExpressionVisitor
 {

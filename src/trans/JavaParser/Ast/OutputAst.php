@@ -1,17 +1,17 @@
 <?php
 
 
-namespace trans\JavaCompiler\Ast;
+namespace trans\JavaParser\Ast;
 
 
 //// Types
 
-use trans\JavaCompiler\Ast\ParseSourceSpan;
-use trans\JavaCompiler\Output\Expression\FunctionExpr;
-use trans\JavaCompiler\Output\Expression\LiteralExpr;
-use trans\JavaCompiler\Output\Expression\ReadVarExpr;
-use trans\JavaCompiler\Output\Visitor\_ReplaceVariableTransformer;
-use trans\JavaCompiler\Output\Visitor\_VariableFinder;
+use trans\JavaParser\Ast\ParseSourceSpan;
+use trans\JavaParser\Output\Expression\FunctionExpr;
+use trans\JavaParser\Output\Expression\LiteralExpr;
+use trans\JavaParser\Output\Expression\ReadVarExpr;
+use trans\JavaParser\Output\Visitor\_ReplaceVariableTransformer;
+use trans\JavaParser\Output\Visitor\_VariableFinder;
 
 class TypeModifier
 {

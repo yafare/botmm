@@ -1,12 +1,12 @@
 <?php
 
 
-namespace trans\JavaCompiler\Ast\Statement;
+namespace trans\JavaParser\Ast\Statement;
 
 
-use trans\JavaCompiler\Ast\ParseSourceSpan;
-use trans\JavaCompiler\Output\StatementVisitor;
-use trans\JavaCompiler\Output\Type;
+use trans\JavaParser\Ast\ParseSourceSpan;
+use trans\JavaParser\Output\StatementVisitor;
+use trans\JavaParser\Output\Type;
 
 class DeclareFunctionStmt extends Statement
 {

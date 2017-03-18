@@ -1,17 +1,17 @@
 <?php
 
 
-namespace trans\JavaCompiler\Parser;
+namespace trans\JavaParser\Parser;
 
 
-use trans\JavaCompiler\Ast\ASTWithSource;
-use trans\JavaCompiler\Ast\Expr\LiteralPrimitive;
-use trans\JavaCompiler\Ast\ParserError;
-use trans\JavaCompiler\Ast\ParseSpan;
-use trans\JavaCompiler\Chars;
-use trans\JavaCompiler\Lexer\Lexer;
-use trans\JavaCompiler\Lexer\Util;
-use trans\JavaCompiler\Wrapper\StringWrapper;
+use trans\JavaParser\Ast\ASTWithSource;
+use trans\JavaParser\Ast\Expr\LiteralPrimitive;
+use trans\JavaParser\Ast\ParserError;
+use trans\JavaParser\Ast\ParseSpan;
+use trans\JavaParser\Chars;
+use trans\JavaParser\Lexer\Lexer;
+use trans\JavaParser\Lexer\Util;
+use trans\JavaParser\Wrapper\StringWrapper;
 
 class Parser
 {

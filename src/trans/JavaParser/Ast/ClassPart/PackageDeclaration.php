@@ -1,12 +1,12 @@
 <?php
 
 
-namespace trans\JavaCompiler\Ast\ClassPart;
+namespace trans\JavaParser\Ast\ClassPart;
 
 
-use trans\JavaCompiler\Ast\AST;
-use trans\JavaCompiler\Ast\AstVisitor;
-use trans\JavaCompiler\Ast\ParseSpan;
+use trans\JavaParser\Ast\AST;
+use trans\JavaParser\Ast\AstVisitor;
+use trans\JavaParser\Ast\ParseSpan;
 
 class PackageDeclaration extends AST
 {

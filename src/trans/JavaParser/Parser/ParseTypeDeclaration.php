@@ -1,9 +1,9 @@
 <?php
 
 
-namespace trans\JavaCompiler\Parser;
+namespace trans\JavaParser\Parser;
 
-use trans\JavaCompiler\Chars;
+use trans\JavaParser\Chars;
 
 
 /**
@@ -12,7 +12,7 @@ use trans\JavaCompiler\Chars;
  * @mixin ParseAST
  * @mixin ParseClassOrInterface
  * @mixin ParseAnnotationTypeDeclaration
- * @package trans\JavaCompiler\Parser
+ * @package trans\JavaParser\Parser
  */
 trait ParseTypeDeclaration
 {

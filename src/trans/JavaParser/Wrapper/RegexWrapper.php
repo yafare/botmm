@@ -1,7 +1,7 @@
 <?php
 
 
-namespace trans\JavaCompiler\Wrapper;
+namespace trans\JavaParser\Wrapper;
 
 
 use Spatie\Regex\Regex;

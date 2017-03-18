@@ -1,33 +1,33 @@
 <?php
 
 
-namespace trans\JavaCompiler\Output;
+namespace trans\JavaParser\Output;
 
 
-use trans\JavaCompiler\Ast\Statement\AssertStmt;
-use trans\JavaCompiler\Ast\Statement\BlockStmt;
-use trans\JavaCompiler\Ast\Statement\BreakStmt;
-use trans\JavaCompiler\Ast\Statement\ClassStmt;
-use trans\JavaCompiler\Ast\Statement\CommentStmt;
-use trans\JavaCompiler\Ast\Statement\ContinueStmt;
-use trans\JavaCompiler\Ast\Statement\DeclareFunctionStmt;
-use trans\JavaCompiler\Ast\Statement\DeclareVarStmt;
-use trans\JavaCompiler\Ast\Statement\DoStmt;
-use trans\JavaCompiler\Ast\Statement\EmptyStmt;
-use trans\JavaCompiler\Ast\Statement\ExplicitConstructorInvocationStmt;
-use trans\JavaCompiler\Ast\Statement\ExpressionStmt;
-use trans\JavaCompiler\Ast\Statement\ForeachStmt;
-use trans\JavaCompiler\Ast\Statement\ForStmt;
-use trans\JavaCompiler\Ast\Statement\IfStmt;
-use trans\JavaCompiler\Ast\Statement\LabeledStmt;
-use trans\JavaCompiler\Ast\Statement\LocalClassDeclarationStmt;
-use trans\JavaCompiler\Ast\Statement\ReturnStatement;
-use trans\JavaCompiler\Ast\Statement\SwitchEntryStmt;
-use trans\JavaCompiler\Ast\Statement\SwitchStmt;
-use trans\JavaCompiler\Ast\Statement\SynchronizedStmt;
-use trans\JavaCompiler\Ast\Statement\ThrowStmt;
-use trans\JavaCompiler\Ast\Statement\TryCatchStmt;
-use trans\JavaCompiler\Ast\Statement\WhileStmt;
+use trans\JavaParser\Ast\Statement\AssertStmt;
+use trans\JavaParser\Ast\Statement\BlockStmt;
+use trans\JavaParser\Ast\Statement\BreakStmt;
+use trans\JavaParser\Ast\Statement\ClassStmt;
+use trans\JavaParser\Ast\Statement\CommentStmt;
+use trans\JavaParser\Ast\Statement\ContinueStmt;
+use trans\JavaParser\Ast\Statement\DeclareFunctionStmt;
+use trans\JavaParser\Ast\Statement\DeclareVarStmt;
+use trans\JavaParser\Ast\Statement\DoStmt;
+use trans\JavaParser\Ast\Statement\EmptyStmt;
+use trans\JavaParser\Ast\Statement\ExplicitConstructorInvocationStmt;
+use trans\JavaParser\Ast\Statement\ExpressionStmt;
+use trans\JavaParser\Ast\Statement\ForeachStmt;
+use trans\JavaParser\Ast\Statement\ForStmt;
+use trans\JavaParser\Ast\Statement\IfStmt;
+use trans\JavaParser\Ast\Statement\LabeledStmt;
+use trans\JavaParser\Ast\Statement\LocalClassDeclarationStmt;
+use trans\JavaParser\Ast\Statement\ReturnStatement;
+use trans\JavaParser\Ast\Statement\SwitchEntryStmt;
+use trans\JavaParser\Ast\Statement\SwitchStmt;
+use trans\JavaParser\Ast\Statement\SynchronizedStmt;
+use trans\JavaParser\Ast\Statement\ThrowStmt;
+use trans\JavaParser\Ast\Statement\TryCatchStmt;
+use trans\JavaParser\Ast\Statement\WhileStmt;
 
 interface StatementVisitor
 {

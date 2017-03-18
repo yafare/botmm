@@ -1,11 +1,11 @@
 <?php
 
 
-namespace trans\JavaCompiler\Output\ClassPart;
+namespace trans\JavaParser\Output\ClassPart;
 
 
-use trans\JavaCompiler\Output\AbstractClassPart;
-use trans\JavaCompiler\Output\Type;
+use trans\JavaParser\Output\AbstractClassPart;
+use trans\JavaParser\Output\Type;
 
 class ClassField extends AbstractClassPart
 {

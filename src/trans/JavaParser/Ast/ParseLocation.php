@@ -1,11 +1,11 @@
 <?php
 
 
-namespace trans\JavaCompiler\Ast;
+namespace trans\JavaParser\Ast;
 
 
-use trans\JavaCompiler\Chars;
-use trans\JavaCompiler\Wrapper\StringWrapper;
+use trans\JavaParser\Chars;
+use trans\JavaParser\Wrapper\StringWrapper;
 
 class ParseLocation
 {

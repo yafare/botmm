@@ -1,7 +1,7 @@
 <?php
 
 
-namespace trans\JavaCompiler\Output\Visitor;
+namespace trans\JavaParser\Output\Visitor;
 
 
 class _ReplaceVariableTransformer extends ExpressionTransformer

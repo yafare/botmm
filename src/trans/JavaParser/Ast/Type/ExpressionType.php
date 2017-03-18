@@ -1,11 +1,11 @@
 <?php
 
 
-namespace trans\JavaCompiler\Ast\Type;
+namespace trans\JavaParser\Ast\Type;
 
 
-use trans\JavaCompiler\Ast\Type;
-use trans\JavaCompiler\Ast\TypeVisitor;
+use trans\JavaParser\Ast\Type;
+use trans\JavaParser\Ast\TypeVisitor;
 
 class ExpressionType extends Type
 {

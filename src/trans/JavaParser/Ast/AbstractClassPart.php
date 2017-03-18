@@ -1,7 +1,7 @@
 <?php
 
 
-namespace trans\JavaCompiler\Output;
+namespace trans\JavaParser\Output;
 
 
 class AbstractClassPart

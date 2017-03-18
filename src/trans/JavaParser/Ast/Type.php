@@ -1,11 +1,11 @@
 <?php
 
 
-namespace trans\JavaCompiler\Ast;
+namespace trans\JavaParser\Ast;
 
 
-use trans\JavaCompiler\Ast\Type\BuiltinType;
-use trans\JavaCompiler\Wrapper\ArrayWrapper;
+use trans\JavaParser\Ast\Type\BuiltinType;
+use trans\JavaParser\Wrapper\ArrayWrapper;
 
 abstract class Type
 {

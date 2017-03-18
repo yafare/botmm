@@ -1,7 +1,7 @@
 <?php
 
 
-namespace trans\JavaCompiler\Ast;
+namespace trans\JavaParser\Ast;
 
 
 class ASTWithSource extends AST

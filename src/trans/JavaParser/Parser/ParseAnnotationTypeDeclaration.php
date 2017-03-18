@@ -1,12 +1,12 @@
 <?php
 
 
-namespace trans\JavaCompiler\Parser;
+namespace trans\JavaParser\Parser;
 
-use trans\JavaCompiler\Ast\Body\AnnotationDeclaration;
-use trans\JavaCompiler\Ast\Expr\LiteralArray;
-use trans\JavaCompiler\Chars;
-use trans\JavaCompiler\Keywords;
+use trans\JavaParser\Ast\Body\AnnotationDeclaration;
+use trans\JavaParser\Ast\Expr\LiteralArray;
+use trans\JavaParser\Chars;
+use trans\JavaParser\Keywords;
 
 
 /**
@@ -14,7 +14,7 @@ use trans\JavaCompiler\Keywords;
  *
  * @mixin ParseAST
  * @mixin ParseAnnotationTypeDeclaration
- * @package trans\JavaCompiler\Parser
+ * @package trans\JavaParser\Parser
  */
 trait ParseAnnotationTypeDeclaration
 {

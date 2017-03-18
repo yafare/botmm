@@ -1,7 +1,7 @@
 <?php
 
 
-namespace trans\JavaCompiler\Output\Expression;
+namespace trans\JavaParser\Output\Expression;
 
 
 class ConditionalExpr extends Expression

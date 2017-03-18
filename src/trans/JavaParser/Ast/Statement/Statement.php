@@ -1,11 +1,11 @@
 <?php
 
 
-namespace trans\JavaCompiler\Ast\Statement;
+namespace trans\JavaParser\Ast\Statement;
 
 
-use trans\JavaCompiler\Output\StatementVisitor;
-use trans\JavaCompiler\Wrapper\ArrayWrapper;
+use trans\JavaParser\Output\StatementVisitor;
+use trans\JavaParser\Wrapper\ArrayWrapper;
 
 abstract class Statement
 {

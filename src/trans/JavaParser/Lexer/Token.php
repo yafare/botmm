@@ -6,10 +6,10 @@
  * Time: 21:59
  */
 
-namespace trans\JavaCompiler\Lexer;
+namespace trans\JavaParser\Lexer;
 
 
-use trans\JavaCompiler\Keywords;
+use trans\JavaParser\Keywords;
 
 class Token
 {

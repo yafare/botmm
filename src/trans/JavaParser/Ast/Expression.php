@@ -1,12 +1,12 @@
 <?php
 
 
-namespace trans\JavaCompiler\Output;
+namespace trans\JavaParser\Output;
 
 
-use trans\JavaCompiler\Ast\ParseSourceSpan;
-use trans\JavaCompiler\Output\Expression\ReadKeyExpr;
-use trans\JavaCompiler\Output\Expression\ReadPropExpr;
+use trans\JavaParser\Ast\ParseSourceSpan;
+use trans\JavaParser\Output\Expression\ReadKeyExpr;
+use trans\JavaParser\Output\Expression\ReadPropExpr;
 
 abstract class Expression
 {

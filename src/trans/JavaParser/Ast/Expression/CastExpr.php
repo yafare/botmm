@@ -1,9 +1,9 @@
 <?php
 
 
-namespace trans\JavaCompiler\Output\Expression;
+namespace trans\JavaParser\Output\Expression;
 
-use trans\JavaCompiler\Output\Expression;
+use trans\JavaParser\Output\Expression;
 
 class CastExpr extends Expression
 {

@@ -1,26 +1,26 @@
 <?php
 
 
-namespace trans\JavaCompiler\Parser;
+namespace trans\JavaParser\Parser;
 
-use trans\JavaCompiler\Ast\Body\ClassOrInterfaceDeclaration;
-use trans\JavaCompiler\Ast\AST;
-use trans\JavaCompiler\Ast\Expr\EmptyExpr;
-use trans\JavaCompiler\Ast\Expr\LiteralArray;
-use trans\JavaCompiler\Ast\Expr\MarkerAnnotationExpr;
-use trans\JavaCompiler\Ast\Expr\MemberValuePair;
-use trans\JavaCompiler\Ast\Expr\NormalAnnotationExpr;
-use trans\JavaCompiler\Ast\Expr\SingleMemberAnnotationExpr;
-use trans\JavaCompiler\Ast\Modifier;
-use trans\JavaCompiler\Chars;
-use trans\JavaCompiler\Keywords;
-use trans\JavaCompiler\Lexer\Token;
+use trans\JavaParser\Ast\Body\ClassOrInterfaceDeclaration;
+use trans\JavaParser\Ast\AST;
+use trans\JavaParser\Ast\Expr\EmptyExpr;
+use trans\JavaParser\Ast\Expr\LiteralArray;
+use trans\JavaParser\Ast\Expr\MarkerAnnotationExpr;
+use trans\JavaParser\Ast\Expr\MemberValuePair;
+use trans\JavaParser\Ast\Expr\NormalAnnotationExpr;
+use trans\JavaParser\Ast\Expr\SingleMemberAnnotationExpr;
+use trans\JavaParser\Ast\Modifier;
+use trans\JavaParser\Chars;
+use trans\JavaParser\Keywords;
+use trans\JavaParser\Lexer\Token;
 
 /**
  * Class ParseClass
  *
  * @mixin ParseAST
- * @package trans\JavaCompiler\Parser
+ * @package trans\JavaParser\Parser
  */
 trait ParseClassOrInterfaceDeclaration
 {

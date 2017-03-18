@@ -1,28 +1,28 @@
 <?php
 
 
-namespace trans\JavaCompiler\Ast;
+namespace trans\JavaParser\Ast;
 
 
-use trans\JavaCompiler\Ast\Expr\Binary;
-use trans\JavaCompiler\Ast\Expr\BindingPipe;
-use trans\JavaCompiler\Ast\Expr\Chain;
-use trans\JavaCompiler\Ast\Expr\Conditional;
-use trans\JavaCompiler\Ast\Expr\FunctionCall;
-use trans\JavaCompiler\Ast\Expr\ImplicitReceiver;
-use trans\JavaCompiler\Ast\Expr\Interpolation;
-use trans\JavaCompiler\Ast\Expr\KeyedRead;
-use trans\JavaCompiler\Ast\Expr\KeyedWrite;
-use trans\JavaCompiler\Ast\Expr\LiteralArray;
-use trans\JavaCompiler\Ast\Expr\LiteralMap;
-use trans\JavaCompiler\Ast\Expr\LiteralPrimitive;
-use trans\JavaCompiler\Ast\Expr\MethodCall;
-use trans\JavaCompiler\Ast\Expr\PrefixNot;
-use trans\JavaCompiler\Ast\Expr\PropertyRead;
-use trans\JavaCompiler\Ast\Expr\PropertyWrite;
-use trans\JavaCompiler\Ast\Expr\Quote;
-use trans\JavaCompiler\Ast\Expr\SafeMethodCall;
-use trans\JavaCompiler\Ast\Expr\SafePropertyRead;
+use trans\JavaParser\Ast\Expr\Binary;
+use trans\JavaParser\Ast\Expr\BindingPipe;
+use trans\JavaParser\Ast\Expr\Chain;
+use trans\JavaParser\Ast\Expr\Conditional;
+use trans\JavaParser\Ast\Expr\FunctionCall;
+use trans\JavaParser\Ast\Expr\ImplicitReceiver;
+use trans\JavaParser\Ast\Expr\Interpolation;
+use trans\JavaParser\Ast\Expr\KeyedRead;
+use trans\JavaParser\Ast\Expr\KeyedWrite;
+use trans\JavaParser\Ast\Expr\LiteralArray;
+use trans\JavaParser\Ast\Expr\LiteralMap;
+use trans\JavaParser\Ast\Expr\LiteralPrimitive;
+use trans\JavaParser\Ast\Expr\MethodCall;
+use trans\JavaParser\Ast\Expr\PrefixNot;
+use trans\JavaParser\Ast\Expr\PropertyRead;
+use trans\JavaParser\Ast\Expr\PropertyWrite;
+use trans\JavaParser\Ast\Expr\Quote;
+use trans\JavaParser\Ast\Expr\SafeMethodCall;
+use trans\JavaParser\Ast\Expr\SafePropertyRead;
 
 class AstTransformer implements AstVisitor
 {

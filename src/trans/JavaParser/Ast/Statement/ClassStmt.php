@@ -1,13 +1,13 @@
 <?php
 
 
-namespace trans\JavaCompiler\Ast\Statement;
+namespace trans\JavaParser\Ast\Statement;
 
 
-use trans\JavaCompiler\Ast\ParseSourceSpan;
-use trans\JavaCompiler\Output\ClassPart\ClassMethod;
-use trans\JavaCompiler\Output\Expression;
-use trans\JavaCompiler\Output\StatementVisitor;
+use trans\JavaParser\Ast\ParseSourceSpan;
+use trans\JavaParser\Output\ClassPart\ClassMethod;
+use trans\JavaParser\Output\Expression;
+use trans\JavaParser\Output\StatementVisitor;
 
 class ClassStmt extends Statement
 {

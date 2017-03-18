@@ -1,18 +1,18 @@
 <?php
 
 
-namespace trans\JavaCompiler\Parser;
+namespace trans\JavaParser\Parser;
 
-use trans\JavaCompiler\Ast\ClassPart\ImportDeclaration;
-use trans\JavaCompiler\Chars;
-use trans\JavaCompiler\Keywords;
+use trans\JavaParser\Ast\ClassPart\ImportDeclaration;
+use trans\JavaParser\Chars;
+use trans\JavaParser\Keywords;
 
 
 /**
  * Class ParseImportDeclaration
  *
  * @mixin ParseAST
- * @package trans\JavaCompiler\Parser
+ * @package trans\JavaParser\Parser
  */
 trait ParseImportDeclaration
 {

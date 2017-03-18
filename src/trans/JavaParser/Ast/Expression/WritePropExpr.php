@@ -1,11 +1,11 @@
 <?php
 
 
-namespace trans\JavaCompiler\Output\Expression;
+namespace trans\JavaParser\Output\Expression;
 
 
-use trans\JavaCompiler\Output\Expression;
-use trans\JavaCompiler\Output\ExpressionVisitor;
+use trans\JavaParser\Output\Expression;
+use trans\JavaParser\Output\ExpressionVisitor;
 
 class WritePropExpr extends Expression
 {

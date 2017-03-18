@@ -1,11 +1,11 @@
 <?php
 
 
-namespace trans\JavaCompiler\Ast\Expr;
+namespace trans\JavaParser\Ast\Expr;
 
 
-use trans\JavaCompiler\Ast\AST;
-use trans\JavaCompiler\Ast\AstVisitor;
+use trans\JavaParser\Ast\AST;
+use trans\JavaParser\Ast\AstVisitor;
 
 
 class ImplicitReceiver extends AST

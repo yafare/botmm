@@ -1,30 +1,30 @@
 <?php
 
 
-namespace trans\JavaCompiler\Ast\Visitor;
+namespace trans\JavaParser\Ast\Visitor;
 
 
-use trans\JavaCompiler\Ast\AST;
-use trans\JavaCompiler\Ast\AstVisitor;
-use trans\JavaCompiler\Ast\Binary;
-use trans\JavaCompiler\Ast\BindingPipe;
-use trans\JavaCompiler\Ast\Chain;
-use trans\JavaCompiler\Ast\Conditional;
-use trans\JavaCompiler\Ast\FunctionCall;
-use trans\JavaCompiler\Ast\ImplicitReceiver;
-use trans\JavaCompiler\Ast\Interpolation;
-use trans\JavaCompiler\Ast\KeyedRead;
-use trans\JavaCompiler\Ast\KeyedWrite;
-use trans\JavaCompiler\Ast\LiteralArray;
-use trans\JavaCompiler\Ast\LiteralMap;
-use trans\JavaCompiler\Ast\LiteralPrimitive;
-use trans\JavaCompiler\Ast\MethodCall;
-use trans\JavaCompiler\Ast\PrefixNot;
-use trans\JavaCompiler\Ast\PropertyRead;
-use trans\JavaCompiler\Ast\PropertyWrite;
-use trans\JavaCompiler\Ast\Quote;
-use trans\JavaCompiler\Ast\SafeMethodCall;
-use trans\JavaCompiler\Ast\SafePropertyRead;
+use trans\JavaParser\Ast\AST;
+use trans\JavaParser\Ast\AstVisitor;
+use trans\JavaParser\Ast\Binary;
+use trans\JavaParser\Ast\BindingPipe;
+use trans\JavaParser\Ast\Chain;
+use trans\JavaParser\Ast\Conditional;
+use trans\JavaParser\Ast\FunctionCall;
+use trans\JavaParser\Ast\ImplicitReceiver;
+use trans\JavaParser\Ast\Interpolation;
+use trans\JavaParser\Ast\KeyedRead;
+use trans\JavaParser\Ast\KeyedWrite;
+use trans\JavaParser\Ast\LiteralArray;
+use trans\JavaParser\Ast\LiteralMap;
+use trans\JavaParser\Ast\LiteralPrimitive;
+use trans\JavaParser\Ast\MethodCall;
+use trans\JavaParser\Ast\PrefixNot;
+use trans\JavaParser\Ast\PropertyRead;
+use trans\JavaParser\Ast\PropertyWrite;
+use trans\JavaParser\Ast\Quote;
+use trans\JavaParser\Ast\SafeMethodCall;
+use trans\JavaParser\Ast\SafePropertyRead;
 
 class RecursiveAstVisitor implements AstVisitor
 {
