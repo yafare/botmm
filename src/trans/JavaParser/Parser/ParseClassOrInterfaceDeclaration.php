@@ -12,6 +12,7 @@ use trans\JavaParser\Ast\Expr\MemberValuePair;
 use trans\JavaParser\Ast\Expr\NormalAnnotationExpr;
 use trans\JavaParser\Ast\Expr\SingleMemberAnnotationExpr;
 use trans\JavaParser\Ast\Modifier;
+use trans\JavaParser\Ast\Statement\BlockStmt;
 use trans\JavaParser\Chars;
 use trans\JavaParser\Keywords;
 use trans\JavaParser\Lexer\Token;
@@ -290,9 +291,13 @@ trait ParseClassOrInterfaceDeclaration
 
     }
 
-    public function parseBlock()
+    public function parseBlock(): AST
     {
-
+        $start = $this->getInputIndex();
+        $this->expectCharacter(Chars::LBRACE);
+        $stmts = $this->parseStatements();
+        $this->expectCharacter(Chars::RBRACE);
+        return new BlockStmt($start, $stmts);
     }
 
 
