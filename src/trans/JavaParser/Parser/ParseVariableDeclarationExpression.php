@@ -13,7 +13,7 @@ use trans\JavaParser\Chars;
  * @mixin ParseAST
  * @package trans\JavaParser\Parser
  */
-class ParseVariableDeclarationExpression extends AST
+trait ParseVariableDeclarationExpression extends AST
 {
     public function parseVariableDeclarationExpression()
     {
@@ -23,9 +23,12 @@ class ParseVariableDeclarationExpression extends AST
         $variables[] = $var;
         while (true) {
             if ($this->optionalCharacter(Chars::STAR)) {
-
+                $var = $this->parseVariableDeclarator($partialType);
+                $variables[] = $var;
             }
+            break;
         }
+        return new VariableDeclarationExpression($span)
 
     }
 

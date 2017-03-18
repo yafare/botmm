@@ -9,9 +9,10 @@
 namespace trans\JavaParser\Ast;
 
 
-use src\trans\JavaParser\Ast\Body\ClassOrInterfaceDeclaration;
 use trans\JavaParser\Ast\Body\AnnotationDeclaration;
+use trans\JavaParser\Ast\Body\ClassOrInterfaceDeclaration;
 use trans\JavaParser\Ast\Body\FieldDeclaration;
+use trans\JavaParser\Ast\ClassPart\CompilationUnit;
 use trans\JavaParser\Ast\ClassPart\ImportDeclaration;
 use trans\JavaParser\Ast\ClassPart\PackageDeclaration;
 use trans\JavaParser\Ast\Expr\Binary;
@@ -39,7 +40,12 @@ use trans\JavaParser\Ast\Expr\SafeMethodCall;
 use trans\JavaParser\Ast\Expr\SafePropertyRead;
 use trans\JavaParser\Ast\Expr\SimpleName;
 use trans\JavaParser\Ast\Expr\SingleMemberAnnotationExpr;
-use trans\JavaParser\Parser\CompilationUnit;
+use trans\JavaParser\Ast\Expr\StringLiteralExpr;
+use trans\JavaParser\Ast\Expr\SuperExpr;
+use trans\JavaParser\Ast\Expr\ThisExpr;
+use trans\JavaParser\Ast\Expr\TypeExpr;
+use trans\JavaParser\Ast\Expr\UnaryExpr;
+use trans\JavaParser\Ast\Expr\VariableDeclarationExpr;
 
 interface AstVisitor
 {
@@ -104,4 +110,16 @@ interface AstVisitor
     public function visitCompilationUnit(CompilationUnit $ast, $context);
 
     public function visitClassOrInterfaceDeclaration(ClassOrInterfaceDeclaration $ast, $context);
+
+    public function visitStringLiteralExpr(StringLiteralExpr $ast, $context);
+
+    public function visitSuperExpr(SuperExpr $ast, $context);
+
+    public function visitThisExpr(ThisExpr $ast, $context);
+
+    public function visitTypeExpr(TypeExpr $ast, $context);
+
+    public function visitUnaryExpr(UnaryExpr $ast, $context);
+
+    public function visitVariableDeclarationExpr(VariableDeclarationExpr $ast, $context);
 }
