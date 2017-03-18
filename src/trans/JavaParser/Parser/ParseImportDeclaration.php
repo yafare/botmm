@@ -18,11 +18,12 @@ trait ParseImportDeclaration
 {
     public function parseImportDeclaration()
     {
+        $start = $this->getInputIndex();
+
         $isStatic   = false;
         $isAsterisk = false;
 
         $this->expectKeyword(Keywords::_IMPORT_);
-        $start = $this->getInputIndex();
         $n     = $this->getNext();
         if ($n->isKeyword() && $n->isKeywordStatic()) {
             $this->advance();
@@ -37,7 +38,9 @@ trait ParseImportDeclaration
         $this->expectCharacter(Chars::SEMICOLON);
 
 
+
         return new ImportDeclaration($this->span($start), $name, $isStatic, $isAsterisk);
+
     }
 
 }

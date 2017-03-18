@@ -27,10 +27,10 @@ class Chars
     public const PLUS      = 43;
     public const COMMA     = 44;
     public const MINUS     = 45;
-    public const PERIOD    = 46;
-    public const SLASH     = 47;
-    public const COLON     = 58;
-    public const SEMICOLON = 59;
+    public const PERIOD    = 46; // .
+    public const SLASH     = 47; // /
+    public const COLON     = 58; // :
+    public const SEMICOLON = 59; // ;
     public const LT        = 60;
     public const EQ        = 61;
     public const GT        = 62;

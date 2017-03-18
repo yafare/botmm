@@ -142,11 +142,11 @@ trait ParseType
         return $ret;
     }
 
-    public function parseReferenceType()
-    {
-        if()
-
-    }
+//    public function parseReferenceType()
+//    {
+////        if()
+//
+//    }
 
     public function parseWildcard()
     {
