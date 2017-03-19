@@ -4,7 +4,7 @@
 namespace trans\JavaParser\Ast;
 
 
-class AST
+abstract class AST
 {
     /**
      * @var ParseSpan

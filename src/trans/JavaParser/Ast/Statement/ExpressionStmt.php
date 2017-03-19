@@ -14,7 +14,7 @@ class ExpressionStmt extends Statement
 
     public function __construct(Expression $expr, ParseSourceSpan $sourceSpan)
     {
-        parent::__construct(null, $sourceSpan);
+        parent::__construct($sourceSpan, null);
         $this->expr = $expr;
     }
 

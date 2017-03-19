@@ -19,7 +19,7 @@ class DeclareFunctionStmt extends Statement
         string $name, array $params, array $statements,
         Type $type = null, array $modifiers = null, ParseSourceSpan $sourceSpan)
     {
-        parent::__construct($modifiers, $sourceSpan);
+        parent::__construct($sourceSpan, $modifiers);
         $this->name=$name;
         $this->params=$params;
         $this->statements=$statements;

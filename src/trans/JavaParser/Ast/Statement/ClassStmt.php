@@ -28,7 +28,7 @@ class ClassStmt extends Statement
         $modifiers = null,
         ParseSourceSpan $sourceSpan
     ) {
-        parent::__construct($modifiers, $sourceSpan);
+        parent::__construct($sourceSpan, $modifiers);
         $this->name              = $name;
         $this->parent            = $parent;
         $this->fields            = $fields;

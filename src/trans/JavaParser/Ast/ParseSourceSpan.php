@@ -4,6 +4,8 @@
 namespace trans\JavaParser\Ast;
 
 
+use trans\JavaParser\Wrapper\StringWrapper;
+
 class ParseSourceSpan
 {
     /**
@@ -31,6 +33,6 @@ class ParseSourceSpan
 
     public function toString(): string
     {
-        return StringWrapper:: substring($this->start->file->content, $this->start->offset, $this->end->offset);
+        return StringWrapper::substring($this->start->file->content, $this->start->offset, $this->end->offset);
     }
 }

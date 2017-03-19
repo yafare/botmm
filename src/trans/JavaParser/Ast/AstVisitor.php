@@ -46,6 +46,9 @@ use trans\JavaParser\Ast\Expr\ThisExpr;
 use trans\JavaParser\Ast\Expr\TypeExpr;
 use trans\JavaParser\Ast\Expr\UnaryExpr;
 use trans\JavaParser\Ast\Expr\VariableDeclarationExpr;
+use trans\JavaParser\Ast\Type\ArrayBracketPair;
+use trans\JavaParser\Ast\Type\ClassOrInterfaceType;
+use trans\JavaParser\Ast\Type\ReferenceType;
 
 interface AstVisitor
 {
@@ -122,4 +125,12 @@ interface AstVisitor
     public function visitUnaryExpr(UnaryExpr $ast, $context);
 
     public function visitVariableDeclarationExpr(VariableDeclarationExpr $ast, $context);
+
+    public function visitAstList(AstList $ast, $context);
+
+    public function visitArrayBracketPair(ArrayBracketPair $ast, $context);
+
+    public function visitClassOrInterfaceType(ClassOrInterfaceType $ast, $context);
+
+    public function visitReferenceType(ReferenceType $ast, $context);
 }

@@ -5,6 +5,8 @@ namespace trans\JavaParser\Parser;
 
 use trans\JavaParser\Ast\Expr\LiteralPrimitive;
 use trans\JavaParser\Ast\PrimitiveType;
+use trans\JavaParser\Ast\Type\ArrayBracketPair;
+use trans\JavaParser\Ast\Type\ArrayType;
 use trans\JavaParser\Chars;
 
 
@@ -19,12 +21,45 @@ trait ParseType
 
     public function parseType()
     {
+        if (
+            $this->getNext()->isKeyword()
+            && $this->peek(1)->isCharacter(Chars::LBRACKET)
+        ) {
+            return $this->parseReferenceType();
+        } else {
+            return $this->parsePrimitiveType();
+        }
+    }
+
+    public function parsePrimitiveType()
+    {
+        $start = $this->getInputIndex();
+        $n     = $this->getNext();
+        if ($n->isKeywordBoolean()) {
+            return new PrimitiveType($this->span($start), PrimitiveType::BOOLEAN);
+        } elseif ($n->isKeywordChar()) {
+            return new PrimitiveType($this->span($start), PrimitiveType::CHAR);
+        } elseif ($n->isKeywordByte()) {
+            return new PrimitiveType($this->span($start), PrimitiveType::BYTE);
+        } elseif ($n->isKeywordShort()) {
+            return new PrimitiveType($this->span($start), PrimitiveType::SHORT);
+        } elseif ($n->isKeywordInt()) {
+            return new PrimitiveType($this->span($start), PrimitiveType::INT);
+        } elseif ($n->isKeywordLong()) {
+            return new PrimitiveType($this->span($start), PrimitiveType::LONG);
+        } elseif ($n->isKeywordFloat()) {
+            return new PrimitiveType($this->span($start), PrimitiveType::FLOAT);
+        } elseif ($n->isKeywordDouble()) {
+            return new PrimitiveType($this->span($start), PrimitiveType::DOUBLE);
+        }
 
     }
 
     public function parseReferenceType()
     {
-        $n = $this->getNext();
+        $start             = $this->getInputIndex();
+        $n                 = $this->getNext();
+        $arrayBracketPairs = [];
         if ($n->isKeywordBoolean()
             || $n->iskeywordByte()
             || $n->iskeywordChar()
@@ -35,7 +70,31 @@ trait ParseType
             || $n->iskeywordShort()
         ) {
             $type = $this->parsePrimary();
+        } elseif ($this->getNext()->isIdentifier()) {
+            $type = $this->parseClassOrInterfaceType();
+        } else {
+            throw new \Exception('parse error');
         }
+        while (true) {
+            $arrayBracketPairs[] = $this->parseArrayBracketPair();
+            if ($this->getNext()->isCharacter(Chars::LBRACKET)
+                || $this->getNext()->isCharacter(Chars::AT)
+            ) {
+
+            } else {
+                break;
+            }
+        }
+        return $this->wrapInArrayTypes($type, $arrayBracketPairs);
+    }
+
+    public function parseArrayBracketPair()
+    {
+        $start       = $this->getInputIndex();
+        $annotations = $this->parseAnnotations();
+        $this->expectCharacter(Chars::LBRACKET);
+        $this->expectCharacter(Chars::RBRACKET);
+        return new ArrayBracketPair($this->span($start), $annotations);
     }
 
     public function parsePrimaryType()

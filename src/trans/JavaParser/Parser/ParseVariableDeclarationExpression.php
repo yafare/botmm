@@ -4,7 +4,7 @@
 namespace trans\JavaParser\Parser;
 
 
-use trans\JavaParser\Ast\AST;
+use trans\JavaParser\Ast\Expr\VariableDeclarationExpr;
 use trans\JavaParser\Chars;
 
 /**
@@ -13,22 +13,35 @@ use trans\JavaParser\Chars;
  * @mixin ParseAST
  * @package trans\JavaParser\Parser
  */
-trait ParseVariableDeclarationExpression extends AST
+trait ParseVariableDeclarationExpression
 {
     public function parseVariableDeclarationExpression()
     {
+        $start       = $this->getInputIndex();
         $modifier    = $this->getModifier();
         $partialType = $this->parseType();
         $var         = $this->parseVariableDeclarator($partialType);
         $variables[] = $var;
         while (true) {
-            if ($this->optionalCharacter(Chars::STAR)) {
-                $var = $this->parseVariableDeclarator($partialType);
+            if ($this->optionalCharacter(Chars::COMMA)) {
+                $var         = $this->parseVariableDeclarator($partialType);
                 $variables[] = $var;
             }
             break;
         }
-        return new VariableDeclarationExpression($span)
+        return new VariableDeclarationExpr(
+            $this->span($start),
+            $modifier['modifiers'],
+            $modifier['annotations'],
+            $variables
+        );
+
+    }
+
+    public function parseVariableDeclarator($partialType)
+    {
+
+
 
     }
 

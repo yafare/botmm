@@ -4,6 +4,7 @@
 namespace trans\JavaParser\Output;
 
 
+use trans\JavaParser\Ast\AstVisitor;
 use trans\JavaParser\Ast\Statement\AssertStmt;
 use trans\JavaParser\Ast\Statement\BlockStmt;
 use trans\JavaParser\Ast\Statement\BreakStmt;
@@ -29,7 +30,7 @@ use trans\JavaParser\Ast\Statement\ThrowStmt;
 use trans\JavaParser\Ast\Statement\TryCatchStmt;
 use trans\JavaParser\Ast\Statement\WhileStmt;
 
-interface StatementVisitor
+interface StatementVisitor extends AstVisitor
 {
     public function visitDeclareVarStmt(DeclareVarStmt $stmt, $context);
 

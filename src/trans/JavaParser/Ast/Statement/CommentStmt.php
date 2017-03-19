@@ -13,7 +13,7 @@ class CommentStmt extends Statement
 
     public function __construct(string $comment, ParseSourceSpan $sourceSpan)
     {
-        parent::__construct(null, $sourceSpan);
+        parent::__construct($sourceSpan, null);
         $this->comment = $comment;
     }
 

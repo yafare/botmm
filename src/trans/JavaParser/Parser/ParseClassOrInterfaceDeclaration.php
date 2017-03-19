@@ -3,6 +3,7 @@
 
 namespace trans\JavaParser\Parser;
 
+use trans\JavaParser\Ast\AstList;
 use trans\JavaParser\Ast\Body\ClassOrInterfaceDeclaration;
 use trans\JavaParser\Ast\AST;
 use trans\JavaParser\Ast\Expr\EmptyExpr;
@@ -13,6 +14,7 @@ use trans\JavaParser\Ast\Expr\NormalAnnotationExpr;
 use trans\JavaParser\Ast\Expr\SingleMemberAnnotationExpr;
 use trans\JavaParser\Ast\Modifier;
 use trans\JavaParser\Ast\Statement\BlockStmt;
+use trans\JavaParser\Ast\Type\ClassOrInterfaceType;
 use trans\JavaParser\Chars;
 use trans\JavaParser\Keywords;
 use trans\JavaParser\Lexer\Token;
@@ -116,7 +118,7 @@ trait ParseClassOrInterfaceDeclaration
             }
         }
 
-        return ['modifier' => $modifier, 'annotations' => $annotations];
+        return ['modifiers' => $modifier, 'annotations' => $annotations];
     }
 
     public function parseAnnotations()
@@ -130,7 +132,7 @@ trait ParseClassOrInterfaceDeclaration
                 break;
             }
         }
-        return new LiteralArray($this->span($start), $annotations);
+        return new AstList($this->span($start), $annotations);
     }
 
     public function parseAnnotation()
@@ -324,11 +326,29 @@ trait ParseClassOrInterfaceDeclaration
 
     public function parseClassOrInterfaceType()
     {
-        $start = $this->getInputIndex();
-        $name  = $this->parseSimpleName();
+        $start    = $this->getInputIndex();
+        $name     = $this->parseSimpleName();
+        $typeArgs = [];
         if ($this->optionalCharacter(Chars::LT)) {
             $typeArgs = $this->getTypeArguments();
         }
+        $ret = new ClassOrInterfaceType($this->span($start), null, $name, $typeArgs);
+
+        while (true) {
+            if ($this->optionalCharacter(Chars::PERIOD)) {
+                $annotations = $this->parseAnnotations();
+                $name        = $this->parseSimpleName();
+                if ($this->optionalCharacter(Chars::LT)) {
+                    $typeArgs = $this->getTypeArguments();
+                }
+                $ret = new ClassOrInterfaceType($this->span($start), $ret, $name, $typeArgs);
+                $ret->setAnnotations($annotations);
+                $annotations = null;
+            } else {
+                break;
+            }
+        }
+        return $ret;
 
     }
 }

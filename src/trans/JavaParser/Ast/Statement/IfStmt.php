@@ -20,7 +20,7 @@ class IfStmt extends Statement
         array $falseCase = [],
         ParseSourceSpan $sourceSpan
     ) {
-        parent::__construct(null, $sourceSpan);
+        parent::__construct($sourceSpan, null);
         $this->condition = $condition;
         $this->trueCase  = $trueCase;
         $this->falseCase = $falseCase;

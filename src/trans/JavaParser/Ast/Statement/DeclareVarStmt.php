@@ -19,7 +19,7 @@ class DeclareVarStmt extends Statement
         string $name, Expression $value, Type $type = null,
         array $modifiers = null, ParseSourceSpan $sourceSpan)
     {
-        parent::__construct($modifiers, $sourceSpan);
+        parent::__construct($sourceSpan, $modifiers);
         $this->type = isset($type) ? $type : $value->type;
         $this->name = $name;
         $this->value = $value;

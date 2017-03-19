@@ -14,7 +14,7 @@ class ThrowStmt extends Statement
 
     public function __construct(Expression $error, ParseSourceSpan $sourceSpan)
     {
-        parent::__construct(null, $sourceSpan);
+        parent::__construct($sourceSpan, null);
         $this->error = $error;
     }
 

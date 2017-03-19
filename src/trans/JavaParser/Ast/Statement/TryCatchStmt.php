@@ -17,7 +17,7 @@ class TryCatchStmt extends Statement
         array $catchStmts,
         ParseSourceSpan $sourceSpan
     ) {
-        parent::__construct(null, $sourceSpan);
+        parent::__construct($sourceSpan, null);
         $this->bodyStmts  = $bodyStmts;
         $this->catchStmts = $catchStmts;
     }

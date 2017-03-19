@@ -14,7 +14,7 @@ class ReturnStatement extends Statement
 
     public function __construct(Expression $value, ParseSourceSpan $sourceSpan)
     {
-        parent::__construct(null, $sourceSpan);
+        parent::__construct($sourceSpan, null);
         $this->value=$value;
     }
 
