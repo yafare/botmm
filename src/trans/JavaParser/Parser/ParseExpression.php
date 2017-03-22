@@ -91,12 +91,8 @@ trait ParseExpression
 
     }
 
-    public function parsePrimaryExpression()
+    public function parsePrimaryPrefix()
     {
-       $ret = $this->parsePrimaryPrefix();
-       while (true) {
-           switch ()
-       }
 
     }
 
@@ -120,7 +116,24 @@ trait ParseExpression
 
     public function parsePrimaryExpression()
     {
+        if (
+            $this->getNext()->isCharacter(Chars::PLUS)
+            && $this->peek(1)->isCharacter(Chars::PLUS)
+        ) {
+            $this->advance();
+            $this->advance();
 
+        } elseif (
+            $this->getNext()->isCharacter(Chars::MINUS)
+            && $this->peek(1)->isCharacter(Chars::MINUS)
+        ) {
+            $this->advance();
+            $this->advance();
+        }
+
+        throw new \Exception('not finish yet');
+
+        return new UnaryExpr($this->span($start), $string)
     }
 
 
