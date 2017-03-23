@@ -1,3 +1,8 @@
+botmm_platform:
+    resource: "@botmmPlatformBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
 botmm_tars:
     resource: "@botmmTarsBundle/Resources/config/routing.php"
     prefix:   /

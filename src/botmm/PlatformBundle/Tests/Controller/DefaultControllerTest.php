@@ -1,6 +1,6 @@
 <?php
 
-namespace wx\WxBundle\Tests\Controller;
+namespace botmm\PlatformBundle\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
