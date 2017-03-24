@@ -1,7 +1,7 @@
 <?php
 
 
-namespace botmm\TarsBundle\Protocol\Tars;
+namespace botmm\Tars\Protocol\Tars;
 
 
 class TarsOutputStreamEx

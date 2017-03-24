@@ -9,7 +9,7 @@ class QqInfo
 {
 
     public $Account;        // 文本型       qq
-    public $QQ;             // 长整数型     qq 10
+    public $QQ;             // 文本型     qq 10
     public $uin;            // 64位
     public $ksid;           // 字节集
     public $user;           // 字节集       qq_hex
@@ -62,7 +62,10 @@ class QqInfo
 
         $this->randKey  = Hex::HexStringToBin("22 36 10 B9 E9 07 A9 16 5A 6D 38 8E AE 3C 77 48");
         $this->pubKey   = Hex::HexStringToBin("03 4B 6B 9F 22 CE C8 67 83 97 87 AA 32 06 7A E2 B3 BD 9D 57 8F 20 97 6D B4");
-        $this->shareKey = Hex::HexStringToBin("95 7C 3A AF BF 6F AF 1D 2C 2F 19 A5 EA 04 E5 1C");
+        $this->shareKey = Hex::HexStringToBin("7d 1f fc 96 23 9d 17 a2 36 f1 22 d2 b4 97 a3 00");
+        //$this->shareKey = Hex::HexStringToBin("95 7C 3A AF BF 6F AF 1D 2C 2F 19 A5 EA 04 E5 1C");
+
+        $this->key      = Hex::HexStringToBin("00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00");
     }
 
 

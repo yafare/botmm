@@ -24,7 +24,12 @@ $container->addDefinitions(
             (new Definition('botmm\GradeeBundle\Oicq\Pack\LoginPack'))
                 ->addArgument(new Reference('botmm_platform.platform_info'))
                 ->addArgument(new Reference('botmm_platform.qq_info'))
-                ->addMethodCall('setContainer', [new Reference('service_container')])
+                ->addMethodCall('setContainer', [new Reference('service_container')]),
+        'botmm_gradee.pack.make_login_send_sso_msg' =>
+            (new Definition('botmm\GradeeBundle\Oicq\Pack\MakeLoginSendSsoMsg'))
+                ->addArgument(new Reference('botmm_platform.platform_info'))
+                ->addArgument(new Reference('botmm_platform.qq_info'))
+
     ]
 );
 

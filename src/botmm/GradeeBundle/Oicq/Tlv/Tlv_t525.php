@@ -14,14 +14,16 @@ class Tlv_t525 extends Tlv_t
         $this->_cmd = 0x525;
     }
 
-    public function get_tlv_525($tlv522)
+    public function get_tlv_525($tlv522List)
     {
         $body = new Buffer();
-        $p    = 1;
-        $body->writeInt16BE(1, $p);//tlv数量
+        $p    = 0;
+        $body->writeInt16BE(count($tlv522List), $p);//tlv数量
         $p += 2;
-        $body->write($tlv522, $p);
-        $p += strlen($tlv522);
+        foreach ($tlv522List as $tlv522) {
+            $body->write($tlv522, $p);
+            $p += strlen($tlv522);
+        }
         $this->fill_head($this->_cmd);
         $this->fill_body($body, $p);
         $this->set_length();

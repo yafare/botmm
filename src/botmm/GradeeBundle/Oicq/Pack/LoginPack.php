@@ -25,6 +25,8 @@ class LoginPack
 
     public $written = 0;
 
+    public $cmd = 0x0810;
+
     /**
      * @var PlatformInfo
      */
@@ -34,9 +36,13 @@ class LoginPack
      */
     public $qq;
 
+
+    public $ssoSeq;
+
     public function __construct($platformInfo, $qq)
     {
         $this->platformInfo = $platformInfo;
+        $this->ssoSeq = $this->platformInfo->runtime->getSsoSeq();
         $this->qq           = $qq;
 
         $this->buffer = new Buffer(32);
@@ -46,7 +52,16 @@ class LoginPack
     {
         $this->qq->time = time();
 
-        return $this->startPack();
+        $wupBuffer = $this->startPack();
+
+        $sendSsoMsg = $this->container->get('botmm_gradee.pack.make_login_send_sso_msg');
+
+        $msg = $sendSsoMsg->pack(
+            $wupBuffer,
+            ""
+        );
+
+        return $msg;
     }
 
     public function startPack()
@@ -88,7 +103,7 @@ class LoginPack
                                            $this->qq->shareKey
         );
 
-        $packed = $this->oicqRequestBuffer(0x0810,
+        $packed = $this->oicqRequestBuffer($this->cmd,
                                            $encrypt,
                                            $this->qq->randKey,
                                            $this->qq->pubKey);
@@ -105,7 +120,7 @@ class LoginPack
         //step04
         $pack->writeInt16BE($cmd);
         //step05
-        $pack->writeInt16BE($subcmd++);//sequence
+        $pack->writeInt16BE(++$subcmd);//sequence
         //step06
         $pack->writeInt32BE($this->qq->uin);
         /**
@@ -154,6 +169,7 @@ class LoginPack
         return $finalBuffer->read(0, $finalBuffer_len);
     }
 
+    //mark important
     public function get_tlv144()
     {
         $tlv109 = $this->get_tlv109();
@@ -193,7 +209,7 @@ class LoginPack
             $this->platformInfo->runtime->subAppId,
             $this->platformInfo->runtime->clientVersion,
             $this->qq->uin,
-            $this->platformInfo->runtime->initTime,
+            time(),
             $this->platformInfo->network->clientIp,
             $this->platformInfo->runtime->sevePwd,
             $this->qq->md5,
@@ -251,7 +267,7 @@ class LoginPack
     {
         $tlv = $this->container->get('tlv.t109');
         return $tlv->get_tlv_109(
-            $this->platformInfo->android->imei
+            $this->platformInfo->android->android_device_mac_hash
         );
     }
 
@@ -277,7 +293,7 @@ class LoginPack
             $this->platformInfo->runtime->guidchg,//00
             $this->platformInfo->runtime->dev_report,//10 00 00 00 _dev_report
             $this->platformInfo->android->deviceType, //MI 4LTE  _device
-            $this->platformInfo->android->imei, //d1 61 60 d5 b3 56 a0 a5 4f b9 93 24 a3 63 28 6b
+            $this->platformInfo->android->android_device_mac_hash, //d1 61 60 d5 b3 56 a0 a5 4f b9 93 24 a3 63 28 6b
             $this->platformInfo->android->deviceName//XiaoMi
         );
     }
@@ -380,7 +396,7 @@ class LoginPack
     {
         $tlv = $this->container->get('tlv.t154');
         return $tlv->get_tlv_154(
-            $this->platformInfo->runtime->ssoSeq
+            $this->ssoSeq
         );
     }
 
@@ -428,8 +444,10 @@ class LoginPack
     private function get_tlv525()
     {
         $tlv = $this->container->get('tlv.t525');
+        $list = [];
+        //$list[] = $this->get_tlv522();
         return $tlv->get_tlv_525(
-            $this->get_tlv522()
+            $list
         );
     }
 

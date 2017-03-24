@@ -23,7 +23,7 @@ class LoginPackController extends Controller
 
         $data = $loginPack->pack();
 
-        //return new Response(Hex::BinToHexString($data));
+        return new Response(Hex::BinToHexString($data));
 
 
 

@@ -21,13 +21,13 @@ class Runtime
     //public $macHash = "a3 13 8a 8d d1 7e e1 a5 84 63 d7 56 83 18 0e 87";         // 文本型
 
     //服务器时间
-    public $initTime;
+    //public $initTime;
     public $clientIp = 0x00000000;
     public $sevePwd  = 1;
     public $appid    = 0x00000010;
     public $wxAppId  = 0x2002ba7a;
     //5.8 "c5 91 b0 f2 d4 51 bb 9a 5a 70 49 bf 3d 50 6e 1f"
-    public $ksid     = "﻿93 AC 68 93 96 D5 7E 5F 94 96 B8 15 36 AA FE 91";
+    public $ksid = "﻿93 AC 68 93 96 D5 7E 5F 94 96 B8 15 36 AA FE 91";
 
     //是否第一次安装apk
     public $newinstall = 0;
@@ -54,13 +54,13 @@ class Runtime
     public $local_id = 0x00000804;
 
     //协议服务器时间
-    public $time = 0x586352B2; //58 63 52 B2 //固定 [时间：2016-12-28 13:50:42]
+    public $time    = 0x586352B2; //58 63 52 B2 //固定 [时间：2016-12-28 13:50:42]
     public $version = "6.3.1.1993";
 
     //md5('A0999B095FFF0000') md5(Android Device ID)
     //public $android_id = "90 06 af 4d 14 8c 18 22 88 1f 7e fe 8e 6d f2 39";
 
-    public $requestId;//10000++
+    public $requestId = 10000;//10000++
 
     public $ssoVer = Util::SSO_VERSION;
 
@@ -68,11 +68,12 @@ class Runtime
      * 大于1000000时重置
      * 每次请求+1, 服务端返回ssoseq
      * 重置时初始值在[60000,160000]之间
-     *
+     * 0x00016a91;
      * @var int
      */
-    public $ssoSeq      = 0x00016a91;
-    public $userDomains = [
+    public $ssoSeq       = 60000;
+
+    public $userDomains  = [
         "tenpay.com",
         "qzone.qq.com",
         "qun.qq.com",
@@ -82,7 +83,28 @@ class Runtime
         "game.qq.com"
     ];
     public $source_type  = 0x00000000;
+
     public $product_type = 0x00000000;
 
+    public function getRequestId()
+    {
+        if ($this->requestId > 100000000) {
+            $this->requestId = 10000;
+        }
+        return ++$this->requestId;
+    }
 
+    public function getSsoSeq()
+    {
+        if ($this->ssoSeq > 1000000) {
+            $this->ssoSeq = 60000;
+        }
+        return ++$this->ssoSeq;
+    }
+
+    //public function getInitTime()
+    //{
+    //    $this->initTime = time();
+    //    return time();
+    //}
 }

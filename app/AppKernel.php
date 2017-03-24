@@ -17,12 +17,13 @@ class AppKernel extends Kernel
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new AppBundle\AppBundle(),
 
+            new Jogaram\ReactPHPBundle\JogaramReactPHPBundle(),
+
             new botmm\ClientBundle\botmmClientBundle(),
             new botmm\ServerBundle\botmmServerBundle(),
             new botmm\BufferBundle\botmmBufferBundle(),
             new botmm\GradeeBundle\botmmGradeeBundle(),
             new test\Test001Bundle\testTest001Bundle(),
-            new botmm\TarsBundle\botmmTarsBundle(),
             //Platform
             new botmm\PlatformBundle\botmmPlatformBundle(),
         ];
