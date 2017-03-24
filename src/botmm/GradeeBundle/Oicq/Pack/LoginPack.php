@@ -110,7 +110,7 @@ class LoginPack
         $pack->writeInt32BE($this->qq->uin);
         /**
          * $pack->writeInt8("03");
-         * $pack->writeInt8("00");
+         * $pack->writeInt8("00"); 87 //4.5=0x00; 4.7=0x07; 6.6.9=0x87或0x45
          * $pack->writeInt8($retry);
          * $pack->writeInt32BE($type);
          * $pack->writeInt32BE($no);
@@ -118,7 +118,7 @@ class LoginPack
          */
         $pack->write(Hex::HexStringToBin("
         03 
-        07 
+        87 
         00 
         00 00 00 02 
         00 00 00 00 
