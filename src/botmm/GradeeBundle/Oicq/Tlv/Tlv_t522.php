@@ -28,7 +28,7 @@ class Tlv_t522 extends Tlv_t
         $body->write($buffer, $bufferLen);
 
         $this->fill_head($this->_cmd);
-        $this->fill_body($body, $body->getLength());
+        $this->fill_body($body->getBytes(), $body->getLength());
         $this->set_length();
         return $this->get_buf();
     }

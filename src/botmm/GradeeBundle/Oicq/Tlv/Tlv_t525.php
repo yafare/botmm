@@ -16,8 +16,8 @@ class Tlv_t525 extends Tlv_t
 
     public function get_tlv_525($tlv522)
     {
-        $body = new Buffer(6);
-        $p    = 0;
+        $body = new Buffer();
+        $p    = 1;
         $body->writeInt16BE(1, $p);//tlv数量
         $p += 2;
         $body->write($tlv522, $p);

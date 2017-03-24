@@ -19,3 +19,7 @@ $container->setDefinition(
 );
 
 */
+
+$container->set('botmm.client.swoole_socket_connect_event', new Definition(
+    'botmm\ClientBundle\Event\SwooleSocketConnectEvent'
+));

@@ -20,6 +20,17 @@ $container->addDefinitions(
 
 $container->addDefinitions(
     [
+        'botmm_gradee.pack.login' =>
+            (new Definition('botmm\GradeeBundle\Oicq\Pack\LoginPack'))
+                ->addArgument(new Reference('botmm_platform.platform_info'))
+                ->addArgument(new Reference('botmm_platform.qq_info'))
+                ->addMethodCall('setContainer', [new Reference('service_container')])
+    ]
+);
+
+
+$container->addDefinitions(
+    [
         'tlv.t1'   => new Definition('botmm\GradeeBundle\Oicq\Tlv\Tlv_t1'),
         'tlv.t2'   => new Definition('botmm\GradeeBundle\Oicq\Tlv\Tlv_t2'),
         'tlv.t8'   => new Definition('botmm\GradeeBundle\Oicq\Tlv\Tlv_t8'),

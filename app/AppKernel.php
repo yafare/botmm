@@ -23,6 +23,7 @@ class AppKernel extends Kernel
             new botmm\GradeeBundle\botmmGradeeBundle(),
             new test\Test001Bundle\testTest001Bundle(),
             new botmm\TarsBundle\botmmTarsBundle(),
+            //Platform
             new botmm\PlatformBundle\botmmPlatformBundle(),
         ];
 

@@ -73,7 +73,7 @@ class Buffer
             {
                 $string = $string->read(0, $length);
             }
-        } elseif ($length == null) {
+        } elseif ($length === null) {
             $length = strlen($string);
         }
         $this->insert('a' . $length, $string, $offset, $length);

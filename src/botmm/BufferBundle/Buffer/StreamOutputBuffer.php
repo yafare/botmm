@@ -37,7 +37,7 @@ class StreamOutputBuffer
     public function write($string, $length = null)
     {
         if (is_string($string)) {
-            if ($length == null) {
+            if ($length === null) {
                 $length = strlen($string);
             }
         } elseif ($string instanceof self) {
