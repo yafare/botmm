@@ -22,6 +22,17 @@ class LoginPackController extends Controller
 {
 
     /**
+     * @Route("/loginpacksimple")
+     */
+    public function indexSimple()
+    {
+        $loginPack = $this->get('botmm_gradee.pack.login');
+
+        $data = $loginPack->pack(true);
+        return new Response(Hex::BinToHexString($data));
+    }
+
+    /**
      * @Route("/loginpack")
      */
     public function index()

@@ -45,13 +45,15 @@ class MakeLoginSendSsoMsg
 
         $stream = new StreamOutputBuffer(new Buffer());
         $qq     = $this->qq->QQ;
-        $stream->writeInt32BE(4 + 16 + 2 + strlen($qq) + strlen($encrypt));
+        $stream->writeInt32BE(4 + 10 + 4 + strlen($qq) + strlen($encrypt));
         $stream->writeHex("00 00 00 0A 02 00 00 00 04 00");
+        //$stream->writeHex("00 00 00 0B 02 00 00 82 97 00"); //sendSsoMsgSimple
         $stream->writeInt32BE(strlen($qq) + 4);
         $stream->write($qq, strlen($qq));
         $stream->write($encrypt);
         return $stream->getBytes();
     }
+
 
     public function sendSsoMsg(
         $serviceCmd,
@@ -101,4 +103,52 @@ class MakeLoginSendSsoMsg
         return $encrypt;
         //return $isLogin ? $encrypt . hex2bin("00") : $encrypt . hex2bin("01");
     }
+
+    public function packSimple($wupBuffer, $extBin)
+    {
+        $encrypt = $this->sendSsoMsgSimple(
+            $this->serviceCmd,
+            $wupBuffer,
+            $extBin
+        );
+
+        $stream = new StreamOutputBuffer(new Buffer());
+        $qq     = $this->qq->QQ;
+        $stream->writeInt32BE(4 + 10 + 4 + strlen($qq) + strlen($encrypt));
+        //$stream->writeHex("00 00 00 0A 02 00 00 00 04 00");
+        $stream->writeHex("00 00 00 0B 02 00 00 82 97 00"); //sendSsoMsgSimple
+        $stream->writeInt32BE(strlen($qq) + 4);
+        $stream->write($qq, strlen($qq));
+        $stream->write($encrypt);
+        return $stream->getBytes();
+    }
+
+
+    public function sendSsoMsgSimple(
+        $serviceCmd,
+        $wupBuffer,
+        $extBin
+    ) {
+        $msgCookie = Hex::HexStringToBin("B6 CC 78 FC");
+
+        $pack = new StreamOutputBuffer(new Buffer());
+        $pack->writeInt32BE(
+            4 + 4 + 4 + 4 + 12 +
+            4 + strlen($extBin) +
+            4 + strlen($serviceCmd) +
+            4 + strlen($msgCookie)
+        );
+        $pack->writeInt32BE(strlen($serviceCmd) + 4);
+        $pack->write($serviceCmd);
+        $pack->writeInt32BE(strlen($msgCookie) + 4);
+        $pack->write($msgCookie);
+        $pack->writeInt32BE(strlen($extBin) + 4);
+        $pack->write($extBin, strlen($extBin));
+
+        $pack->writeInt32BE(strlen($wupBuffer) + 4);
+        $pack->write($wupBuffer);
+        $encrypt = Cryptor::encrypt($pack->getBytes(), 0, $pack->getLength(), $this->qq->key);
+        return $encrypt;
+    }
+
 }

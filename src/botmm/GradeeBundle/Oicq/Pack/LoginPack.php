@@ -48,7 +48,7 @@ class LoginPack
         $this->buffer = new Buffer(32);
     }
 
-    public function pack()
+    public function pack($simple = false)
     {
         $this->qq->time = time();
 
@@ -56,10 +56,17 @@ class LoginPack
 
         $sendSsoMsg = $this->container->get('botmm_gradee.pack.make_login_send_sso_msg');
 
-        $msg = $sendSsoMsg->pack(
-            $wupBuffer,
-            ""
-        );
+        if(!$simple) {
+            $msg = $sendSsoMsg->pack(
+                $wupBuffer,
+                ""
+            );
+        }else{
+            $msg = $sendSsoMsg->packSimple(
+                $wupBuffer,
+                ""
+            );
+        }
 
         return $msg;
     }
