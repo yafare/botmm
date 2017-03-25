@@ -7,6 +7,7 @@ namespace botmm\GradeeBundle\Oicq\Pack;
 use botmm\BufferBundle\Buffer\Buffer;
 use botmm\BufferBundle\Buffer\StreamOutputBuffer;
 use botmm\GradeeBundle\Oicq\Cypher\Cryptor;
+use botmm\GradeeBundle\Oicq\Tools\Hex;
 use botmm\PlatformBundle\PlatformInfo\PlatformInfo;
 use botmm\PlatformBundle\PlatformInfo\QqInfo;
 
@@ -45,8 +46,8 @@ class MakeLoginSendSsoMsg
         $stream = new StreamOutputBuffer(new Buffer());
         $qq     = $this->qq->QQ;
         $stream->writeInt32BE(4 + 16 + 2 + strlen($qq) + strlen($encrypt));
-        $stream->writeHex("00 00 00 0A 02 00 00 00 04 00 00 00");
-        $stream->writeInt16BE(strlen($qq));
+        $stream->writeHex("00 00 00 0A 02 00 00 00 04 00");
+        $stream->writeInt32BE(strlen($qq) + 4);
         $stream->write($qq, strlen($qq));
         $stream->write($encrypt);
         return $stream->getBytes();
@@ -61,7 +62,7 @@ class MakeLoginSendSsoMsg
         $ver,
         $isLogin
     ) {
-        $msgCookie = "﻿B6 CC 78 FC";
+        $msgCookie = Hex::HexStringToBin("B6 CC 78 FC");
 
         $pack = new StreamOutputBuffer(new Buffer());
         $pack->writeInt32BE(
@@ -75,7 +76,7 @@ class MakeLoginSendSsoMsg
         );
         $pack->writeInt32BE($this->platformInfo->runtime->requestId);
         $pack->writeInt32BE(0x20029f53);
-        $pack->writeInt32BE(0x054c4d8a);
+        $pack->writeInt32BE(0x20029f53);
         //new 71 00 00 00 00 00 00 00 00 00 00 00
         $pack->writeHex("01 00 00 00 00 00 00 00 00 00 00 00");
         $pack->writeInt32BE(strlen($extBin) + 4);
@@ -91,7 +92,7 @@ class MakeLoginSendSsoMsg
         $pack->writeInt16BE(strlen($ver) + 2);
         $pack->write($ver);
         //new write something here
-        $pack->writeInt32BE(0 + 4);
+        //$pack->writeInt32BE(0 + 4);
         //$pack->write();
 
         $pack->writeInt32BE(strlen($wupBuffer) + 4);

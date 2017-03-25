@@ -2,6 +2,7 @@
 botmm_platform:
     apk:
         version: "|460071609915509|A6.6.9.257295"
+#        version: "5.8.0.157158"
         apk_id: "com.tencent.mobileqq"
         apk_version: "6.6.9"
         sign: "A6 B7 45 BF 24 A2 C2 77 52 77 16 F6 F3 6E B6 8D" #tlv147

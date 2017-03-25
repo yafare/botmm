@@ -66,6 +66,17 @@ class LoginPack
 
     public function startPack()
     {
+        $encrypt = $this->cryptOicqRequestBuffer();
+
+        $packed = $this->oicqRequestBuffer($this->cmd,
+                                           $encrypt,
+                                           $this->qq->randKey,
+                                           $this->qq->pubKey);
+        return $packed;
+
+    }
+
+    private function cryptOicqRequestBuffer() {
         $buffer      = new Buffer();
         $loginBuffer = new StreamOutputBuffer($buffer);
         $loginBuffer->writeHex("00 09");//sub_cmd
@@ -102,13 +113,7 @@ class LoginPack
                                            strlen($wupBufferbytes),
                                            $this->qq->shareKey
         );
-
-        $packed = $this->oicqRequestBuffer($this->cmd,
-                                           $encrypt,
-                                           $this->qq->randKey,
-                                           $this->qq->pubKey);
-        return $packed;
-
+        return $encrypt;
     }
 
     public function oicqRequestBuffer($cmd, $encrypt, $randKey, $pubKey)
@@ -133,7 +138,7 @@ class LoginPack
          */
         $pack->write(Hex::HexStringToBin("
         03 
-        87 
+        07 
         00 
         00 00 00 02 
         00 00 00 00 
@@ -227,9 +232,10 @@ class LoginPack
         return $tlv->get_tlv_116(
             $this->qq->bitmap,
             $this->qq->get_sig,
-            [
-                $this->platformInfo->runtime->appid
-            ]
+            []
+            //[
+            //    0x5f5e10e2
+            //]
         );
     }
 
