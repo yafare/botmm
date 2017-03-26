@@ -48,6 +48,8 @@ class QqInfo
     public $picSize;
     public $retType;
 
+    public $rollbackSig;
+
     public function __construct($qq, $pwd)
     {
         $this->QQ   = $qq;

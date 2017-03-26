@@ -14,15 +14,10 @@ class TEATest extends TlvTestCase
     public function testDec001()
     {
         $data = "
- c5 a6 c1 d3
-00 cb d7 d3 e1 51 a0 af cb 5f b6 f6 d3 1c 78 90
-d4 b1 a6 63 2d eb 7b ff 3f 1d ba d9 d4 9d 9e 53
-e2 d5 2f ea 57 8c 44 34 6b 38 45 a8 73 15 ca 43
-72 26 56 9a 1e 43 1d db 67 0e 3c 21 ef fc 6a ed
-ac ed 6c ef d5 b9 fe a5 63 24 0f 71 49 c2 49 41
-1a d9 12 40 54 f9 af f7 f4 92 36 f3 f4 4a cb f1
-19 03 91 67 76 bf 0f 72 14 84 b3 08 bf d5 e0 df
-cc e3 c5 2c 41 aa e7 6f 2e 4b 16 eb 
+ b4 d8 db a8 dd 26 5a 9f 7a ec d4 87 59 d0 ec 94 
+8a f3 6a bf 66 8e fe f0 c7 99 b7 38 ce 84 6e d2 
+67 2b 88 47 1b 2f 33 24 ab 8e 54 6a 81 b2 b7 04 
+29 fc f7 3f ab 6e 3c 19 98 
 
 ";
         $key = '00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00';
@@ -35,8 +30,9 @@ cc e3 c5 2c 41 aa e7 6f 2e 4b 16 eb
         //$key  = '66 6f 55 bc 4d 6b 3a 34 6c f4 b0 b1 b4 b9 6c a9';
         //$key = '67 24 2e 42 35 55 74 55 44 62 67 73 3c 38 66 58';
         //$key = '3f 25 4b 0e 79 39 59 32 55 30 9b 31 d0 ba d5 82';//101 randkey
+        $key = '22 36 10 B9 E9 07 A9 16 5A 6D 38 8E AE 3C 77 48';//qqinfo randkey
         //$key = '40 6a 6b 21 7d 45 62 3f 27 4d 75 2d 68 57 2e 45';//101 sessionkey
-        $key = '04 cd 89 2d e0 90 bc e1 5c d3 a6 55 36 70 a6 b6';
+        //$key = '04 cd 89 2d e0 90 bc e1 5c d3 a6 55 36 70 a6 b6';
 
         $str    = Hex::HexStringToBin($data);
         $result = Cryptor::decrypt($str, 0, strlen($str), Hex::HexStringToBin($key));

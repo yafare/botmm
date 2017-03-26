@@ -101,6 +101,7 @@ $container->addDefinitions(
         'tlv.t167' => (new Definition('botmm\GradeeBundle\Oicq\Tlv\Tlv_t167'))->setShared(false),
         'tlv.t169' => (new Definition('botmm\GradeeBundle\Oicq\Tlv\Tlv_t169'))->setShared(false),
         'tlv.t171' => (new Definition('botmm\GradeeBundle\Oicq\Tlv\Tlv_t171'))->setShared(false),
+        'tlv.t172' => (new Definition('botmm\GradeeBundle\Oicq\Tlv\Tlv_t172'))->setShared(false),
         'tlv.t177' => (new Definition('botmm\GradeeBundle\Oicq\Tlv\Tlv_t177'))->setShared(false),
         'tlv.t187' => (new Definition('botmm\GradeeBundle\Oicq\Tlv\Tlv_t187'))->setShared(false),
         'tlv.t188' => (new Definition('botmm\GradeeBundle\Oicq\Tlv\Tlv_t188'))->setShared(false),

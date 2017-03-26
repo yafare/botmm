@@ -87,7 +87,11 @@ class LoginPack
         $buffer      = new Buffer();
         $loginBuffer = new StreamOutputBuffer($buffer);
         $loginBuffer->writeHex("00 09");//sub_cmd
-        $loginBuffer->writeInt16BE(0x18); //tlv 个数
+        if($this->qq->rollbackSig){
+            $loginBuffer->writeInt16BE(0x19); //tlv 个数
+        }else{
+            $loginBuffer->writeInt16BE(0x18); //tlv 个数
+        }
         $loginBuffer->write($this->get_tlv18());
         $loginBuffer->write($this->get_tlv1());
         $loginBuffer->write($this->get_tlv106());
@@ -103,6 +107,9 @@ class LoginPack
         $loginBuffer->write($this->get_tlv141());
         $loginBuffer->write($this->get_tlv8());
         $loginBuffer->write($this->get_tlv511());
+        if($this->qq->rollbackSig){
+            $loginBuffer->write($this->get_tlv172());
+        }
         $loginBuffer->write($this->get_tlv187());
         $loginBuffer->write($this->get_tlv188());
         $loginBuffer->write($this->get_tlv194());
@@ -418,6 +425,14 @@ class LoginPack
         $tlv = $this->container->get('tlv.t511');
         return $tlv->get_tlv_511(
             $this->platformInfo->runtime->userDomains
+        );
+    }
+
+    private function get_tlv172()
+    {
+        $tlv = $this->container->get('tlv.t172');
+        return $tlv->get_tlv_172(
+            $this->qq->rollbackSig
         );
     }
 
