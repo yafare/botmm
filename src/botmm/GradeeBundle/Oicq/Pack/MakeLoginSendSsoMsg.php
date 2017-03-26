@@ -68,13 +68,15 @@ class MakeLoginSendSsoMsg
 
         $pack = new StreamOutputBuffer(new Buffer());
         $pack->writeInt32BE(
-            4 + 4 + 4 + 4 + 12 +
+            4 + //self
+            4 + 4 + 4 + 12 +
             4 + strlen($extBin) +
             4 + strlen($serviceCmd) +
             4 + strlen($msgCookie) +
             4 + strlen($imei) +
             4 + strlen($ksid) +
-            2 + strlen($ver)
+            2 + strlen($ver) +
+            4
         );
         $pack->writeInt32BE($this->platformInfo->runtime->requestId);
         $pack->writeInt32BE(0x20029f53);
@@ -93,8 +95,7 @@ class MakeLoginSendSsoMsg
         $pack->write($ksid);
         $pack->writeInt16BE(strlen($ver) + 2);
         $pack->write($ver);
-        //new write something here
-        //$pack->writeInt32BE(0 + 4);
+        $pack->writeInt32BE(0 + 4);
         //$pack->write();
 
         $pack->writeInt32BE(strlen($wupBuffer) + 4);

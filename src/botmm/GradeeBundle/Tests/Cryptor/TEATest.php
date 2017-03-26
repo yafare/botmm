@@ -14,10 +14,40 @@ class TEATest extends TlvTestCase
     public function testDec001()
     {
         $data = "
- b4 d8 db a8 dd 26 5a 9f 7a ec d4 87 59 d0 ec 94 
-8a f3 6a bf 66 8e fe f0 c7 99 b7 38 ce 84 6e d2 
-67 2b 88 47 1b 2f 33 24 ab 8e 54 6a 81 b2 b7 04 
-29 fc f7 3f ab 6e 3c 19 98 
+ bf ef 33 c0 20 01 55 
+8f 00 06 73 29 b7 11 92 03 72 e8 a9 d3 da 38 fe 
+ce 6b 9a a8 23 f8 59 ce 9d 64 f1 a8 de 0f c5 12 
+a4 54 b8 1a 31 d6 1a 73 c1 73 a6 5f d7 77 ae cd 
+2c e8 fa 4d f4 85 7b 70 45 d3 9b cf 05 9b 74 95 
+e5 9e 53 07 6a 6b 87 d8 12 66 cc 2e d3 73 c3 6e 
+44 97 b1 58 98 aa 42 3b 5d 57 8b 97 c9 03 92 e2 
+aa d6 70 5a 8b 93 ee b5 ed 03 5e ea 39 50 17 04 
+af b5 df b7 5d 09 f0 76 34 e0 3f 11 58 fc 0d d2 
+10 cf ec cc 37 2b f8 b0 f9 75 9a 62 bf e0 11 1c 
+91 fb 81 5b 06 2c 97 dc 1d 8d 03 60 db 03 54 7b 
+29 4b 39 eb 3b a1 64 69 f7 79 35 e2 16 62 bc 7b 
+f2 91 20 22 03 fa ef 10 84 e5 8d 41 74 fa bb 1c 
+b0 90 d7 c6 77 7e c7 67 61 04 65 75 3c 42 6f c6 
+9c 17 39 46 e9 74 32 2e e2 be 36 f1 c4 f8 10 9e 
+0e d0 0b fe 60 ec 3c aa e3 4e 9d 1b 16 97 60 22 
+31 6d 8d 3b 5c b2 08 9e ad f3 df 11 39 83 7a e6 
+48 de bc f2 93 02 24 1f 32 b9 ad bc 44 30 b3 d0 
+97 dd 5b a6 f6 e4 17 b8 8b 5c d1 a0 31 64 10 4e 
+39 98 d6 64 29 c3 03 ee 64 44 da 8d d0 28 4c ab 
+70 8e e1 3f 86 09 6d c5 92 bc 05 f0 b9 bd 1f 72 
+e5 08 2b bf 18 02 a7 9d d0 95 f2 38 cb dd a3 76 
+9c 9c c9 00 09 b6 28 88 b5 f5 fd 65 eb a8 e0 f6 
+4c 3c 57 a7 3c 40 77 d3 70 f4 49 14 ee 92 ec 92 
+02 20 1b 1d 51 a2 82 e9 8d 4d 5a c3 5a 1d 36 6c 
+43 f7 38 ec a5 71 79 3c a1 35 ce 7c 8b ad 31 d6 
+be 60 2a c1 c6 82 0e f4 22 bf a0 70 8f 2c c9 c9 
+1f 41 8f 33 82 6e ef e8 f1 55 b4 10 3e 1f e1 14 
+d8 49 dd 51 3f b8 59 ba 40 4a 96 d9 92 49 69 24 
+ae 2c 0a 16 ea 3f 51 7c ad 32 80 4e dd da d2 0d 
+c7 fb 2c 1f 97 1c 0c 20 d4 0a 1d 8f 8d 39 87 a5 
+6b d1 7f a1 3b 6c c9 86 16 63 3a e1 36 ba 81 bb 
+be ae 3a 98 7d 56 2f 5e d7 99 5e 8e 41 66 9f 32 
+f4 b4 f9 e3 cc f1 f6 b2 4e
 
 ";
         $key = '00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00';
@@ -33,6 +63,7 @@ class TEATest extends TlvTestCase
         $key = '22 36 10 B9 E9 07 A9 16 5A 6D 38 8E AE 3C 77 48';//qqinfo randkey
         //$key = '40 6a 6b 21 7d 45 62 3f 27 4d 75 2d 68 57 2e 45';//101 sessionkey
         //$key = '04 cd 89 2d e0 90 bc e1 5c d3 a6 55 36 70 a6 b6';
+        $key = "f0 de da fd 94 be a9 b2 1d 74 bb c7 10 40 61 a1";
 
         $str    = Hex::HexStringToBin($data);
         $result = Cryptor::decrypt($str, 0, strlen($str), Hex::HexStringToBin($key));

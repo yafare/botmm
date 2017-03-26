@@ -37,12 +37,15 @@ class LoginPack
     public $qq;
 
 
+    public $isSecond;
+
+
     public $ssoSeq;
 
     public function __construct($platformInfo, $qq)
     {
         $this->platformInfo = $platformInfo;
-        $this->ssoSeq = $this->platformInfo->runtime->getSsoSeq();
+        $this->ssoSeq       = $this->platformInfo->runtime->getSsoSeq();
         $this->qq           = $qq;
 
         $this->buffer = new Buffer(32);
@@ -56,12 +59,12 @@ class LoginPack
 
         $sendSsoMsg = $this->container->get('botmm_gradee.pack.make_login_send_sso_msg');
 
-        if(!$simple) {
+        if (!$simple) {
             $msg = $sendSsoMsg->pack(
                 $wupBuffer,
                 ""
             );
-        }else{
+        } else {
             $msg = $sendSsoMsg->packSimple(
                 $wupBuffer,
                 ""
@@ -83,13 +86,14 @@ class LoginPack
 
     }
 
-    private function cryptOicqRequestBuffer() {
+    private function cryptOicqRequestBuffer()
+    {
         $buffer      = new Buffer();
         $loginBuffer = new StreamOutputBuffer($buffer);
         $loginBuffer->writeHex("00 09");//sub_cmd
-        if($this->qq->rollbackSig){
+        if ($this->qq->rollbackSig) {
             $loginBuffer->writeInt16BE(0x19); //tlv 个数
-        }else{
+        } else {
             $loginBuffer->writeInt16BE(0x18); //tlv 个数
         }
         $loginBuffer->write($this->get_tlv18());
@@ -107,7 +111,7 @@ class LoginPack
         $loginBuffer->write($this->get_tlv141());
         $loginBuffer->write($this->get_tlv8());
         $loginBuffer->write($this->get_tlv511());
-        if($this->qq->rollbackSig){
+        if ($this->qq->rollbackSig) {
             $loginBuffer->write($this->get_tlv172());
         }
         $loginBuffer->write($this->get_tlv187());
@@ -122,11 +126,17 @@ class LoginPack
         //$loginBuffer->write($this->get_tlv16b());
 
         $wupBufferbytes = $loginBuffer->getBytes();
-        $encrypt        = Cryptor::encrypt($wupBufferbytes,
-                                           0,
-                                           strlen($wupBufferbytes),
-                                           $this->qq->shareKey
-        );
+        if (!$this->isSecond) {
+            $encrypt = Cryptor::encrypt($wupBufferbytes,
+                                        0,
+                                        strlen($wupBufferbytes),
+                                        $this->qq->shareKey);
+        } else {
+            $encrypt = Cryptor::encrypt($wupBufferbytes,
+                                        0,
+                                        strlen($wupBufferbytes),
+                                        $this->qq->randKey);
+        }
         return $encrypt;
     }
 
@@ -152,7 +162,7 @@ class LoginPack
          */
         $pack->write(Hex::HexStringToBin("
         03 
-        07 
+        87 
         00 
         00 00 00 02 
         00 00 00 00 
@@ -164,14 +174,17 @@ class LoginPack
         //$pack->write(strlen($encrypt), 0);
         //$pack->write($randKey, strlen($encrypt))
 
-        $pack->writeHex("01 01");
-        $pack->write($randKey);
-        $pack->writeHex("01 02");
-        $pack->writeInt16BE(strlen($pubKey));
-        if ($pubKey) {
+        if (!$this->isSecond) {
+            $pack->writeHex("01 01");
+            $pack->write($randKey);
+            $pack->writeHex("01 02");
+            $pack->writeInt16BE(strlen($pubKey));
             $pack->write($pubKey);
         } else {
-            $pack->writeHex("00 00");
+            $pack->writeHex("01 02");
+            $pack->write($randKey);
+            $pack->writeHex("01 02");
+            $pack->writeInt16BE(0);
         }
 
         $pack->write($encrypt);
@@ -247,9 +260,9 @@ class LoginPack
             $this->qq->bitmap,
             $this->qq->get_sig,
             []
-            //[
-            //    0x5f5e10e2
-            //]
+        //[
+        //    0x5f5e10e2
+        //]
         );
     }
 
@@ -471,7 +484,7 @@ class LoginPack
 
     private function get_tlv525()
     {
-        $tlv = $this->container->get('tlv.t525');
+        $tlv  = $this->container->get('tlv.t525');
         $list = [];
         //$list[] = $this->get_tlv522();
         return $tlv->get_tlv_525(

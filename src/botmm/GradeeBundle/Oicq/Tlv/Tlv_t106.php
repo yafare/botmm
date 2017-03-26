@@ -247,7 +247,7 @@ class Tlv_t106 extends Tlv_t
         $body->writeInt32BE($appid);
         $body->writeInt32BE($client_ver);
         $body->writeInt64BE($uin);
-        $body->write($init_time, 4);
+        $body->writeInt32BE($init_time);
         $body->write($client_ip, 4);
         $body->writeInt8($seve_pwd);
         $body->write($md5, 16);
