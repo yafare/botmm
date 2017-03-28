@@ -25,9 +25,6 @@ if (isset($_SERVER['HTTP_CLIENT_IP'])
 $loader = require __DIR__.'/../app/autoload.php';
 Debug::enable();
 
-$loader = new ApcClassLoader('sf3_', $loader);
-$loader->register(true);
-
 $kernel = new AppKernel('dev', true);
 //$kernel->loadClassCache();
 $request = Request::createFromGlobals();

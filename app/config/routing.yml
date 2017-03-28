@@ -1,7 +1,8 @@
 
 test_test001:
-    resource: "@testTest001Bundle/Resources/config/routing.yml"
-    prefix:   /
+    resource: "@testTest001Bundle/Controller/"
+    type: annotation
+    prefix:   /test
 
 botmm_gradee:
     resource: "@botmmGradeeBundle/Controller/"

@@ -32,7 +32,7 @@ class SocketClientCommand extends ContainerAwareCommand
     {
         $this
             ->setName('botmm:socket:client')
-            ->setDescription(' Send a message using swoole socket');
+            ->setDescription('Send a message using swoole socket');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

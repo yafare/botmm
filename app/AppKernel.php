@@ -2,6 +2,7 @@
 
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Config\Loader\LoaderInterface;
+use Teknoo\ReactPHPBundle\ReactPHPBundle;
 
 class AppKernel extends Kernel
 {
@@ -17,7 +18,7 @@ class AppKernel extends Kernel
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new AppBundle\AppBundle(),
 
-            new Jogaram\ReactPHPBundle\JogaramReactPHPBundle(),
+            new ReactPHPBundle(),
 
             new botmm\ClientBundle\botmmClientBundle(),
             new botmm\ServerBundle\botmmServerBundle(),
