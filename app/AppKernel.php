@@ -2,7 +2,6 @@
 
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Config\Loader\LoaderInterface;
-use Teknoo\ReactPHPBundle\ReactPHPBundle;
 
 class AppKernel extends Kernel
 {
@@ -18,8 +17,6 @@ class AppKernel extends Kernel
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new AppBundle\AppBundle(),
 
-            new ReactPHPBundle(),
-
             new botmm\ClientBundle\botmmClientBundle(),
             new botmm\ServerBundle\botmmServerBundle(),
             new botmm\BufferBundle\botmmBufferBundle(),
@@ -27,6 +24,9 @@ class AppKernel extends Kernel
             new test\Test001Bundle\testTest001Bundle(),
             //Platform
             new botmm\PlatformBundle\botmmPlatformBundle(),
+
+            new Teknoo\ReactPHPBundle\ReactPHPBundle(),
+            new amphp\amphpBundle\amphpBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
